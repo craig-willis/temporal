@@ -20,6 +20,9 @@ import edu.gslis.searchhits.SearchHits;
 import edu.gslis.temporal.scorers.DocTimeScorer;
 import edu.gslis.textrepresentation.FeatureVector;
 
+/**
+ * Rescore top-k documents using term time tracking index
+ */
 public class RunDocTimeScorer extends RunScorerBase {
     
     

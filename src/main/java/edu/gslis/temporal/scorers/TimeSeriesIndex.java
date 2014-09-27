@@ -8,7 +8,10 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-
+/**
+ * Interface to an underlying H2 DB containing term time series information for a colleciton.
+ *
+ */
 public class TimeSeriesIndex {
 
 
@@ -17,7 +20,7 @@ public class TimeSeriesIndex {
     public void open(String path) throws SQLException, ClassNotFoundException
     {
         Class.forName("org.h2.Driver");
-        con = DriverManager.getConnection("jdbc:h2:./" + path);
+        con = DriverManager.getConnection("jdbc:h2:" + path);
     }
     
     public void init(int numBins) throws SQLException

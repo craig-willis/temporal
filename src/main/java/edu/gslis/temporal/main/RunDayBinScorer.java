@@ -24,11 +24,10 @@ import edu.gslis.searchhits.SearchHits;
 import edu.gslis.temporal.scorers.BinScorer;
 import edu.gslis.textrepresentation.FeatureVector;
 
+/**
+ * Rescore top-k documents using Dakka daily histogram.
+ */
 public class RunDayBinScorer extends RunScorerBase {
-    
-    //long INTERVAL_DAY = 60*60*24;
-    //long INTERVAL_WEEK = 7*60*60*24;
-    //long INTERVAL = INTERVAL_DAY;
     
     public RunDayBinScorer(BatchConfig config) {
         super(config);
@@ -51,9 +50,6 @@ public class RunDayBinScorer extends RunScorerBase {
         // Get the top-K hits
         SearchHits hits = index.runQuery(query, 500);
         
-        //long min = 671691600000L;
-        //long max = 788853600000L;
-        //long interval = 60*60*24*1000;
         DakkaHistogram dakka = new DakkaHistogram(startTime, endTime, interval, dateFormat);
         Map<Long, Integer> hist = dakka.getDayBins(hits);
         SimpleDateFormat df = null;
@@ -64,7 +60,6 @@ public class RunDayBinScorer extends RunScorerBase {
         SearchHits results = new SearchHits();
         try
         {
-            //long max = df.parse("941231").getTime()/1000;
     
             Iterator<SearchHit> it = hits.iterator();
             while (it.hasNext()) {
@@ -83,8 +78,6 @@ public class RunDayBinScorer extends RunScorerBase {
                     docTime = Long.valueOf(epochStr);
                 
                 long t = (endTime - docTime)/interval;
-                //long epoch = df.parse(epochStr).getTime()/1000;
-                //long t = (max - epoch)/INTERVAL;
                 int count = 0;
                 if (hist.get(t) != null)
                     count = hist.get(t);

@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.util.Iterator;
 
+import weka.estimators.KernelEstimator;
 import edu.gslis.docscoring.QueryDocScorer;
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.queries.GQuery;
@@ -20,7 +21,7 @@ public class DocTimeScorer extends QueryDocScorer
     long endTime = 0;
     long interval = 0;
     double numBins = 0;
-    int winSize = 4;
+    int winSize = 5;
     DateFormat df = null;
 
     TimeSeriesIndex index = new TimeSeriesIndex();
@@ -80,12 +81,24 @@ public class DocTimeScorer extends QueryDocScorer
 
             double tempPr = 0;
             try {
-                
-                
+                                
                 // c(w,t)
                 //double timeFreq = index.get(feature, (int)t);
                 // c(w)
                 double[] series = index.get(feature);
+                
+                /*
+                KernelEstimator kd = new KernelEstimator(0.1);
+                for (int i=0; i<series.length; i++) {
+                    double s = series[i];
+                    for (int j=0; j<s; j++)
+                        kd.addValue(i, 1);
+                }
+                
+                tempPr = kd.getProbability(t);
+                */
+                
+                // Moving average
                 int size = series.length;
                 if (t < size)
                 {
@@ -100,32 +113,7 @@ public class DocTimeScorer extends QueryDocScorer
                         n++;
                     }
                     
-                    /*
-                    if ((int)t > 3) {
-                        timeFreq += series[(int)t-3];
-                        n++;
-                    }
-                    if ((int)t > 2) {
-                        timeFreq += series[(int)t-2];
-                        n++;
-                    }
-                    if ((int)t > 1) {
-                        timeFreq += series[(int)t-1];
-                        n++;
-                    }
-                    if ((int)t < size-1) {
-                        timeFreq += series[(int)t+1];
-                        n++;
-                    }
-                    if ((int)t < size-2) {
-                        timeFreq += series[(int)t+2];
-                        n++;
-                    }
-                    if ((int)t < size-3) {
-                        timeFreq += series[(int)t+3];
-                        n++;
-                    }
-                    */
+                    
  
                     timeFreq = timeFreq/(double)n;
                     double wordFreq = collectionStats.termCount(feature);
@@ -137,7 +125,9 @@ public class DocTimeScorer extends QueryDocScorer
                     //        (wordFreq + paramTable.get(GAMMA));   
                     //tempPr = timeFreq/wordFreq;
                     tempPr = (timeFreq+1)/(wordFreq+1);
-                }                
+                    
+                }           
+                
 
             } catch (SQLException e) {
                 e.printStackTrace();

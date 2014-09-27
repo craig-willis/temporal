@@ -23,11 +23,10 @@ import edu.gslis.searchhits.SearchHits;
 import edu.gslis.temporal.scorers.RecencyScorer;
 import edu.gslis.textrepresentation.FeatureVector;
 
+/**
+ * Rescore top-k documents based on recency using Exp(lambda=MLE)
+ */
 public class RunRecencyScorer extends RunScorerBase {
-    
-    //long INTERVAL_DAY = 60*60*24;
-    //long INTERVAL_WEEK = 7*60*60*24;
-    //long INTERVAL = INTERVAL_DAY;
     
     public RunRecencyScorer(BatchConfig config) {
         super(config);
@@ -59,8 +58,6 @@ public class RunRecencyScorer extends RunScorerBase {
         SearchHits results = new SearchHits();
         try
         {
-            //long max = df.parse("941231").getTime()/1000;
-            //long now = System.currentTimeMillis()/1000;
     
             // Estimate the rate parameter
             Iterator<SearchHit> it = hits.iterator();
@@ -78,8 +75,6 @@ public class RunRecencyScorer extends RunScorerBase {
                     docTime = df.parse(epochStr).getTime()/1000;
                 else 
                     docTime = Long.valueOf(epochStr);
-                //long epoch = df.parse(epochStr).getTime()/1000;
-                //long t = (max - epoch)/INTERVAL;
                 long t = (docTime - startTime)/interval; // normalized time
                 stat.addValue(t);
             }

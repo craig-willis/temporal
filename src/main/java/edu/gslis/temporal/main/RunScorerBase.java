@@ -24,6 +24,7 @@ import edu.gslis.queries.GQueriesJsonImpl;
 import edu.gslis.queries.GQuery;
 import edu.gslis.searchhits.SearchHits;
 import edu.gslis.temporal.scorers.DocTimeScorer;
+import edu.gslis.temporal.scorers.TimeSmoothedScorer;
 
 /**
  * Base class for different filtering harnesses.
@@ -86,6 +87,9 @@ public abstract class RunScorerBase  extends YAMLConfigBase
 
                     if (docScorer instanceof DocTimeScorer)
                         ((DocTimeScorer)docScorer).setTsIndex(tsIndex);
+                        
+                    if (docScorer instanceof TimeSmoothedScorer)
+                        ((TimeSmoothedScorer)docScorer).setTsIndex(tsIndex);
 
                     String runId = prefix + "-" + scorerName + "_" + collectionName + "_" + queryFileName;
                     String trecResultsFile = outputDir + File.separator + runId + ".out";

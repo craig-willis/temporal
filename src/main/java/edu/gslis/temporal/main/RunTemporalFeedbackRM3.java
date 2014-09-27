@@ -30,6 +30,7 @@ import edu.gslis.queries.expansion.FeedbackRelevanceModel;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 import edu.gslis.temporal.scorers.BinScorer;
+import edu.gslis.temporal.scorers.DocTimeScorer;
 import edu.gslis.temporal.scorers.RecencyScorer;
 import edu.gslis.textrepresentation.FeatureVector;
 import edu.gslis.utils.Stopper;
@@ -95,6 +96,8 @@ public class RunTemporalFeedbackRM3 {
             output = new OutputStreamWriter(System.out);
         else 
             output = new FileWriter(outputFile);
+        
+        String tsIndexPath = cl.getOptionValue("tsIndex");
             
         GQueries feedbackQueries = new GQueriesJsonImpl();
         feedbackQueries.setMetadataField(FilterSession.NAME_OF_TIMESTAMP_FIELD);
@@ -105,7 +108,7 @@ public class RunTemporalFeedbackRM3 {
             System.err.println(query.getTitle());
             
             GQuery newQuery = pseudoFb(query, index, numFbDocs, numFbTerms, lambda, stopper, start,
-                    end, interval, method, indexPath);
+                    end, interval, method, indexPath, tsIndexPath);
                 
             newQuery.setMetadata(FilterSession.NAME_OF_TIMESTAMP_FIELD, 
                     query.getMetadata(FilterSession.NAME_OF_TIMESTAMP_FIELD));
@@ -118,12 +121,14 @@ public class RunTemporalFeedbackRM3 {
     
     public static GQuery pseudoFb(GQuery query, IndexWrapper index, int numFbDocs, int numFbTerms, 
             double lambda, Stopper stopper, long start, long end, long interval, String method,
-            String indexPath)
+            String indexPath, String tsIndexPath)
     {        
         SearchHits results = index.runQuery(query, numFbDocs);
         
         if (method.equals("recency"))            
             results = recency(query, results, start, end, interval, null, indexPath);
+        else if (method.equals("dt"))
+            results = doctime(query, results, start, end, interval, null, indexPath, tsIndexPath);
         else
             results = dakka(query, results, start, end, interval, null, method, indexPath);
             
@@ -180,7 +185,8 @@ public class RunTemporalFeedbackRM3 {
         options.addOption("start", true, "Collection start date");
         options.addOption("end", true, "Collection end date");
         options.addOption("interval", true, "Collection interval");
-        options.addOption("method", true, "One of: recency, day, mean");
+        options.addOption("tsIndex", true, "Path to tsIndex (used by dt method only)");
+        options.addOption("method", true, "One of: recency, day, mean, dt");
         
         return options;
     }
@@ -354,4 +360,51 @@ public class RunTemporalFeedbackRM3 {
         
         return results;     
     }
+    
+    
+    public static SearchHits doctime(GQuery query, SearchHits hits, long startTime, long endTime, long interval, 
+            String dateFormat, String indexPath, String tsIndexPath) 
+    {
+        //String dateFormatStr = "yyMMdd"; 
+        SimpleDateFormat df = null;
+        if (!StringUtils.isEmpty(dateFormat)) {
+            df = new SimpleDateFormat(dateFormat);        
+            df.setTimeZone(TimeZone.getTimeZone("GMT"));
+        }
+        SearchHits results = new SearchHits();
+        try
+        {
+            DocTimeScorer scorer = new DocTimeScorer();
+            scorer.setTsIndex(tsIndexPath);
+            scorer.setParameter("gamma", 1000);
+            scorer.setStartTime(startTime);
+            scorer.setEndTime(endTime);
+            scorer.setInterval(interval);
+            scorer.setDateFormat(df);
+            scorer.setParameter("mu", 2500);
+            scorer.setQuery(query);
+            IndexBackedCollectionStats stats = new IndexBackedCollectionStats();
+            stats.setStatSource(indexPath);
+            scorer.setCollectionStats(stats);
+            scorer.init();
+    
+            
+            // Rescore
+            Iterator<SearchHit> it = hits.iterator();
+            while (it.hasNext()) {
+                SearchHit hit = it.next();
+                double score = scorer.score(hit);
+                hit.setScore(score);
+                results.add(hit);
+            }
+            
+            results.rank();
+        
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return results;        
+    }
+    
 }

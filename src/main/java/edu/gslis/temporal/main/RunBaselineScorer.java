@@ -11,14 +11,14 @@ import edu.gslis.docscoring.QueryDocScorer;
 import edu.gslis.eval.Qrels;
 import edu.gslis.filtering.main.config.BatchConfig;
 import edu.gslis.indexes.IndexWrapper;
-import edu.gslis.kba.main.RunSimpleFilter;
 import edu.gslis.queries.GQuery;
 import edu.gslis.searchhits.SearchHits;
 import edu.gslis.textrepresentation.FeatureVector;
 
+/**
+ * Outputs results using default retrieval model.
+ */
 public class RunBaselineScorer extends RunScorerBase {
-    
-    //long INTERVAL_DAY = 60*60*24;
     
     public RunBaselineScorer(BatchConfig config) {
         super(config);
