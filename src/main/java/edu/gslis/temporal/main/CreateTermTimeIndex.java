@@ -16,7 +16,24 @@ import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.temporal.scorers.TimeSeriesIndex;
 import edu.gslis.textrepresentation.FeatureVector;
 
-public class CreateTermTimeIndex {
+/**
+ * Builds a simple H2 RDB with a single "series" table consisting of columns:
+ *  term | bin0 | bin1 ... bink
+ *
+ * The bins are determined based on the specified interval. 
+ * 
+ * ./run.sh edu.gslis.temporal.main.CreateTermTimeIndex 
+ *      -index <path to index>
+ *      -start <start time in secons>
+ *      -end <end time in seconds>
+ *      -interval <interval in seconds>
+ *      -output <path to output H2 DB>
+ *      -df <if true, use document freq, if false use term freq>
+ * 
+ * The resulting model is used by the DocTimeScorer and TimeSmoothedScorer.
+ */
+public class CreateTermTimeIndex 
+{
     public static void main(String[] args) throws Exception 
     {
         Options options = createOptions();
@@ -146,7 +163,7 @@ public class CreateTermTimeIndex {
         options.addOption("end", true, "End time");
         options.addOption("interval", true, "Interval");        
         options.addOption("output", true, "Output time series index");        
-        options.addOption("df", true, "If true, event is num docs. If false, event is num terms.");        
+        options.addOption("df", false, "If true, event is num docs. If false, event is num terms.");        
         return options;
     }
 
