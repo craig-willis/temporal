@@ -16,6 +16,10 @@ import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 import edu.gslis.textrepresentation.FeatureVector;
 
+/**
+ * Not implemented yet ...
+ * @author cwillis
+ */
 public class Peetz {
     long minTime = 0;
     long maxTime = 0;
