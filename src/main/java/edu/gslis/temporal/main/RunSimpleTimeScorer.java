@@ -2,11 +2,8 @@ package edu.gslis.temporal.main;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.text.SimpleDateFormat;
 import java.util.Iterator;
-import java.util.TimeZone;
 
-import org.apache.commons.lang3.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
@@ -17,23 +14,22 @@ import edu.gslis.indexes.IndexWrapper;
 import edu.gslis.queries.GQuery;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
-import edu.gslis.temporal.scorers.TimeSmoothedScorer;
+import edu.gslis.temporal.scorers.TimeSeriesIndex;
 import edu.gslis.textrepresentation.FeatureVector;
 
 /**
- * Rescore top-k documents by smoothing using temporal language model 
-
+ * Only score the temporal language model -- no documents
  */
-public class RunTimeSmoothedScorer extends RunScorerBase {
+public class RunSimpleTimeScorer extends RunScorerBase {
     
     
-    public RunTimeSmoothedScorer(BatchConfig config) {
+    public RunSimpleTimeScorer(BatchConfig config) {
         super(config);
     }
 
     public SearchHits run(GQuery query, IndexWrapper index, Qrels trainQrels, 
             Qrels testQrels, QueryDocScorer scorer, long startTime, long endTime, long interval, 
-            String dateFormat, String tsIndex) 
+            String dateFormat, String tsIndexPath) 
     {
         FeatureVector surfaceForm = new FeatureVector(stopper);
         Iterator<String> queryTerms = query.getFeatureVector().iterator();
@@ -44,41 +40,46 @@ public class RunTimeSmoothedScorer extends RunScorerBase {
         query.setFeatureVector(surfaceForm);
                     
         System.out.println(query);
-        
-        // Get the top-K hits
-        SearchHits hits = index.runQuery(query, 1000);
-                
-        SimpleDateFormat df = null;
-        if (!StringUtils.isEmpty(dateFormat)) {
-            df = new SimpleDateFormat(dateFormat);        
-            df.setTimeZone(TimeZone.getTimeZone("GMT"));
-        }
-        scorer.setQuery(query);
-        scorer.init();
-        ((TimeSmoothedScorer)scorer).setStartTime(startTime);
-        ((TimeSmoothedScorer)scorer).setEndTime(endTime);
-        ((TimeSmoothedScorer)scorer).setInterval(interval);
-        ((TimeSmoothedScorer)scorer).setDateFormat(df);
-        
         SearchHits results = new SearchHits();
+
+        long numBins = (endTime - startTime)/interval;
         try
         {
+            TimeSeriesIndex tsIndex = new TimeSeriesIndex();
+            tsIndex.open(tsIndexPath);
     
-            Iterator<SearchHit> it = hits.iterator();
-            while (it.hasNext()) {
-                SearchHit hit = it.next();
-                double score = scorer.score(hit);
-                hit.setScore(score);
-                results.add(hit);
+            double[] total = tsIndex.get("_total_");
+    
+            for (int t=0; t<numBins; t++)
+            {                
+                double ll = 0;
+
+                Iterator<String> queryIterator = query.getFeatureVector().iterator();
+                while(queryIterator.hasNext()) 
+                {
+                    String feature = queryIterator.next();
+                    double queryWeight = query.getFeatureVector().getFeatureWeight(feature);
+                    
+                    double[] series = tsIndex.get(feature);
+                    
+                    double tempPr = (1 + series[t]) / (1 + total[t]);  
+                    double score = queryWeight*Math.log(tempPr);
+                    
+                    ll += score;
+                }
+                if (ll != 0) {
+                    SearchHit hit = new SearchHit();
+                    hit.setDocno(String.valueOf(t));
+                    hit.setScore(ll);
+                    results.add(hit);
+                }
+
             }
-                        
-            results.rank();
-        
+
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        
-        System.out.println("Done\n");
+        }                
+        results.rank();
         return results;     
     }
     
@@ -94,7 +95,7 @@ public class RunTimeSmoothedScorer extends RunScorerBase {
         Yaml yaml = new Yaml(new Constructor(BatchConfig.class));
         BatchConfig config = (BatchConfig)yaml.load(new FileInputStream(yamlFile));
 
-        RunTimeSmoothedScorer runner = new RunTimeSmoothedScorer(config);
+        RunSimpleTimeScorer runner = new RunSimpleTimeScorer(config);
         runner.runBatch();
     }
 }

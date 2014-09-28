@@ -20,7 +20,6 @@ public class DocTimeScorer extends QueryDocScorer
     long startTime = 0;
     long endTime = 0;
     long interval = 0;
-    double numBins = 0;
     int winSize = 5;
     DateFormat df = null;
 
@@ -78,26 +77,15 @@ public class DocTimeScorer extends QueryDocScorer
                     (docLength + paramTable.get(MU));
             double queryWeight = gQuery.getFeatureVector().getFeatureWeight(feature);
             
+            long numBins = (endTime - startTime)/interval;
 
             double tempPr = 0;
             try {
                                 
-                // c(w,t)
-                //double timeFreq = index.get(feature, (int)t);
-                // c(w)
                 double[] series = index.get(feature);
-                
-                /*
-                KernelEstimator kd = new KernelEstimator(0.1);
-                for (int i=0; i<series.length; i++) {
-                    double s = series[i];
-                    for (int j=0; j<s; j++)
-                        kd.addValue(i, 1);
-                }
-                
-                tempPr = kd.getProbability(t);
-                */
-                
+                double[] total = index.get("_total_");
+
+                                
                 // Moving average
                 int size = series.length;
                 if (t < size)
@@ -112,19 +100,18 @@ public class DocTimeScorer extends QueryDocScorer
                             timeFreq += series[t + i];
                         n++;
                     }
-                    
-                    
- 
+
+                    // Average freq at time t
                     timeFreq = timeFreq/(double)n;
+                    
+                    // n(w,T)/n(w) = p(T | w)
                     double wordFreq = collectionStats.termCount(feature);
                     
-                    // c(w,t) + mu *p(w|C) / c(w) + mu  * 1/t
-                    
-                    //tempPr = (timeFreq + 
-                    //        paramTable.get(GAMMA)*collectionProb) / 
-                    //        (wordFreq + paramTable.get(GAMMA));   
-                    //tempPr = timeFreq/wordFreq;
-                    tempPr = (timeFreq+1)/(wordFreq+1);
+
+                    // using p(T|w) smooted by p(T)
+                    double pT = 1/(double)numBins;
+                    tempPr = (1 + timeFreq + paramTable.get(GAMMA)*pT) / 
+                            (wordFreq + paramTable.get(GAMMA));                    
                     
                 }           
                 

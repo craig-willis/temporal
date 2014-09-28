@@ -17,17 +17,16 @@ import edu.gslis.indexes.IndexWrapper;
 import edu.gslis.queries.GQuery;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
-import edu.gslis.temporal.scorers.TimeSmoothedScorer;
+import edu.gslis.temporal.scorers.SimpleTimeSmoothedScorer;
 import edu.gslis.textrepresentation.FeatureVector;
 
 /**
- * Rescore top-k documents by smoothing using temporal language model 
-
+ * Rescore top-k documents by smoothing using linear combination of p(w|T) and p(w|C)
  */
-public class RunTimeSmoothedScorer extends RunScorerBase {
+public class RunSimpleTimeSmoothedScorer extends RunScorerBase {
     
     
-    public RunTimeSmoothedScorer(BatchConfig config) {
+    public RunSimpleTimeSmoothedScorer(BatchConfig config) {
         super(config);
     }
 
@@ -46,7 +45,7 @@ public class RunTimeSmoothedScorer extends RunScorerBase {
         System.out.println(query);
         
         // Get the top-K hits
-        SearchHits hits = index.runQuery(query, 1000);
+        SearchHits hits = index.runQuery(query, 500);
                 
         SimpleDateFormat df = null;
         if (!StringUtils.isEmpty(dateFormat)) {
@@ -55,10 +54,10 @@ public class RunTimeSmoothedScorer extends RunScorerBase {
         }
         scorer.setQuery(query);
         scorer.init();
-        ((TimeSmoothedScorer)scorer).setStartTime(startTime);
-        ((TimeSmoothedScorer)scorer).setEndTime(endTime);
-        ((TimeSmoothedScorer)scorer).setInterval(interval);
-        ((TimeSmoothedScorer)scorer).setDateFormat(df);
+        ((SimpleTimeSmoothedScorer)scorer).setStartTime(startTime);
+        ((SimpleTimeSmoothedScorer)scorer).setEndTime(endTime);
+        ((SimpleTimeSmoothedScorer)scorer).setInterval(interval);
+        ((SimpleTimeSmoothedScorer)scorer).setDateFormat(df);
         
         SearchHits results = new SearchHits();
         try
@@ -94,7 +93,7 @@ public class RunTimeSmoothedScorer extends RunScorerBase {
         Yaml yaml = new Yaml(new Constructor(BatchConfig.class));
         BatchConfig config = (BatchConfig)yaml.load(new FileInputStream(yamlFile));
 
-        RunTimeSmoothedScorer runner = new RunTimeSmoothedScorer(config);
+        RunSimpleTimeSmoothedScorer runner = new RunSimpleTimeSmoothedScorer(config);
         runner.runBatch();
     }
 }
