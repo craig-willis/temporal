@@ -54,8 +54,6 @@ public class RunDocTimeScorer extends RunScorerBase {
         }
         scorer.setQuery(query);
         scorer.init();
-        ((DocTimeScorer)scorer).setParameter("gamma", 1000);
-
         ((DocTimeScorer)scorer).setStartTime(startTime);
         ((DocTimeScorer)scorer).setEndTime(endTime);
         ((DocTimeScorer)scorer).setInterval(interval);
