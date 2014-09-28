@@ -103,9 +103,9 @@ public class RunMeanBinScorer extends RunScorerBase {
             scorer.init();
             ((BinScorer)scorer).setRate(0.01);
             ((BinScorer)scorer).setBins(bins);
-          ((BinScorer)scorer).setMax(endTime);
-          ((BinScorer)scorer).setInterval(interval);
-          ((BinScorer)scorer).setDateFormat(df);
+            ((BinScorer)scorer).setMax(endTime);
+            ((BinScorer)scorer).setInterval(interval);
+            ((BinScorer)scorer).setDateFormat(df);
 
             
             // Rescore
