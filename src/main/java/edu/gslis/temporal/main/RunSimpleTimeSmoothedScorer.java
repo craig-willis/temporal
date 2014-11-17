@@ -45,7 +45,7 @@ public class RunSimpleTimeSmoothedScorer extends RunScorerBase {
         System.out.println(query);
         
         // Get the top-K hits
-        SearchHits hits = index.runQuery(query, 500);
+        SearchHits hits = index.runQuery(query, 1000);
                 
         SimpleDateFormat df = null;
         if (!StringUtils.isEmpty(dateFormat)) {
