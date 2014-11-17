@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import edu.gslis.docscoring.QueryDocScorer;
+import edu.gslis.docscoring.support.CollectionStats;
 import edu.gslis.eval.FilterEvaluation;
 import edu.gslis.eval.Qrels;
 import edu.gslis.filtering.main.config.BatchConfig;
@@ -23,9 +24,7 @@ import edu.gslis.queries.GQueriesIndriImpl;
 import edu.gslis.queries.GQueriesJsonImpl;
 import edu.gslis.queries.GQuery;
 import edu.gslis.searchhits.SearchHits;
-import edu.gslis.temporal.scorers.DocTimeScorer;
-import edu.gslis.temporal.scorers.SimpleTimeSmoothedScorer;
-import edu.gslis.temporal.scorers.TimeSmoothedScorer;
+import edu.gslis.temporal.scorers.TemporalScorer;
 
 /**
  * Base class for different filtering harnesses.
@@ -81,19 +80,18 @@ public abstract class RunScorerBase  extends YAMLConfigBase
                 int relLevel = collection.getRelLevel();
                 Qrels trainQrels = new Qrels(collection.getTrainQrels(), true, relLevel);
                 Qrels testQrels = new Qrels(collection.getTestQrels(), true, relLevel);
+                String corpusStatsClass = config.getBgStatType();
+                CollectionStats corpusStats = (CollectionStats)loader.loadClass(corpusStatsClass).newInstance();
+                corpusStats.setStatSource(indexPath);
                                        
                 for (String scorerName: scorers.keySet()) 
                 {
                     QueryDocScorer docScorer = scorers.get(scorerName);
 
-                    if (docScorer instanceof DocTimeScorer)
-                        ((DocTimeScorer)docScorer).setTsIndex(tsIndex);
-                        
-                    if (docScorer instanceof TimeSmoothedScorer)
-                        ((TimeSmoothedScorer)docScorer).setTsIndex(tsIndex);
-                    
-                    if (docScorer instanceof SimpleTimeSmoothedScorer)
-                        ((SimpleTimeSmoothedScorer)docScorer).setTsIndex(tsIndex);
+                    docScorer.setCollectionStats(corpusStats);
+
+                    if (docScorer instanceof TemporalScorer)
+                        ((TemporalScorer)docScorer).setTsIndex(tsIndex);
 
                     String runId = prefix + "-" + scorerName + "_" + collectionName + "_" + queryFileName;
                     String trecResultsFile = outputDir + File.separator + runId + ".out";
