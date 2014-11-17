@@ -14,10 +14,11 @@ import edu.gslis.docscoring.QueryDocScorer;
 import edu.gslis.eval.Qrels;
 import edu.gslis.filtering.main.config.BatchConfig;
 import edu.gslis.indexes.IndexWrapper;
+import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.queries.GQuery;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
-import edu.gslis.temporal.scorers.TimeSmoothedScorer;
+import edu.gslis.temporal.scorers.TemporalScorer;
 import edu.gslis.textrepresentation.FeatureVector;
 
 /**
@@ -46,7 +47,7 @@ public class RunTimeSmoothedScorer extends RunScorerBase {
         System.out.println(query);
         
         // Get the top-K hits
-        SearchHits hits = index.runQuery(query, 1000);
+        SearchHits hits = index.runQuery(query, 500);
                 
         SimpleDateFormat df = null;
         if (!StringUtils.isEmpty(dateFormat)) {
@@ -55,10 +56,10 @@ public class RunTimeSmoothedScorer extends RunScorerBase {
         }
         scorer.setQuery(query);
         scorer.init();
-        ((TimeSmoothedScorer)scorer).setStartTime(startTime);
-        ((TimeSmoothedScorer)scorer).setEndTime(endTime);
-        ((TimeSmoothedScorer)scorer).setInterval(interval);
-        ((TimeSmoothedScorer)scorer).setDateFormat(df);
+        ((TemporalScorer)scorer).setStartTime(startTime);
+        ((TemporalScorer)scorer).setEndTime(endTime);
+        ((TemporalScorer)scorer).setInterval(interval);
+        ((TemporalScorer)scorer).setDateFormat(df);
         
         SearchHits results = new SearchHits();
         try
@@ -67,6 +68,11 @@ public class RunTimeSmoothedScorer extends RunScorerBase {
             Iterator<SearchHit> it = hits.iterator();
             while (it.hasNext()) {
                 SearchHit hit = it.next();
+                double epoch = (Double)hit.getMetadataValue(Indexer.FIELD_EPOCH);
+                if (epoch < startTime || epoch > endTime) {
+                    System.err.println("Skipping " + hit.getDocno() + ", out of time range");
+                    continue;
+                }
                 double score = scorer.score(hit);
                 hit.setScore(score);
                 results.add(hit);
