@@ -12,6 +12,7 @@ import edu.gslis.eval.Qrels;
 import edu.gslis.filtering.main.config.BatchConfig;
 import edu.gslis.indexes.IndexWrapper;
 import edu.gslis.queries.GQuery;
+import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 import edu.gslis.textrepresentation.FeatureVector;
 
@@ -36,8 +37,17 @@ public class RunBaselineScorer extends RunScorerBase {
         }
         query.setFeatureVector(surfaceForm);
                     
+        scorer.setQuery(query);
         // Get the top-K hits
         SearchHits hits = index.runQuery(query, 500);
+
+        Iterator<SearchHit> it = hits.iterator();
+        while (it.hasNext()) {
+            SearchHit hit = it.next();
+            double score = scorer.score(hit);
+            hit.setScore(score);
+        }
+        hits.rank();
         return hits;
         
     }
