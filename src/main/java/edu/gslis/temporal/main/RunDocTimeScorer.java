@@ -14,6 +14,7 @@ import edu.gslis.docscoring.QueryDocScorer;
 import edu.gslis.eval.Qrels;
 import edu.gslis.filtering.main.config.BatchConfig;
 import edu.gslis.indexes.IndexWrapper;
+import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.queries.GQuery;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
@@ -66,6 +67,12 @@ public class RunDocTimeScorer extends RunScorerBase {
             Iterator<SearchHit> it = hits.iterator();
             while (it.hasNext()) {
                 SearchHit hit = it.next();
+                double epoch = (Double)hit.getMetadataValue(Indexer.FIELD_EPOCH);
+                if (epoch < startTime || epoch > endTime) {
+                    System.err.println("Skipping " + hit.getDocno() + ", out of time range");
+                    continue;
+                }
+
                 double score = scorer.score(hit);
                 hit.setScore(score);
                 results.add(hit);
