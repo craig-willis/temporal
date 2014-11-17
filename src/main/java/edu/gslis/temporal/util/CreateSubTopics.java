@@ -1,4 +1,4 @@
-package edu.gslis.temporal.tools;
+package edu.gslis.temporal.util;
 
 import java.io.File;
 import java.io.FileWriter;

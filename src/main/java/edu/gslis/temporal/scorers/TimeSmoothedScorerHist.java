@@ -3,20 +3,24 @@ package edu.gslis.temporal.scorers;
 import java.text.DateFormat;
 import java.util.Iterator;
 
+import umontreal.iro.lecuyer.gof.KernelDensity;
+import umontreal.iro.lecuyer.probdist.EmpiricalDist;
+import umontreal.iro.lecuyer.probdist.NormalDist;
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.queries.GQuery;
 import edu.gslis.searchhits.SearchHit;
+import edu.gslis.temporal.util.RKernelDensity;
 import edu.gslis.textrepresentation.FeatureVector;
 
 /**
- * Uses a TimeSeriesIndex to calculate a temporal language model for a given
- * interval.
+ * Uses SSJ KernelDensity to estimate p(w|T) = p(T|w)/sum_{w in V} p(T|w)
  */
-public class SimpleTimeSmoothedScorer extends TemporalScorer 
+public class TimeSmoothedScorerHist extends TemporalScorer 
 {
 
     String MU = "mu";
     String LAMBDA = "lambda";
+    int winSize = 3;
     
     long startTime = 0;
     long endTime = 0;
@@ -49,49 +53,82 @@ public class SimpleTimeSmoothedScorer extends TemporalScorer
         this.interval = interval;
     }
     
-    
-    public double score(SearchHit doc) 
+    public double score(SearchHit doc)
     {
         double logLikelihood = 0.0;
         Iterator<String> queryIterator = gQuery.getFeatureVector().iterator();
         
+        // Document language model smoothed with a linear combination
+        // of the temporal language model at bin(t) and the collection language model
+
         // temporal model        
         double epoch = (Double)doc.getMetadataValue(Indexer.FIELD_EPOCH);
         long docTime = (long)epoch;
         int t = (int)((docTime - startTime)/interval);
         
-        long numBins = (endTime - startTime)/interval;
-        
+        // Usual Dirichlet parameter
         double mu = paramTable.get(MU);
+        // Parameter controlling linear combination of temporal and collection language models.
         double lambda = paramTable.get(LAMBDA);
-
 
         try
         {
+            double z = index.getNorm("tf", t);  
+            
+            // Now calculate the score for this document using 
+            // a combination of the temporal and collection LM.
             while(queryIterator.hasNext()) 
             {
                 String feature = queryIterator.next();
                 
-                //p(w | C) 
-                double pwC = (1+ collectionStats.termCount(feature)) / collectionStats.getTokCount();
+                // Get the series for this feature
+                double[] hist = index.get(feature);
+               
+                //p(w | C): +1 is necessary when working with partial collections (i.e., latimes)
+                double pwC = (1 + collectionStats.termCount(feature)) / collectionStats.getTokCount();
+                                           
+                double total = 0;
+                for (double h: hist)
+                    total += h;
+                               
+                double timePr = 0;
+                // Moving average
+                int size = hist.length;
+                if (t < size)
+                {
+                    double freq = hist[t];
+                    int n = 1;
+                    
+                    for (int i=0; i < winSize; i++) {
+                        if (t > i) {
+                            freq += hist[t - i];
+                            n++;
+                        }
+                        if (t < size - i) {
+                            freq += hist[t + i];
+                            n++;
+                        }
+                    }
 
-                // Attempt 1: p(w | T) = p(T|w)p(w) / p(T)
-                double[] series = index.get(feature);
+                    // Average freq at time t
+                    freq = freq/(double)n;
+                    
+                    // p(t|w)
+                    if (total > 0 && z > 0) {
+                        timePr = (1+freq)/total;
+                        timePr /= z;
+                    }                    
+                }           
 
-                double pTw = series[t] / (1 + collectionStats.termCount(feature)) ;
-                double pT = 1/(double)numBins;
-
-                // p(w | t)
-                double timePr = pTw*pwC/pT;
                 
-                // Lexical model            
+                
                 double docFreq = doc.getFeatureVector().getFeatureWeight(feature);
                 double docLength = doc.getLength();
                 double pr = (docFreq + mu*(lambda*timePr + (1-lambda)*pwC))/(docLength + mu);
+                
                 double queryWeight = gQuery.getFeatureVector().getFeatureWeight(feature);
                 
                 logLikelihood += queryWeight * Math.log(pr);
-
             }
         } catch (Exception e) {
             e.printStackTrace(); 
@@ -99,6 +136,7 @@ public class SimpleTimeSmoothedScorer extends TemporalScorer
            
         return logLikelihood;
     }
+    
     
     public double kl(FeatureVector p, FeatureVector q) {
         double kl = 0;

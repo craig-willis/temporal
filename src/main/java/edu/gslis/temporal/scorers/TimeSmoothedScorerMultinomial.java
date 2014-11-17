@@ -1,4 +1,4 @@
-package edu.gslis.temporal.scorers;
+    package edu.gslis.temporal.scorers;
 
 import java.text.DateFormat;
 import java.util.Iterator;
@@ -9,10 +9,19 @@ import edu.gslis.searchhits.SearchHit;
 import edu.gslis.textrepresentation.FeatureVector;
 
 /**
- * Uses a TimeSeriesIndex to calculate a temporal language model for a given
- * interval.
+ * Simple multinomial estimate of p(w|T) given 
+ * the temporal language model at time T and the 
+ * timestamp of the document.
+ * 
+ * This scorer requires an existing TimeSeriesIndex
+ * with a matching startTime, endTime and interval.
+ * 
+ * This has three parameters:
+ *      mu:         Standard Dirichlet parameter
+ *      lambda:     Weight of p(w|T) v p(w|C) in smoothing
+ *      window:     Size of window used to smooth the histogram (moving average)
  */
-public class SimpleTimeSmoothedScorer extends TemporalScorer 
+public class TimeSmoothedScorerMultinomial extends TemporalScorer 
 {
 
     String MU = "mu";
@@ -49,56 +58,82 @@ public class SimpleTimeSmoothedScorer extends TemporalScorer
         this.interval = interval;
     }
     
-    
-    public double score(SearchHit doc) 
+    public double score(SearchHit doc)
     {
         double logLikelihood = 0.0;
         Iterator<String> queryIterator = gQuery.getFeatureVector().iterator();
         
+        // Document language model smoothed with a linear combination
+        // of the temporal language model at bin(t) and the collection language model
+
         // temporal model        
         double epoch = (Double)doc.getMetadataValue(Indexer.FIELD_EPOCH);
         long docTime = (long)epoch;
         int t = (int)((docTime - startTime)/interval);
         
-        long numBins = (endTime - startTime)/interval;
-        
+        // Usual Dirichlet parameter
         double mu = paramTable.get(MU);
+        // Parameter controlling linear combination of temporal and collection language models.
         double lambda = paramTable.get(LAMBDA);
 
-
+       // System.out.println(doc.getDocno()  + "," + t);
         try
         {
+            // Total number of events for each time = bin(t)
+            // The TimeSeriesIndex contains 1 row per term and 1 column per bin based on interval.
+            // There are tf and df versions of each index.
+            double[] total = index.get("_total_");
+            
+            // Now calculate the score for this document using 
+            // a combination of the temporal and collection LM.
             while(queryIterator.hasNext()) 
             {
                 String feature = queryIterator.next();
                 
-                //p(w | C) 
-                double pwC = (1+ collectionStats.termCount(feature)) / collectionStats.getTokCount();
-
-                // Attempt 1: p(w | T) = p(T|w)p(w) / p(T)
+                // Get the series for this feature
                 double[] series = index.get(feature);
-
-                double pTw = series[t] / (1 + collectionStats.termCount(feature)) ;
-                double pT = 1/(double)numBins;
-
-                // p(w | t)
-                double timePr = pTw*pwC/pT;
                 
-                // Lexical model            
+                double timePr = 0;
+
+                double timeFreq = series[t];
+                int n = 1;
+                
+                int size = series.length;
+                int winSize = 3;
+                if (t < size) {
+    
+                    for (int i=0; i < winSize; i++) {
+                        if (t > i)
+                            timeFreq += series[t - i];
+                        if (t < size - i)
+                            timeFreq += series[t + i];
+                        n++;
+                    }
+                }
+
+                // Average freq at time t
+                timeFreq = timeFreq/(double)n;
+                
+                if (series[t] > 0 && total[t] > 0)
+                    timePr = timeFreq / total[t];
+                
+                //p(w | C): +1 is necessary when working with partial collections (i.e., latimes)
+                double pwC = (1 + collectionStats.termCount(feature)) / collectionStats.getTokCount();
+
                 double docFreq = doc.getFeatureVector().getFeatureWeight(feature);
                 double docLength = doc.getLength();
                 double pr = (docFreq + mu*(lambda*timePr + (1-lambda)*pwC))/(docLength + mu);
+                
                 double queryWeight = gQuery.getFeatureVector().getFeatureWeight(feature);
                 
                 logLikelihood += queryWeight * Math.log(pr);
-
             }
         } catch (Exception e) {
             e.printStackTrace(); 
         }                        
-           
         return logLikelihood;
     }
+    
     
     public double kl(FeatureVector p, FeatureVector q) {
         double kl = 0;
