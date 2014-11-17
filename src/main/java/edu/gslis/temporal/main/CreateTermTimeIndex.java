@@ -111,12 +111,11 @@ public class CreateTermTimeIndex
         System.err.println("Creating " + output + " with " + numBins + " bins");
 
         TimeSeriesIndex tsIndex = new TimeSeriesIndex();
-        tsIndex.open(output);
+        tsIndex.open(output, false);
         tsIndex.init(numBins);
             
 
-        System.err.println("Adding totals");
-        //System.out.print("total");
+        System.err.println("Calculating bin totals");
         long[] totals = new long[numBins];
         for (long time = startTime; time <= endTime; time+=interval) {
             long t = (time - startTime)/interval;
