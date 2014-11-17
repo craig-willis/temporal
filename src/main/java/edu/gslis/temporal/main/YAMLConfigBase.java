@@ -26,7 +26,7 @@ public class YAMLConfigBase
     BatchConfig config = null;
     Stopper stopper = null;
     String prefix = null;
-    CollectionStats corpusStats = null;
+   // CollectionStats corpusStats = null;
     String indexRoot = null;
     File outputDir = null;   
     Map<String, QueryDocScorer> scorers = new HashMap<String, QueryDocScorer>();
@@ -45,10 +45,10 @@ public class YAMLConfigBase
         // Global settings
         stopper = new Stopper(config.getStopper());
         prefix = config.getRunPrefix();
-        String corpusStatsClass = config.getBgStatType();
-        String bgSourcePath = config.getBgSourcePath();
-        corpusStats = (CollectionStats)loader.loadClass(corpusStatsClass).newInstance();
-        corpusStats.setStatSource(bgSourcePath);
+       // String corpusStatsClass = config.getBgStatType();
+       // String bgSourcePath = config.getBgSourcePath();
+       // corpusStats = (CollectionStats)loader.loadClass(corpusStatsClass).newInstance();
+       //corpusStats.setStatSource(bgSourcePath);
         indexRoot = config.getIndexRoot();
                   
         outputDir = new File(config.getOutputDir());
@@ -72,7 +72,7 @@ public class YAMLConfigBase
             if (!StringUtils.isEmpty(className))
             {
                 QueryDocScorer docScorer = (QueryDocScorer)loader.loadClass(className).newInstance();
-                docScorer.setCollectionStats(corpusStats);
+//                docScorer.setCollectionStats(corpusStats);
         
         
                 Map<String, Object> params = scorerConfig.getParams();
