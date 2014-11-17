@@ -32,6 +32,11 @@ import edu.gslis.searchhits.SearchHits;
 import edu.gslis.temporal.scorers.BinScorer;
 import edu.gslis.temporal.scorers.DocTimeScorer;
 import edu.gslis.temporal.scorers.RecencyScorer;
+import edu.gslis.temporal.scorers.TemporalScorer;
+import edu.gslis.temporal.scorers.TimeSmoothedScorerBestMultinomial;
+import edu.gslis.temporal.scorers.TimeSmoothedScorerHist;
+import edu.gslis.temporal.scorers.TimeSmoothedScorerKD;
+import edu.gslis.temporal.scorers.TimeSmoothedScorerMultinomial;
 import edu.gslis.textrepresentation.FeatureVector;
 import edu.gslis.utils.Stopper;
 
@@ -64,6 +69,10 @@ public class RunTemporalFeedbackRM3 {
 
         String indexPath = cl.getOptionValue("index", "");
         IndexWrapper index = IndexWrapperFactory.getIndexWrapper(indexPath);
+        
+        IndexBackedCollectionStats stats = new IndexBackedCollectionStats();
+        stats.setStatSource(indexPath);
+
         System.err.println(indexPath);
         
         String numFbDocsOpt = cl.getOptionValue("numFbDocs", "20");
@@ -82,6 +91,7 @@ public class RunTemporalFeedbackRM3 {
         String intervalStr = cl.getOptionValue("interval");
         long interval = Long.parseLong(intervalStr);
         String method = cl.getOptionValue("method");
+        String type = cl.getOptionValue("type");
         
         
         Stopper stopper = null;
@@ -98,6 +108,7 @@ public class RunTemporalFeedbackRM3 {
             output = new FileWriter(outputFile);
         
         String tsIndexPath = cl.getOptionValue("tsIndex");
+        String alpha = cl.getOptionValue("alpha");
             
         GQueries feedbackQueries = new GQueriesJsonImpl();
         feedbackQueries.setMetadataField(FilterSession.NAME_OF_TIMESTAMP_FIELD);
@@ -108,7 +119,7 @@ public class RunTemporalFeedbackRM3 {
             System.err.println(query.getTitle());
             
             GQuery newQuery = pseudoFb(query, index, numFbDocs, numFbTerms, lambda, stopper, start,
-                    end, interval, method, indexPath, tsIndexPath);
+                    end, interval, method, stats, tsIndexPath, alpha, type);
                 
             newQuery.setMetadata(FilterSession.NAME_OF_TIMESTAMP_FIELD, 
                     query.getMetadata(FilterSession.NAME_OF_TIMESTAMP_FIELD));
@@ -121,16 +132,19 @@ public class RunTemporalFeedbackRM3 {
     
     public static GQuery pseudoFb(GQuery query, IndexWrapper index, int numFbDocs, int numFbTerms, 
             double lambda, Stopper stopper, long start, long end, long interval, String method,
-            String indexPath, String tsIndexPath)
+            IndexBackedCollectionStats stats, String tsIndexPath, String alpha, String type)
     {        
         SearchHits results = index.runQuery(query, numFbDocs);
         
         if (method.equals("recency"))            
-            results = recency(query, results, start, end, interval, null, indexPath);
+            results = recency(query, results, start, end, interval, null, stats);
         else if (method.equals("dt"))
-            results = doctime(query, results, start, end, interval, null, indexPath, tsIndexPath);
+            results = doctime(query, results, start, end, interval, null, stats, tsIndexPath);
+        else if (method.equals("ts"))
+            results = timeSmoothed(query, results, start, end, interval, null, type, stats, 
+                    tsIndexPath, alpha);
         else
-            results = dakka(query, results, start, end, interval, null, method, indexPath);
+            results = dakka(query, results, start, end, interval, null, method, stats);
             
 
         return rm(results, query, index, numFbTerms, lambda, stopper);
@@ -179,6 +193,7 @@ public class RunTemporalFeedbackRM3 {
         options.addOption("numFbDocs", true, "Number of feedback documents (default: 20)");
         options.addOption("numFbTerms", true, "Number of feedback terms (default: 20)");
         options.addOption("lambda", true, "RM coefficient (default: 0.5)");
+        options.addOption("alpha", true, "Temporal smoothing coefficient (default: 0.5)");
         options.addOption("stopper", true, "Stop word list (default: none)");
         options.addOption("output", true, "Output file (default: stdout)");
         options.addOption("help", false, "Print this help message");
@@ -187,7 +202,8 @@ public class RunTemporalFeedbackRM3 {
         options.addOption("interval", true, "Collection interval");
         options.addOption("tsIndex", true, "Path to tsIndex (used by dt method only)");
         options.addOption("method", true, "One of: recency, day, mean, dt");
-        
+        options.addOption("type", true, "");
+
         return options;
     }
     
@@ -205,7 +221,7 @@ public class RunTemporalFeedbackRM3 {
     }
     
     public static SearchHits recency(GQuery query, SearchHits hits, long startTime, long endTime, long interval, 
-            String dateFormat, String indexPath) 
+            String dateFormat, IndexBackedCollectionStats stats) 
     {
         //String dateFormatStr = "yyMMdd"; 
         SimpleDateFormat df = null;
@@ -243,8 +259,6 @@ public class RunTemporalFeedbackRM3 {
             RecencyScorer scorer = new RecencyScorer();
             scorer.setParameter("mu", 2500);
             scorer.setQuery(query);
-            IndexBackedCollectionStats stats = new IndexBackedCollectionStats();
-            stats.setStatSource(indexPath);
             scorer.setCollectionStats(stats);
             scorer.init();
             scorer.setRate(mleRate);
@@ -271,7 +285,7 @@ public class RunTemporalFeedbackRM3 {
     }
     
     public static SearchHits dakka(GQuery query, SearchHits hits, long startTime, long endTime, long interval, 
-            String dateFormat, String method, String indexPath) 
+            String dateFormat, String method, IndexBackedCollectionStats stats) 
     {
         DakkaHistogram dakka = new DakkaHistogram(startTime, endTime, interval, dateFormat);
         Map<Long, Integer> hist = null;
@@ -326,8 +340,6 @@ public class RunTemporalFeedbackRM3 {
                 
             
             BinScorer scorer = new BinScorer();
-            IndexBackedCollectionStats stats = new IndexBackedCollectionStats();
-            stats.setStatSource(indexPath);
             scorer.setCollectionStats(stats);
             scorer.setParameter("mu", 2500);
 
@@ -363,7 +375,7 @@ public class RunTemporalFeedbackRM3 {
     
     
     public static SearchHits doctime(GQuery query, SearchHits hits, long startTime, long endTime, long interval, 
-            String dateFormat, String indexPath, String tsIndexPath) 
+            String dateFormat, IndexBackedCollectionStats stats, String tsIndexPath) 
     {
         //String dateFormatStr = "yyMMdd"; 
         SimpleDateFormat df = null;
@@ -383,12 +395,59 @@ public class RunTemporalFeedbackRM3 {
             scorer.setDateFormat(df);
             scorer.setParameter("mu", 2500);
             scorer.setQuery(query);
-            IndexBackedCollectionStats stats = new IndexBackedCollectionStats();
-            stats.setStatSource(indexPath);
             scorer.setCollectionStats(stats);
             scorer.init();
     
             
+            // Rescore
+            Iterator<SearchHit> it = hits.iterator();
+            while (it.hasNext()) {
+                SearchHit hit = it.next();
+                double score = scorer.score(hit);
+                hit.setScore(score);
+                results.add(hit);
+            }
+            
+            results.rank();
+            scorer.close();
+        
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return results;        
+    }
+    
+    
+    public static SearchHits timeSmoothed(GQuery query, SearchHits hits, long startTime, long endTime, long interval, 
+            String dateFormat, String method, IndexBackedCollectionStats stats, String tsIndexPath, String alpha)
+    {
+        //String dateFormatStr = "yyMMdd"; 
+        SimpleDateFormat df = null;
+        if (!StringUtils.isEmpty(dateFormat)) {
+            df = new SimpleDateFormat(dateFormat);        
+            df.setTimeZone(TimeZone.getTimeZone("GMT"));
+        }
+        SearchHits results = new SearchHits();
+        try
+        {
+            TemporalScorer scorer = null;
+            if (method.equals("kd")) scorer = new TimeSmoothedScorerKD();
+            if (method.equals("hist")) scorer = new TimeSmoothedScorerHist();
+            if (method.equals("mn")) scorer = new TimeSmoothedScorerMultinomial();
+            if (method.equals("bmn")) scorer = new TimeSmoothedScorerBestMultinomial();
+            scorer.setTsIndex(tsIndexPath);
+            scorer.setParameter("lambda", Double.valueOf(alpha));
+            scorer.setStartTime(startTime);
+            scorer.setEndTime(endTime);
+            scorer.setInterval(interval);
+            scorer.setDateFormat(df);
+            scorer.setParameter("mu", 2500);
+            scorer.setQuery(query);
+            
+            scorer.setCollectionStats(stats);
+            scorer.init();
+                
             // Rescore
             Iterator<SearchHit> it = hits.iterator();
             while (it.hasNext()) {
