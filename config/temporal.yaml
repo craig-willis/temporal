@@ -1,0 +1,50 @@
+stopper: ../indexes/stoplist.kba
+indexRoot: ../indexes/
+bgStatType: edu.gslis.docscoring.support.IndexBackedCollectionStats
+runPrefix: base
+outputDir: ./output
+scorers: 
+  - name: kl
+    className: edu.gslis.temporal.scorers.ScorerDirichlet
+    params:
+      mu : 1000
+#  - name: kmeans-
+#    className: edu.gslis.temporal.scorers.KMeansScorer
+#    params:
+#      mu : 1000
+#      lambda : 0.5
+#  - name: lda
+#    className: edu.gslis.temporal.scorers.LDAScorer
+#    params:
+#      mu : 1000
+#      lambda : 0.7
+#  - name: kde
+#    className: edu.gslis.temporal.scorers.KDEScorer
+#    params:
+#       mu : 1000
+#  - name: tsm
+#    className: edu.gslis.temporal.scorers.TimeSmoothedScorerMultinomial
+#    params:
+#       mu : 1000
+#       lambda : 0.8
+#  - name: bmn
+#    className: edu.gslis.temporal.scorers.TimeSmoothedScorerBestMultinomial
+#    params:
+#       mu : 1000
+#       lambda : 0.2       
+collections: 
+  - name: latimes
+    trainIndex: latimes.temporal
+    testIndex: latimes.temporal
+    queries: 
+      title: ./topics/topics.latimes.301-400.indri
+    trainQrels: ./qrels/qrels.latimes.301-400
+    testQrels: ./qrels/qrels.latimes.301-400
+    relLevel: 2         
+#    startDate: 599637600
+#    endDate: 662623200
+#    interval: 86400   
+#    tsDB: ../tsdb/latimes.tsindex
+#    clusterIndex: ../indexes/latimes.kmeans
+#    clusterDB: ../db/kmeans/latimes
+#    ldaDB: ../db/lda/latimes2
