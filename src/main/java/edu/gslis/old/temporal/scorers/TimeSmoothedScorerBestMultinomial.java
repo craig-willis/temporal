@@ -1,4 +1,4 @@
-package edu.gslis.temporal.scorers;
+package edu.gslis.old.temporal.scorers;
 
 import java.text.DateFormat;
 import java.util.Iterator;
@@ -8,7 +8,6 @@ import java.util.TreeMap;
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.queries.GQuery;
 import edu.gslis.searchhits.SearchHit;
-import edu.gslis.searchhits.SearchHits;
 import edu.gslis.textrepresentation.FeatureVector;
 
 /**
@@ -26,7 +25,16 @@ public class TimeSmoothedScorerBestMultinomial extends TemporalScorer
     long interval = 0;
     DateFormat df = null;
     
-
+    TimeSeriesIndex index = new TimeSeriesIndex();
+    
+    public void setTsIndex(String tsIndex) {
+        try {
+            System.out.println("Opening: " + tsIndex);
+            index.open(tsIndex, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }               
+    }
     public void setDateFormat(DateFormat df) {
         this.df = df;
     }
@@ -66,7 +74,7 @@ public class TimeSmoothedScorerBestMultinomial extends TemporalScorer
             // Total number of events for each time = bin(t)
             // The TimeSeriesIndex contains 1 row per term and 1 column per bin based on interval.
             // There are tf and df versions of each index.
-            double[] total = tsIndex.get("_total_");
+            double[] total = index.get("_total_");
             
             FeatureVector dv = doc.getFeatureVector();
             
@@ -81,7 +89,7 @@ public class TimeSmoothedScorerBestMultinomial extends TemporalScorer
             while(dvIt.hasNext()) {
                 String feature = dvIt.next();
                 // Time series for feature
-                double[] series = tsIndex.get(feature);   
+                double[] series = index.get(feature);   
                 // For each bin
                 for (int i=0; i<series.length; i++) {
                     FeatureVector pi = pis.get(i);
@@ -157,15 +165,10 @@ public class TimeSmoothedScorerBestMultinomial extends TemporalScorer
     @Override
     public void close() {
         try {
-            tsIndex.close();            
+            index.close();            
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-    @Override
-    public void init(SearchHits hits) {
-        // TODO Auto-generated method stub
-        
     }   
     
 }

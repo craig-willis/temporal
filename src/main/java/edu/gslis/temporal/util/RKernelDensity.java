@@ -9,7 +9,6 @@ public class RKernelDensity {
 
 	private RConnection c;
 
-
 	public RKernelDensity(double[] data, double[] weights) {
 		
 		try {

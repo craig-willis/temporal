@@ -1,32 +1,42 @@
-package edu.gslis.temporal.scorers;
+package edu.gslis.old.temporal.scorers;
 
 import java.text.DateFormat;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
 
+import umontreal.iro.lecuyer.gof.KernelDensity;
+import umontreal.iro.lecuyer.probdist.EmpiricalDist;
+import umontreal.iro.lecuyer.probdist.NormalDist;
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.queries.GQuery;
 import edu.gslis.searchhits.SearchHit;
-import edu.gslis.searchhits.SearchHits;
+import edu.gslis.temporal.util.RKernelDensity;
 import edu.gslis.textrepresentation.FeatureVector;
 
 /**
- * Uses a TimeSeriesIndex to calculate a temporal language model for a given
- * interval and smooth the document using the best matching temporal model to theta_D.
+ * Uses SSJ KernelDensity to estimate p(w|T) = p(T|w)/sum_{w in V} p(T|w)
  */
-public class TimeSmoothedScorerBestMultinomial extends TemporalScorer 
+public class TimeSmoothedScorerHist extends TemporalScorer 
 {
 
     String MU = "mu";
     String LAMBDA = "lambda";
+    int winSize = 3;
     
     long startTime = 0;
     long endTime = 0;
     long interval = 0;
     DateFormat df = null;
     
-
+    TimeSeriesIndex index = new TimeSeriesIndex();
+    
+    public void setTsIndex(String tsIndex) {
+        try {
+            System.out.println("Opening: " + tsIndex);
+            index.open(tsIndex, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }               
+    }
     public void setDateFormat(DateFormat df) {
         this.df = df;
     }
@@ -63,67 +73,55 @@ public class TimeSmoothedScorerBestMultinomial extends TemporalScorer
 
         try
         {
-            // Total number of events for each time = bin(t)
-            // The TimeSeriesIndex contains 1 row per term and 1 column per bin based on interval.
-            // There are tf and df versions of each index.
-            double[] total = tsIndex.get("_total_");
+            double z = index.getNorm("tf", t);  
             
-            FeatureVector dv = doc.getFeatureVector();
-            
-            // Map of feature vectors for each bin(t)
-            Map<Integer, FeatureVector> pis = new TreeMap<Integer, FeatureVector>();
-
-            // Populate temporal language model for each bin pi_i = LM(bin(t))
-            // As a shortcut, this is just the model for features in 
-            // the document language model use the "_total_" values to get
-            // length(t).
-            Iterator<String> dvIt = dv.iterator();
-            while(dvIt.hasNext()) {
-                String feature = dvIt.next();
-                // Time series for feature
-                double[] series = tsIndex.get(feature);   
-                // For each bin
-                for (int i=0; i<series.length; i++) {
-                    FeatureVector pi = pis.get(i);
-                    if (pi == null)
-                        pi = new FeatureVector(null);
-                    pi.addTerm(feature, series[i]);
-                    pis.put(i, pi);
-                }
-            }
-            // At this point, pis contains a FeatureVector for each bin.
-            
-            // Find the best bin for this document based on KL(tlm, dlm)
-            FeatureVector bestTM = pis.get(t);
-            double minKL = -1;
-            int bestBin = 0;
-            for (int bin: pis.keySet()) {
-                FeatureVector pi = pis.get(bin);
-                // KL (pi|dv)
-                double kl = kl(pi, dv);
-                if ((kl > 0 && minKL < 0) || (kl > 0 && kl < minKL)) {
-                    minKL = kl;
-                    bestTM = pi;
-                    bestBin = bin;
-                }
-            }
-            
-            
-            // Total number of events for the best matching bin
-            double binLen = total[bestBin];
-
             // Now calculate the score for this document using 
             // a combination of the temporal and collection LM.
             while(queryIterator.hasNext()) 
             {
                 String feature = queryIterator.next();
                 
+                // Get the series for this feature
+                double[] hist = index.get(feature);
+               
                 //p(w | C): +1 is necessary when working with partial collections (i.e., latimes)
                 double pwC = (1 + collectionStats.termCount(feature)) / collectionStats.getTokCount();
-
-                //p(w | T)
-                double timePr = bestTM.getFeatureWeight(feature)/binLen;
                                            
+                double total = 0;
+                for (double h: hist)
+                    total += h;
+                               
+                double timePr = 0;
+                // Moving average
+                int size = hist.length;
+                if (t < size)
+                {
+                    double freq = hist[t];
+                    int n = 1;
+                    
+                    for (int i=0; i < winSize; i++) {
+                        if (t > i) {
+                            freq += hist[t - i];
+                            n++;
+                        }
+                        if (t < size - i) {
+                            freq += hist[t + i];
+                            n++;
+                        }
+                    }
+
+                    // Average freq at time t
+                    freq = freq/(double)n;
+                    
+                    // p(t|w)
+                    if (total > 0 && z > 0) {
+                        timePr = (1+freq)/total;
+                        timePr /= z;
+                    }                    
+                }           
+
+                
+                
                 double docFreq = doc.getFeatureVector().getFeatureWeight(feature);
                 double docLength = doc.getLength();
                 double pr = (docFreq + mu*(lambda*timePr + (1-lambda)*pwC))/(docLength + mu);
@@ -153,19 +151,12 @@ public class TimeSmoothedScorerBestMultinomial extends TemporalScorer
         }
         return kl;
     }
-    
     @Override
     public void close() {
         try {
-            tsIndex.close();            
+            index.close();            
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    @Override
-    public void init(SearchHits hits) {
-        // TODO Auto-generated method stub
-        
-    }   
-    
 }

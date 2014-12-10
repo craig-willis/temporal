@@ -1,15 +1,20 @@
-package edu.gslis.temporal.main;
+package edu.gslis.old.temporal.main;
 
 import java.io.File;
+
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.gslis.docscoring.QueryDocScorer;
+import edu.gslis.docscoring.support.CollectionStats;
 import edu.gslis.main.config.BatchConfig;
+import edu.gslis.main.config.PriorConfig;
 import edu.gslis.main.config.ScorerConfig;
-import edu.gslis.temporal.scorers.RerankingScorer;
 import edu.gslis.utils.Stopper;
 
 /**
@@ -21,9 +26,10 @@ public class YAMLConfigBase
     BatchConfig config = null;
     Stopper stopper = null;
     String prefix = null;
+   // CollectionStats corpusStats = null;
     String indexRoot = null;
     File outputDir = null;   
-    Map<String, RerankingScorer> scorers = new HashMap<String, RerankingScorer>();
+    Map<String, QueryDocScorer> scorers = new HashMap<String, QueryDocScorer>();
     Map<String, Object> priors = new HashMap<String, Object>();
     Map<String, Double> priorWeights = new HashMap<String, Double>();
 
@@ -39,6 +45,10 @@ public class YAMLConfigBase
         // Global settings
         stopper = new Stopper(config.getStopper());
         prefix = config.getRunPrefix();
+       // String corpusStatsClass = config.getBgStatType();
+       // String bgSourcePath = config.getBgSourcePath();
+       // corpusStats = (CollectionStats)loader.loadClass(corpusStatsClass).newInstance();
+       //corpusStats.setStatSource(bgSourcePath);
         indexRoot = config.getIndexRoot();
                   
         outputDir = new File(config.getOutputDir());
@@ -61,7 +71,9 @@ public class YAMLConfigBase
 
             if (!StringUtils.isEmpty(className))
             {
-                RerankingScorer docScorer = (RerankingScorer)loader.loadClass(className).newInstance();
+                QueryDocScorer docScorer = (QueryDocScorer)loader.loadClass(className).newInstance();
+//                docScorer.setCollectionStats(corpusStats);
+        
         
                 Map<String, Object> params = scorerConfig.getParams();
                 for (String paramName: params.keySet()) {
@@ -86,4 +98,31 @@ public class YAMLConfigBase
             }
         }
     }
+    
+    protected void setupPriors() 
+    {        
+        List<PriorConfig> priorConfigs = config.getPriors();
+        if (priorConfigs != null) {
+            for (PriorConfig prior: priorConfigs) 
+            {
+                String name = prior.getName();
+                double weight = prior.getWeight();
+                priorWeights.put(name, weight);
+                //String clsName = prior.getClassName();
+                String path = prior.getPath();
+                if (!StringUtils.isEmpty(path))
+                {
+                    try {
+                        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path));
+                        Object priorDist = ois.readObject();
+                        priors.put(name, priorDist);
+                        ois.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }        
+    }
+
 }
