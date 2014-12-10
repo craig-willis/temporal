@@ -52,7 +52,7 @@
               <executions>
                   <execution>
                       <id>simple-command</id>
-                      <phase>deploy</phase>
+                      <phase>package</phase>
                       <goals>
                           <goal>attached</goal>
                       </goals>

@@ -1,4 +1,4 @@
-package edu.gslis.old.temporal.main;
+package edu.gslis.util;
 
 import java.util.Comparator;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package edu.gslis.old.temporal.scorers;
+package edu.gslis.temporal.scorers;
 
 import java.text.SimpleDateFormat;
 import java.util.Iterator;

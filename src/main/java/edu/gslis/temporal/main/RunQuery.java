@@ -22,7 +22,6 @@ import edu.gslis.indexes.TimeSeriesIndex;
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.main.config.BatchConfig;
 import edu.gslis.main.config.CollectionConfig;
-import edu.gslis.old.temporal.main.RunTemporalFeedbackRM3;
 import edu.gslis.queries.GQueries;
 import edu.gslis.queries.GQueriesIndriImpl;
 import edu.gslis.queries.GQueriesJsonImpl;
@@ -187,7 +186,7 @@ public class RunQuery extends YAMLConfigBase
                         rm3.setRes(results);
                         rm3.build();
                         FeatureVector rmVector = rm3.asFeatureVector();
-                        rmVector = RunTemporalFeedbackRM3.cleanModel(rmVector);
+                        rmVector = cleanModel(rmVector);
                         rmVector.clip(NUM_FEEDBACK_TERMS);
                         rmVector.normalize();
                         FeatureVector feedbackVector =
@@ -241,4 +240,18 @@ public class RunQuery extends YAMLConfigBase
         RunQuery runner = new RunQuery(config);
         runner.runBatch();
     }
+    
+    public static FeatureVector cleanModel(FeatureVector model) {
+        FeatureVector cleaned = new FeatureVector(null);
+        Iterator<String> it = model.iterator();
+        while(it.hasNext()) {
+            String term = it.next();
+            if(term.length() < 3 || term.matches(".*[0-9].*"))
+                continue;
+            cleaned.addTerm(term, model.getFeatureWeight(term));
+        }
+        cleaned.normalize();
+        return cleaned;
+    }
+    
 }

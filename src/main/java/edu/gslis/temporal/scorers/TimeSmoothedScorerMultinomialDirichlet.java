@@ -1,9 +1,11 @@
-    package edu.gslis.old.temporal.scorers;
+    package edu.gslis.temporal.scorers;
 
 import java.text.DateFormat;
 import java.util.Iterator;
 
 import edu.gslis.lucene.indexer.Indexer;
+import edu.gslis.old.temporal.scorers.TemporalScorer;
+import edu.gslis.old.temporal.scorers.TimeSeriesIndex;
 import edu.gslis.queries.GQuery;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.textrepresentation.FeatureVector;
