@@ -1,12 +1,13 @@
-package edu.gslis.old.temporal.scorers;
+package edu.gslis.temporal.scorers;
 
-import java.sql.SQLException;
 import java.text.DateFormat;
 import java.util.Iterator;
 
+import edu.gslis.indexes.TimeSeriesIndex;
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.queries.GQuery;
 import edu.gslis.searchhits.SearchHit;
+import edu.gslis.searchhits.SearchHits;
 
 
 public class DocTimeScorer extends TemporalScorer 
@@ -142,6 +143,11 @@ public class DocTimeScorer extends TemporalScorer
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    @Override
+    public void init(SearchHits hits) {
+        // TODO Auto-generated method stub
+        
     }
     
 }

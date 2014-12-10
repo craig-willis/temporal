@@ -1,40 +1,24 @@
-package edu.gslis.old.temporal.scorers;
+package edu.gslis.temporal.scorers;
 
 import java.text.DateFormat;
 import java.util.Iterator;
 
-import umontreal.iro.lecuyer.gof.KernelDensity;
-import umontreal.iro.lecuyer.probdist.EmpiricalDist;
-import umontreal.iro.lecuyer.probdist.NormalDist;
-import weka.estimators.KernelEstimator;
+import edu.gslis.indexes.TimeSeriesIndex;
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.queries.GQuery;
 import edu.gslis.searchhits.SearchHit;
-import edu.gslis.temporal.util.RKernelDensity;
+import edu.gslis.searchhits.SearchHits;
 import edu.gslis.textrepresentation.FeatureVector;
 
-
 /**
- * Smooth document model using combination of temporal
- * and collection models.
- * 
- * Uses kernel density estimation to estimate p(T | w) given 
- * the temporal language model for the term w. This is then normalized
- * to estimate p(w|T).
- * 
- * This scorer requires an existing TimeSeriesIndex
- * with a matching startTime, endTime and interval. This scorer
- * also requires pre-calculation of normalizing constants
- * 
- * This has three parameters:
- *      mu:         Standard Dirichlet parameter
- *      lambda:     Weight of p(w|T) v p(w|C) in smoothing
+ * Uses SSJ KernelDensity to estimate p(w|T) = p(T|w)/sum_{w in V} p(T|w)
  */
-public class TimeSmoothedScorerKD extends TemporalScorer 
+public class TimeSmoothedScorerHist extends TemporalScorer 
 {
 
     String MU = "mu";
     String LAMBDA = "lambda";
+    int winSize = 3;
     
     long startTime = 0;
     long endTime = 0;
@@ -87,9 +71,7 @@ public class TimeSmoothedScorerKD extends TemporalScorer
 
         try
         {
-            
-
-            double z = index.getNorm("weka", t);  
+            double z = index.getNorm("tf", t);  
             
             // Now calculate the score for this document using 
             // a combination of the temporal and collection LM.
@@ -103,11 +85,40 @@ public class TimeSmoothedScorerKD extends TemporalScorer
                 //p(w | C): +1 is necessary when working with partial collections (i.e., latimes)
                 double pwC = (1 + collectionStats.termCount(feature)) / collectionStats.getTokCount();
                                            
-                //double timePr = probabilitySSJ(t, hist);
-                //double timePr = probabilityR(t, hist);
-                double timePr = probabilityWeka(t, hist);
-                if (z > 0)
-                    timePr /= z;
+                double total = 0;
+                for (double h: hist)
+                    total += h;
+                               
+                double timePr = 0;
+                // Moving average
+                int size = hist.length;
+                if (t < size)
+                {
+                    double freq = hist[t];
+                    int n = 1;
+                    
+                    for (int i=0; i < winSize; i++) {
+                        if (t > i) {
+                            freq += hist[t - i];
+                            n++;
+                        }
+                        if (t < size - i) {
+                            freq += hist[t + i];
+                            n++;
+                        }
+                    }
+
+                    // Average freq at time t
+                    freq = freq/(double)n;
+                    
+                    // p(t|w)
+                    if (total > 0 && z > 0) {
+                        timePr = (1+freq)/total;
+                        timePr /= z;
+                    }                    
+                }           
+
+                
                 
                 double docFreq = doc.getFeatureVector().getFeatureWeight(feature);
                 double docLength = doc.getLength();
@@ -124,77 +135,6 @@ public class TimeSmoothedScorerKD extends TemporalScorer
         return logLikelihood;
     }
     
-    
-    public double probabilityWeka(double t, double[] hist) {
-        
-        KernelEstimator weka = new KernelEstimator(0.001);
-        for (int bin=0; bin<hist.length; bin++) {
-            double freq = hist[bin];
-            weka.addValue(bin, freq);
-        }           
-        
-        return weka.getProbability(t);
-        
-    }
-
-    
-    public double probabilityR(double t, double[] hist) {
-        
-        double x[]= new double[hist.length];
-        for (int i=0; i<hist.length; i++)
-            x[i] = i;
-        
-        RKernelDensity rkd = new RKernelDensity(x, hist);
-        
-        
-        double sum = 0;
-        for (int i=0; i<hist.length; i++)
-            sum += rkd.density(i);
-        
-        double density = rkd.density(t);
-        density /= sum;
-        
-        rkd.close();    
-        
-        return density;
-    }
-
-    public double probabilitySSJ(double t, double[] hist) {
-        
-        int total =0;
-        for (int i=0; i<hist.length; i++) {
-            total += hist[i];
-        }        
-        
-        double[] y = new double[1];
-        y[0] = t;
-
-        // replicate the histogram into x
-        double[] x = new double[total];
-        int l=0;
-        for (int bin=0; bin<hist.length; bin++) {
-            double freq = hist[bin];
-            for (int k=0; k<freq; k++) {
-                x[l++] = bin;
-            }
-        }
-        double pt = 0;
-        if (x.length > 2) {
-            
-            EmpiricalDist ed = new EmpiricalDist(x);
-            double[] density = KernelDensity.computeDensity(ed, new NormalDist(), hist);
-            
-            double sum=0;
-            for (double d: density)
-                sum+= d;
-            
-            double d = density[(int)t];
-            
-            if (!Double.isNaN(d) && !Double.isInfinite(d))
-                pt = d/sum;
-        }    
-        return pt;
-    }
     
     public double kl(FeatureVector p, FeatureVector q) {
         double kl = 0;
@@ -216,5 +156,10 @@ public class TimeSmoothedScorerKD extends TemporalScorer
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }   
+    }
+    @Override
+    public void init(SearchHits hits) {
+        // TODO Auto-generated method stub
+        
+    }
 }

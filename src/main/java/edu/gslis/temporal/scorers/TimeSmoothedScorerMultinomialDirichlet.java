@@ -3,11 +3,11 @@
 import java.text.DateFormat;
 import java.util.Iterator;
 
+import edu.gslis.indexes.TimeSeriesIndex;
 import edu.gslis.lucene.indexer.Indexer;
-import edu.gslis.old.temporal.scorers.TemporalScorer;
-import edu.gslis.old.temporal.scorers.TimeSeriesIndex;
 import edu.gslis.queries.GQuery;
 import edu.gslis.searchhits.SearchHit;
+import edu.gslis.searchhits.SearchHits;
 import edu.gslis.textrepresentation.FeatureVector;
 
 /**
@@ -158,5 +158,10 @@ public class TimeSmoothedScorerMultinomialDirichlet extends TemporalScorer
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    @Override
+    public void init(SearchHits hits) {
+        // TODO Auto-generated method stub
+        
     }
 }

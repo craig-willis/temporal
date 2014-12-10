@@ -10,10 +10,7 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
-import edu.gslis.indexes.IndexWrapper;
-import edu.gslis.indexes.IndexWrapperFactory;
 import edu.gslis.lucene.indexer.Indexer;
-import edu.gslis.old.temporal.scorers.TimeSeriesIndex;
 import edu.gslis.textrepresentation.FeatureVector;
 
 /**
