@@ -12,6 +12,11 @@ import edu.gslis.indexes.IndexWrapper;
 import edu.gslis.indexes.IndexWrapperFactory;
 import edu.gslis.textrepresentation.FeatureVector;
 
+/**
+ * Interface to an H2 DB containing a single table "CLUSTER"
+ * with the collection document-cluster mapping.
+ * 
+ */
 public class KMeansIndex {
     
     IndexWrapper index = null;
