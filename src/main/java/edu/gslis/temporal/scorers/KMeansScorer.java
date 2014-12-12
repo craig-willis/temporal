@@ -21,6 +21,9 @@ public class KMeansScorer extends ClusterScorer {
     public double score(SearchHit doc) 
     {
         
+        double lambda = paramTable.get(LAMBDA);
+        double mu = paramTable.get(MU);
+        
         double logLikelihood = 0.0;
         Iterator<String> queryIterator = gQuery.getFeatureVector().iterator();
         while(queryIterator.hasNext()) 
@@ -37,12 +40,12 @@ public class KMeansScorer extends ClusterScorer {
             
             // smooth cluster LM using J-M
             double smoothedClusterProb = 
-                    paramTable.get(LAMBDA)*clusterProb + paramTable.get(LAMBDA)*collectionProb;
+                    lambda*clusterProb + (1-lambda)*collectionProb;
             
             // smooth document LM using Dirichlet            
             double smoothedDocProb = 
-                    (docFreq + paramTable.get(MU)*smoothedClusterProb) / 
-                    (docLength + paramTable.get(MU));
+                    (docFreq + mu*smoothedClusterProb) / 
+                    (docLength + mu);
             
             double queryWeight = gQuery.getFeatureVector().getFeatureWeight(feature);
             

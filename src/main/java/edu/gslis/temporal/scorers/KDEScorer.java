@@ -1,5 +1,7 @@
 package edu.gslis.temporal.scorers;
 
+import java.io.FileWriter;
+
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 import edu.gslis.temporal.util.RKernelDensity;
@@ -22,6 +24,8 @@ import edu.gslis.temporal.util.RKernelDensity;
 public class KDEScorer extends TemporalScorer {
     
     
+    double alpha = 0.25;
+            
     RKernelDensity dist = null;
     
     /**
@@ -32,7 +36,19 @@ public class KDEScorer extends TemporalScorer {
         
         double[] x = getTimes(hits);
         double[] w = getUniformWeights(hits);
-        dist = new RKernelDensity(x, w);        
+        dist = new RKernelDensity(x, w);    
+        
+        /*
+        try
+        {
+            FileWriter fw = new FileWriter("tmp/" + gQuery.getTitle() + ".txt");
+            for (double d: x) {
+                fw.write(d + "\n");
+            }
+            fw.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }*/
     }
     
        
@@ -41,10 +57,10 @@ public class KDEScorer extends TemporalScorer {
      */
     public double score(SearchHit doc) {
         
-        double score = super.score(doc);
-        score += Math.log(dist.density(getTime(doc)));
+        double ll = super.score(doc);
+        double kde = Math.log(dist.density(getTime(doc)));
         
-        return score;
+        return alpha*kde + (1-alpha)*ll;
     }
     
     private double[] getUniformWeights(SearchHits hits) {

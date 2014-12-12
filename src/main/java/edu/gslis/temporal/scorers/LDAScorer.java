@@ -29,6 +29,9 @@ public class LDAScorer extends RerankingScorer {
     public double score(SearchHit doc) 
     {
         
+        double lambda = paramTable.get(LAMBDA);
+        double mu = paramTable.get(MU);
+        
         double logLikelihood = 0.0;
         Iterator<String> queryIterator = gQuery.getFeatureVector().iterator();
         while(queryIterator.hasNext()) 
@@ -45,13 +48,13 @@ public class LDAScorer extends RerankingScorer {
             double topicsProb = ldaIndex.getTermProbability(doc.getDocno(), feature);
             
             // Smooth topic LM with collection LM
-            double smoothedClusterProb = 
-                    paramTable.get(LAMBDA)*topicsProb + paramTable.get(LAMBDA)*collectionProb;
+            double smoothedTopicProb = 
+                    lambda*topicsProb + (1-lambda)*collectionProb;
             
             // Smooth document LM with topic LM            
             double smoothedDocProb = 
-                    (docFreq + paramTable.get(MU)*smoothedClusterProb) / 
-                    (docLength + paramTable.get(MU));
+                    (docFreq + mu*smoothedTopicProb) / 
+                    (docLength + mu);
             
             double queryWeight = gQuery.getFeatureVector().getFeatureWeight(feature);
             
