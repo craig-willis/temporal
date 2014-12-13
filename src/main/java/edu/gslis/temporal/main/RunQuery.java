@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.lemurproject.kstem.KrovetzStemmer;
+import org.lemurproject.kstem.Stemmer;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
@@ -33,27 +35,22 @@ import edu.gslis.temporal.scorers.ClusterScorer;
 import edu.gslis.temporal.scorers.LDAScorer;
 import edu.gslis.temporal.scorers.RerankingScorer;
 import edu.gslis.temporal.scorers.TemporalScorer;
+import edu.gslis.temporal.scorers.TimeLDA;
 import edu.gslis.textrepresentation.FeatureVector;
 
 
 /** 
  * 
- * For KDE model
+ * edu.gslis.temporal.main.RunQuery config/config.yaml
  * 
- * 1. Retrieval initial set of documents, score using QL
- * 2. Apply temporal retrieval model, re-rank results
- * 3. Re-run retrieval with feedback model
- * 4. Re-rank results using temporal model
- * 
- * For word-index model
- * 1. Retrieve initial set of documents using default indri model
- * 2. Rescore each document
- * 3. Generate RM3 model
- * 4  Re-run retrieval model with feedback
- * 5. Re-score each document.
- * 6. Re-rank 
- * 
- *
+ * For each configured collection
+ *    For each configured scorer
+ *       For each configured set of topics
+ *          Run initial retrieval
+ *          Rescore
+ *          Calculate RM3 model
+ *          Rescore
+ *          Output results
  */
 public class RunQuery extends YAMLConfigBase 
 {
@@ -136,9 +133,13 @@ public class RunQuery extends YAMLConfigBase
                     if (docScorer instanceof ClusterScorer)  {
                         ((ClusterScorer)docScorer).setIndex(clusterIndex);
                     }
-                    if (docScorer instanceof LDAScorer) 
+                    if (docScorer instanceof LDAScorer)
                         ((LDAScorer)docScorer).setIndex(ldaIndex);
 
+                    if (scorerName.contains("tlda"))
+                        ((TimeLDA)docScorer).setIndex(ldaIndex);
+
+                    
                     String runId = prefix + "-" + scorerName + "_" + collectionName + "_" + queryFileName;
                     String trecResultsFile = outputDir + File.separator + runId + ".out";
                     
@@ -156,13 +157,27 @@ public class RunQuery extends YAMLConfigBase
                     FormattedOutputTrecEval trecFormattedWriterRm3 = new FormattedOutputTrecEval();
                     trecFormattedWriterRm3.setRunId(runIdRm3);
                     trecFormattedWriterRm3.setWriter(trecResultsWriterRm3);
+                    
+                    Stemmer stemmer = new KrovetzStemmer();
 
                     Iterator<GQuery> queryIterator = queries.iterator();
                     while(queryIterator.hasNext()) 
                     {                            
                         GQuery query = queryIterator.next();
                         System.err.println(query.getTitle() + ":" + query.getText());
-                        query.applyStopper(stopper);
+                        String queryText = query.getText().trim();
+                        String[] terms = queryText.split("\\s+");
+                        String stemmedQuery = "";
+                        for (String term: terms) {
+                            if (!stopper.isStopWord(term))
+                                stemmedQuery += stemmer.stem(term) + " ";
+                        }
+                        stemmedQuery = stemmedQuery.trim();
+                        query.setText(stemmedQuery);
+                        FeatureVector fv = new FeatureVector(stemmedQuery, stopper);
+                        query.setFeatureVector(fv);
+                        System.err.println("\t stemmed: " + query.getText());
+
                                     
                         docScorer.setQuery(query);
                         
@@ -198,7 +213,7 @@ public class RunQuery extends YAMLConfigBase
                         feedbackQuery.setFeatureVector(feedbackVector);
                                                 
                         SearchHits rm3results = index.runQuery(feedbackQuery, NUM_RESULTS);
-                        /*
+                        
                         docScorer.setQuery(feedbackQuery);
                         docScorer.init(rm3results);
                              
@@ -208,7 +223,7 @@ public class RunQuery extends YAMLConfigBase
                             double score = docScorer.score(hit);
                             hit.setScore(score);
                         }
-                        */
+                        
                         rm3results.rank();
 
                         trecFormattedWriter.write(results, query.getTitle());
