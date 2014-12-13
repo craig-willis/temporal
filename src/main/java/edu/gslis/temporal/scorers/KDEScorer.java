@@ -24,7 +24,7 @@ import edu.gslis.temporal.util.RKernelDensity;
 public class KDEScorer extends TemporalScorer {
     
     
-    double alpha = 0.25;
+    static String ALPHA = "alpha";
             
     RKernelDensity dist = null;
     
@@ -56,6 +56,8 @@ public class KDEScorer extends TemporalScorer {
      * Combine QL score and temporal score
      */
     public double score(SearchHit doc) {
+        
+        double alpha = paramTable.get(ALPHA);
         
         double ll = super.score(doc);
         double kde = Math.log(dist.density(getTime(doc)));
