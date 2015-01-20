@@ -271,12 +271,15 @@ public class TimeSeriesIndex {
         
         DecimalFormat df = new DecimalFormat("###.####");
         double[] totals = timeSeriesMap.get("_total_");
+        totals = new double[totals.length];
         for (String term: vocab) {
             
             if (term.equals("_total_"))
                 continue;
             
             double[] counts = timeSeriesMap.get(term);
+            if (counts.length < totals.length)
+                continue;
             
             DescriptiveStatistics stats = new DescriptiveStatistics();
             for (double count: counts)
