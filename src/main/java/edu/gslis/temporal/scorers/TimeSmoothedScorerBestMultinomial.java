@@ -76,7 +76,6 @@ public class TimeSmoothedScorerBestMultinomial extends TemporalScorer
             double maxScore = Double.NEGATIVE_INFINITY;
             int bestBin = t;
             for (int bin: pis.keySet()) {
-//            for (FeatureVector tfv: pis.values()) {
                 FeatureVector tfv = pis.get(bin);
                 tfv.normalize();
                 double score = scoreTemporalModel(dv, tfv);
@@ -86,21 +85,6 @@ public class TimeSmoothedScorerBestMultinomial extends TemporalScorer
                     bestBin = bin;
                 }                    
             }            
-            
-            // Select the temporal model with the smallest KL divergence from the document
-            /*
-            FeatureVector bestTM2 = pis.get(t);
-            double minKL = -1;
-            for (int bin: pis.keySet()) {
-                FeatureVector pi = pis.get(bin);
-                // KL (pi|dv)
-                double kl = kl(pi, dv);
-                if ((kl > 0 && minKL < 0) || (kl > 0 && kl < minKL)) {
-                    minKL = kl;
-                    bestTM2 = pi;
-                }
-            }
-            */
             
             // Now calculate the score for this document using 
             // a combination of the temporal and collection LM.
@@ -117,16 +101,8 @@ public class TimeSmoothedScorerBestMultinomial extends TemporalScorer
                 double docFreq = doc.getFeatureVector().getFeatureWeight(feature);
                 double docLength = doc.getLength();
 
-                double smoothedTempPr = pwC;
-
-                //System.out.println(kls[bestBin]);
-                //System.out.println(klstats.getMean() + klstats.getStandardDeviation());
-
-                // Only smooth if temporal bin has enough info to do so
-                //if (kls[bestBin] > (klstats.getMean() + 2*  klstats.getStandardDeviation())) {
-                    // Smooth temporal language model with collection language model
-                    smoothedTempPr = lambda*timePr + (1-lambda)*pwC;
-                //}
+                // Smooth the temporal model wiith the collection model
+                double smoothedTempPr = lambda*timePr + (1-lambda)*pwC;
                     
                 // Smooth document language model with temporal language model
                 double smoothedDocProb = (docFreq + mu*smoothedTempPr)/(docLength + mu);
@@ -142,30 +118,7 @@ public class TimeSmoothedScorerBestMultinomial extends TemporalScorer
            
         return logLikelihood;
     }
-    
-    public double scoreTemporalModel(FeatureVector dv, FeatureVector tfv)
-    {
-        double logLikelihood = 0.0;
         
-        
-        double add = 1/(double)dv.getFeatureCount();
-        
-        for (String feature: dv.getFeatures())
-        {
-                                       
-            double tfreq = tfv.getFeatureWeight(feature);
-            double tlen = tfv.getLength();
-            
-            double smoothedProb = (tfreq + add)/(tlen + 1);
-
-            double docWeight = dv.getFeatureWeight(feature);
-            
-            logLikelihood += docWeight * Math.log(smoothedProb);
-        }                        
-           
-        return logLikelihood;
-    }
-    
     
     @Override
     public void close() {
