@@ -199,8 +199,8 @@ public abstract class TemporalScorer extends RerankingScorer
                     
                     if (total[i] != 0) 
                         tm.addTerm(feature, series[i]/total[i]);
-                    else
-                        System.out.println("Warning: bin " + i + " is empty");
+                    ///else
+                    //    System.out.println("Warning: bin " + i + " is empty");
                     
                     tms.put(i, tm);
                 }

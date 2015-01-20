@@ -44,7 +44,7 @@ public class TimeSmoothedScorerAverage extends TemporalScorer
             double z = 0;            
             for (int bin: tms.keySet()) {
                 double score = scoreTemporalModel(dv, tms.get(bin));
-                scores[ bin] = score;
+                scores[bin] = score;
                 z += score;
             }
             
