@@ -26,6 +26,25 @@ public class RKernelDensity {
 		}
 	}
 
+    public double mean() {
+        double mu = 0.0;       
+         try {
+             mu = c.eval("mean(kern$y)").asDouble();
+         } catch (Exception e) {
+             e.printStackTrace();
+         }
+         return mu;
+     }
+	
+	public double sd() {
+       double sd = 0.0;       
+        try {
+            sd = c.eval("sd(kern$y)").asDouble();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return sd;
+	}
 
 	public double density(double x) {
 		double f = 0.0;
