@@ -21,6 +21,7 @@ import edu.gslis.indexes.IndexWrapper;
 import edu.gslis.indexes.IndexWrapperFactory;
 import edu.gslis.indexes.LDAIndex;
 import edu.gslis.indexes.TimeSeriesIndex;
+import edu.gslis.indexes.TimeSeriesKL;
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.main.config.BatchConfig;
 import edu.gslis.main.config.CollectionConfig;
@@ -100,9 +101,20 @@ public class RunQuery extends YAMLConfigBase
                 index.setTimeFieldName(Indexer.FIELD_EPOCH);
                 
                 TimeSeriesIndex timeSeriesIndex = new TimeSeriesIndex();
-                if (StringUtil.notEmpty(timeSeriesDBPath))
+                int numBins = 0;
+                if (interval > 0) 
+                    numBins = (int) ((endTime - startTime) / interval);
+                double[] klweights = new double[numBins];
+                if (StringUtil.notEmpty(timeSeriesDBPath)) {
                     timeSeriesIndex.open(timeSeriesDBPath, true, "csv");
-                
+                    
+                    System.out.println("Calculating KL divergence");
+                    // Calculate KL divergence
+                    TimeSeriesKL tskl = new TimeSeriesKL();
+                    klweights = tskl.calculateBinKL(index, timeSeriesIndex);
+                                       
+                    System.out.println("done");
+                }
                 
                 LDAIndex ldaIndex = new LDAIndex();
                 if (StringUtil.notEmpty(ldaDocTopicsPath) &&
@@ -179,6 +191,7 @@ public class RunQuery extends YAMLConfigBase
                             ((TemporalScorer)docScorer).setStartTime(startTime);
                             ((TemporalScorer)docScorer).setEndTime(endTime);
                             ((TemporalScorer)docScorer).setInterval(interval);
+                            ((TemporalScorer)docScorer).setKLs(klweights);
                         }
                         if (docScorer instanceof LDAScorer)
                             ((LDAScorer)docScorer).setIndex(ldaIndex);
