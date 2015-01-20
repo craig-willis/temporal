@@ -78,7 +78,7 @@ public class TimeSmoothedScorerBestMultinomialWeighted extends TemporalScorer
                 double docLength = doc.getLength();
 
                 // Weight by KL divergence of bin
-                double smoothedTempPr = kls[bestBin] * lambda*timePr + (1-lambda)*pwC;
+                double smoothedTempPr = kls[bestBin] * (lambda*timePr + (1-lambda)*pwC);
                     
                 // Smooth document language model with temporal language model
                 double smoothedDocProb = (docFreq + mu*smoothedTempPr)/(docLength + mu);

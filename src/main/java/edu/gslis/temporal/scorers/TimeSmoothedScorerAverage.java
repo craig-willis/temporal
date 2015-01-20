@@ -43,7 +43,7 @@ public class TimeSmoothedScorerAverage extends TemporalScorer
             double[] scores = new double[tms.size()];
             double z = 0;            
             for (int bin: tms.keySet()) {
-                double score = scoreTemporalModel(dv, tms.get( bin));
+                double score = scoreTemporalModel(dv, tms.get(bin));
                 scores[ bin] = score;
                 z += score;
             }
@@ -60,7 +60,7 @@ public class TimeSmoothedScorerAverage extends TemporalScorer
                 //p(w | C): +1 is necessary when working with partial collections (i.e., latimes)
                 double collectionProb = (1 + collectionStats.termCount(feature)) / collectionStats.getTokCount();
 
-                // Weight the probability for each bin by the noramlized KL score
+                // Weight the probability for each temporal model by the normalized score
                 double timePr = 0;
                 for (int bin: tms.keySet()) {
                     FeatureVector tfv = tms.get(bin);
