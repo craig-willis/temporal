@@ -144,4 +144,31 @@ public abstract class TemporalScorer extends RerankingScorer
         return timePr;
     }
     
+    /**
+     * Score the temporal model with repsect to the document model.
+     * Smooth the temporal model using the collection model.
+     * 
+     * @param dv    Document model
+     * @param tfv   Temporal model
+     * @return
+     */
+    public double scoreTemporalModel(FeatureVector dm, FeatureVector tm)
+    {
+        double logLikelihood = 0.0;
+                     
+        for (String feature: dm.getFeatures())
+        {                                       
+            double tfreq = tm.getFeatureWeight(feature);
+            double tlen = tm.getLength();
+            
+            double smoothedProb = (tfreq + 1)/(tlen + collectionStats.getTokCount());
+
+            double docWeight = dm.getFeatureWeight(feature);
+            
+            logLikelihood += docWeight * Math.log(smoothedProb);
+        }                        
+           
+        return logLikelihood;
+    }
+    
 }
