@@ -1,0 +1,398 @@
+<parameters>
+<query>
+<number>51</number>
+<text>airbus subsidy</text>
+</query>
+<query>
+<number>52</number>
+<text>south africa sanction</text>
+</query>
+<query>
+<number>53</number>
+<text>leverage buyout</text>
+</query>
+<query>
+<number>54</number>
+<text>satellite launch contract</text>
+</query>
+<query>
+<number>55</number>
+<text>insider trade</text>
+</query>
+<query>
+<number>56</number>
+<text>prime lend rate move prediction</text>
+</query>
+<query>
+<number>57</number>
+<text>mci</text>
+</query>
+<query>
+<number>58</number>
+<text>rail strike</text>
+</query>
+<query>
+<number>59</number>
+<text>weather related fatality</text>
+</query>
+<query>
+<number>60</number>
+<text>merit pay seniority</text>
+</query>
+<query>
+<number>61</number>
+<text>israel role iran contra affair</text>
+</query>
+<query>
+<number>62</number>
+<text>military coup d etat</text>
+</query>
+<query>
+<number>63</number>
+<text>machine translate</text>
+</query>
+<query>
+<number>64</number>
+<text>hostage taking</text>
+</query>
+<query>
+<number>66</number>
+<text>natural language process</text>
+</query>
+<query>
+<number>67</number>
+<text>politics motivate civil disturbance</text>
+</query>
+<query>
+<number>68</number>
+<text>health hazard fine diameter fiber</text>
+</query>
+<query>
+<number>69</number>
+<text>attempt revive salt ii treaty</text>
+</query>
+<query>
+<number>70</number>
+<text>surrogate motherhood</text>
+</query>
+<query>
+<number>71</number>
+<text>border incursion</text>
+</query>
+<query>
+<number>72</number>
+<text>demography shift</text>
+</query>
+<query>
+<number>73</number>
+<text>demography shift national boundary</text>
+</query>
+<query>
+<number>74</number>
+<text>conflict policy</text>
+</query>
+<query>
+<number>75</number>
+<text>automation</text>
+</query>
+<query>
+<number>76</number>
+<text>constitution original intent</text>
+</query>
+<query>
+<number>77</number>
+<text>poach</text>
+</query>
+<query>
+<number>78</number>
+<text>greenpeace</text>
+</query>
+<query>
+<number>79</number>
+<text>frg politics party position</text>
+</query>
+<query>
+<number>80</number>
+<text>1988 presidential candidate platform</text>
+</query>
+<query>
+<number>81</number>
+<text>financial crunch televangelist wake ptl scandal</text>
+</query>
+<query>
+<number>82</number>
+<text>genetic engineering</text>
+</query>
+<query>
+<number>83</number>
+<text>measure protect atmosphere</text>
+</query>
+<query>
+<number>84</number>
+<text>alternative renewable energy plant equipment installation</text>
+</query>
+<query>
+<number>85</number>
+<text>official corruption</text>
+</query>
+<query>
+<number>86</number>
+<text>bank failure</text>
+</query>
+<query>
+<number>87</number>
+<text>criminal action officer fail financial institution</text>
+</query>
+<query>
+<number>88</number>
+<text>crude oil price trend</text>
+</query>
+<query>
+<number>89</number>
+<text>downstream investment opec member states</text>
+</query>
+<query>
+<number>90</number>
+<text>data proven reserve oil natural gas producer</text>
+</query>
+<query>
+<number>91</number>
+<text>army acquisition advanced weapon system</text>
+</query>
+<query>
+<number>92</number>
+<text>international military equipment sales</text>
+</query>
+<query>
+<number>93</number>
+<text>backing national rifle association</text>
+</query>
+<query>
+<number>94</number>
+<text>computer aid crime</text>
+</query>
+<query>
+<number>95</number>
+<text>computer aid crime detection</text>
+</query>
+<query>
+<number>96</number>
+<text>computer aid medical diagnosis</text>
+</query>
+<query>
+<number>97</number>
+<text>fiber optics application</text>
+</query>
+<query>
+<number>98</number>
+<text>fiber optics equipment manufacturer</text>
+</query>
+<query>
+<number>99</number>
+<text>iran contra affair</text>
+</query>
+<query>
+<number>100</number>
+<text>control transfer high technology</text>
+</query>
+<query>
+<number>101</number>
+<text>design star war anti missile defense system</text>
+</query>
+<query>
+<number>102</number>
+<text>laser research applicable s strategic defense initiative</text>
+</query>
+<query>
+<number>103</number>
+<text>welfare reform</text>
+</query>
+<query>
+<number>104</number>
+<text>catastrophe health insurance</text>
+</query>
+<query>
+<number>105</number>
+<text>black monday</text>
+</query>
+<query>
+<number>106</number>
+<text>control insider trade</text>
+</query>
+<query>
+<number>107</number>
+<text>japan regulation insider trade</text>
+</query>
+<query>
+<number>108</number>
+<text>japan protectionist measure</text>
+</query>
+<query>
+<number>109</number>
+<text>find innovate company</text>
+</query>
+<query>
+<number>110</number>
+<text>black resistance south africa government</text>
+</query>
+<query>
+<number>111</number>
+<text>nuclear proliferation</text>
+</query>
+<query>
+<number>112</number>
+<text>fund biotechnology</text>
+</query>
+<query>
+<number>113</number>
+<text>new space satellite application</text>
+</query>
+<query>
+<number>114</number>
+<text>non commercial satellite launch</text>
+</query>
+<query>
+<number>115</number>
+<text>impact 1986 immigrate law</text>
+</query>
+<query>
+<number>116</number>
+<text>generic drug substitute</text>
+</query>
+<query>
+<number>117</number>
+<text>capacity cellular telephone network</text>
+</query>
+<query>
+<number>118</number>
+<text>international terrorist</text>
+</query>
+<query>
+<number>119</number>
+<text>action international terrorist</text>
+</query>
+<query>
+<number>120</number>
+<text>economic impact international terrorism</text>
+</query>
+<query>
+<number>121</number>
+<text>death cancer</text>
+</query>
+<query>
+<number>122</number>
+<text>rdt e new cancer fight drug</text>
+</query>
+<query>
+<number>123</number>
+<text>research control carcinogen</text>
+</query>
+<query>
+<number>124</number>
+<text>alternative traditional cancer therapy</text>
+</query>
+<query>
+<number>125</number>
+<text>anti smoking action government</text>
+</query>
+<query>
+<number>126</number>
+<text>medical ethics modern technology</text>
+</query>
+<query>
+<number>127</number>
+<text>ussr arms control agreement</text>
+</query>
+<query>
+<number>128</number>
+<text>private state asset</text>
+</query>
+<query>
+<number>129</number>
+<text>soviet spy</text>
+</query>
+<query>
+<number>130</number>
+<text>jewish emigrate ussr relations</text>
+</query>
+<query>
+<number>131</number>
+<text>mcdonnell douglas contract military aircraft</text>
+</query>
+<query>
+<number>132</number>
+<text>stealth aircraft</text>
+</query>
+<query>
+<number>133</number>
+<text>hubble space telescope</text>
+</query>
+<query>
+<number>134</number>
+<text>human genome project</text>
+</query>
+<query>
+<number>135</number>
+<text>possible contribution gene mapping medicine</text>
+</query>
+<query>
+<number>136</number>
+<text>diversify pacific telesi</text>
+</query>
+<query>
+<number>137</number>
+<text>expansion theme park industry</text>
+</query>
+<query>
+<number>138</number>
+<text>iran support lebanon hostage take</text>
+</query>
+<query>
+<number>139</number>
+<text>iran s islam revolution domestic foreign social consequence</text>
+</query>
+<query>
+<number>140</number>
+<text>politics impact islam fundamentalism</text>
+</query>
+<query>
+<number>141</number>
+<text>japan s handle trade surplus</text>
+</query>
+<query>
+<number>142</number>
+<text>impact government regulate grain farming international relations</text>
+</query>
+<query>
+<number>143</number>
+<text>protect farmer</text>
+</query>
+<query>
+<number>144</number>
+<text>management problem united nation</text>
+</query>
+<query>
+<number>145</number>
+<text>influence pro israel lobby</text>
+</query>
+<query>
+<number>146</number>
+<text>negotiate end nicaragua civil war</text>
+</query>
+<query>
+<number>147</number>
+<text>productivity trend economy</text>
+</query>
+<query>
+<number>148</number>
+<text>conflict horn africa</text>
+</query>
+<query>
+<number>149</number>
+<text>industrial espionage</text>
+</query>
+<query>
+<number>150</number>
+<text>politics campaign finance</text>
+</query>
+</parameters>

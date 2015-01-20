@@ -1,0 +1,854 @@
+{
+  "queries": [
+    {
+      "title": "351",
+      "text": "falkland petroleum exploration",
+      "constraint": "#syn(#band(falkland petroleum) #band(falkland exploration) #band(petroleum exploration) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "petroleum"
+        },
+        {
+          "weight": "1",
+          "feature": "falkland"
+        },
+        {
+          "weight": "1",
+          "feature": "exploration"
+        }
+      ]
+    },
+    {
+      "title": "352",
+      "text": "british chunnel impact",
+      "constraint": "#syn(#band(british chunnel) #band(british impact) #band(chunnel impact) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "british"
+        },
+        {
+          "weight": "1",
+          "feature": "impact"
+        },
+        {
+          "weight": "1",
+          "feature": "chunnel"
+        }
+      ]
+    },
+    {
+      "title": "353",
+      "text": "antarctica exploration",
+      "constraint": "#syn(#band(antarctica exploration) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "antarctica"
+        },
+        {
+          "weight": "1",
+          "feature": "exploration"
+        }
+      ]
+    },
+    {
+      "title": "354",
+      "text": "journalist risks",
+      "constraint": "#syn(#band(journalist risks) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "risks"
+        },
+        {
+          "weight": "1",
+          "feature": "journalist"
+        }
+      ]
+    },
+    {
+      "title": "355",
+      "text": "ocean remote sensing",
+      "constraint": "#syn(#band(ocean remote) #band(ocean sensing) #band(remote sensing) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "ocean"
+        },
+        {
+          "weight": "1",
+          "feature": "remote"
+        },
+        {
+          "weight": "1",
+          "feature": "sensing"
+        }
+      ]
+    },
+    {
+      "title": "356",
+      "text": "postmenopausal estrogen britain",
+      "constraint": "#syn(#band(postmenopausal estrogen) #band(postmenopausal britain) #band(estrogen britain) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "estrogen"
+        },
+        {
+          "weight": "1",
+          "feature": "postmenopausal"
+        },
+        {
+          "weight": "1",
+          "feature": "britain"
+        }
+      ]
+    },
+    {
+      "title": "357",
+      "text": "territorial waters dispute",
+      "constraint": "#syn(#band(territorial waters) #band(territorial dispute) #band(waters dispute) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "waters"
+        },
+        {
+          "weight": "1",
+          "feature": "territorial"
+        },
+        {
+          "weight": "1",
+          "feature": "dispute"
+        }
+      ]
+    },
+    {
+      "title": "358",
+      "text": "blood alcohol fatalities",
+      "constraint": "#syn(#band(blood alcohol) #band(blood fatalities) #band(alcohol fatalities) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "alcohol"
+        },
+        {
+          "weight": "1",
+          "feature": "fatalities"
+        },
+        {
+          "weight": "1",
+          "feature": "blood"
+        }
+      ]
+    },
+    {
+      "title": "359",
+      "text": "mutual fund predictors",
+      "constraint": "#syn(#band(mutual fund) #band(mutual predictors) #band(fund predictors) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "predictors"
+        },
+        {
+          "weight": "1",
+          "feature": "mutual"
+        },
+        {
+          "weight": "1",
+          "feature": "fund"
+        }
+      ]
+    },
+    {
+      "title": "360",
+      "text": "drug legalization benefits",
+      "constraint": "#syn(#band(drug legalization) #band(drug benefits) #band(legalization benefits) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "legalization"
+        },
+        {
+          "weight": "1",
+          "feature": "benefits"
+        },
+        {
+          "weight": "1",
+          "feature": "drug"
+        }
+      ]
+    },
+    {
+      "title": "361",
+      "text": "clothing sweatshops",
+      "constraint": "#syn(#band(clothing sweatshops) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "clothing"
+        },
+        {
+          "weight": "1",
+          "feature": "sweatshops"
+        }
+      ]
+    },
+    {
+      "title": "362",
+      "text": "human smuggling",
+      "constraint": "#syn(#band(human smuggling) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "smuggling"
+        },
+        {
+          "weight": "1",
+          "feature": "human"
+        }
+      ]
+    },
+    {
+      "title": "363",
+      "text": "transportation tunnel disasters",
+      "constraint": "#syn(#band(transportation tunnel) #band(transportation disasters) #band(tunnel disasters) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "disasters"
+        },
+        {
+          "weight": "1",
+          "feature": "transportation"
+        },
+        {
+          "weight": "1",
+          "feature": "tunnel"
+        }
+      ]
+    },
+    {
+      "title": "364",
+      "text": "rabies",
+      "constraint": "#syn(rabies)",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "rabies"
+        }
+      ]
+    },
+    {
+      "title": "365",
+      "text": "el nino",
+      "constraint": "#syn(#band(el nino) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "el"
+        },
+        {
+          "weight": "1",
+          "feature": "nino"
+        }
+      ]
+    },
+    {
+      "title": "366",
+      "text": "commercial cyanide uses",
+      "constraint": "#syn(#band(commercial cyanide) #band(commercial uses) #band(cyanide uses) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "cyanide"
+        },
+        {
+          "weight": "1",
+          "feature": "uses"
+        },
+        {
+          "weight": "1",
+          "feature": "commercial"
+        }
+      ]
+    },
+    {
+      "title": "367",
+      "text": "piracy",
+      "constraint": "#syn(piracy)",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "piracy"
+        }
+      ]
+    },
+    {
+      "title": "368",
+      "text": "in vitro fertilization",
+      "constraint": "#syn(#band(vitro fertilization) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "fertilization"
+        },
+        {
+          "weight": "1",
+          "feature": "vitro"
+        }
+      ]
+    },
+    {
+      "title": "369",
+      "text": "anorexia nervosa bulimia",
+      "constraint": "#syn(#band(anorexia nervosa) #band(anorexia bulimia) #band(nervosa bulimia) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "anorexia"
+        },
+        {
+          "weight": "1",
+          "feature": "nervosa"
+        },
+        {
+          "weight": "1",
+          "feature": "bulimia"
+        }
+      ]
+    },
+    {
+      "title": "370",
+      "text": "food drug laws",
+      "constraint": "#syn(#band(food drug) #band(food laws) #band(drug laws) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "food"
+        },
+        {
+          "weight": "1",
+          "feature": "laws"
+        },
+        {
+          "weight": "1",
+          "feature": "drug"
+        }
+      ]
+    },
+    {
+      "title": "371",
+      "text": "health insurance holistic",
+      "constraint": "#syn(#band(health insurance) #band(health holistic) #band(insurance holistic) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "insurance"
+        },
+        {
+          "weight": "1",
+          "feature": "holistic"
+        },
+        {
+          "weight": "1",
+          "feature": "health"
+        }
+      ]
+    },
+    {
+      "title": "372",
+      "text": "native american casino",
+      "constraint": "#syn(#band(native american) #band(native casino) #band(american casino) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "native"
+        },
+        {
+          "weight": "1",
+          "feature": "american"
+        },
+        {
+          "weight": "1",
+          "feature": "casino"
+        }
+      ]
+    },
+    {
+      "title": "373",
+      "text": "encryption equipment export",
+      "constraint": "#syn(#band(encryption equipment) #band(encryption export) #band(equipment export) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "export"
+        },
+        {
+          "weight": "1",
+          "feature": "encryption"
+        },
+        {
+          "weight": "1",
+          "feature": "equipment"
+        }
+      ]
+    },
+    {
+      "title": "374",
+      "text": "nobel prize winners",
+      "constraint": "#syn(#band(nobel prize) #band(nobel winners) #band(prize winners) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "winners"
+        },
+        {
+          "weight": "1",
+          "feature": "nobel"
+        },
+        {
+          "weight": "1",
+          "feature": "prize"
+        }
+      ]
+    },
+    {
+      "title": "375",
+      "text": "hydrogen energy",
+      "constraint": "#syn(#band(hydrogen energy) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "hydrogen"
+        },
+        {
+          "weight": "1",
+          "feature": "energy"
+        }
+      ]
+    },
+    {
+      "title": "376",
+      "text": "world court",
+      "constraint": "#syn(#band(world court) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "court"
+        },
+        {
+          "weight": "1",
+          "feature": "world"
+        }
+      ]
+    },
+    {
+      "title": "377",
+      "text": "cigar smoking",
+      "constraint": "#syn(#band(cigar smoking) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "cigar"
+        },
+        {
+          "weight": "1",
+          "feature": "smoking"
+        }
+      ]
+    },
+    {
+      "title": "378",
+      "text": "euro opposition",
+      "constraint": "#syn(#band(euro opposition) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "opposition"
+        },
+        {
+          "weight": "1",
+          "feature": "euro"
+        }
+      ]
+    },
+    {
+      "title": "379",
+      "text": "mainstreaming",
+      "constraint": "#syn(mainstreaming)",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "mainstreaming"
+        }
+      ]
+    },
+    {
+      "title": "380",
+      "text": "obesity medical treatment",
+      "constraint": "#syn(#band(obesity medical) #band(obesity treatment) #band(medical treatment) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "medical"
+        },
+        {
+          "weight": "1",
+          "feature": "treatment"
+        },
+        {
+          "weight": "1",
+          "feature": "obesity"
+        }
+      ]
+    },
+    {
+      "title": "381",
+      "text": "alternative medicine",
+      "constraint": "#syn(#band(alternative medicine) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "alternative"
+        },
+        {
+          "weight": "1",
+          "feature": "medicine"
+        }
+      ]
+    },
+    {
+      "title": "382",
+      "text": "hydrogen fuel automobiles",
+      "constraint": "#syn(#band(hydrogen fuel) #band(hydrogen automobiles) #band(fuel automobiles) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "automobiles"
+        },
+        {
+          "weight": "1",
+          "feature": "hydrogen"
+        },
+        {
+          "weight": "1",
+          "feature": "fuel"
+        }
+      ]
+    },
+    {
+      "title": "383",
+      "text": "mental illness drugs",
+      "constraint": "#syn(#band(mental illness) #band(mental drugs) #band(illness drugs) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "drugs"
+        },
+        {
+          "weight": "1",
+          "feature": "illness"
+        },
+        {
+          "weight": "1",
+          "feature": "mental"
+        }
+      ]
+    },
+    {
+      "title": "384",
+      "text": "space station moon",
+      "constraint": "#syn(#band(space station) #band(space moon) #band(station moon) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "moon"
+        },
+        {
+          "weight": "1",
+          "feature": "station"
+        },
+        {
+          "weight": "1",
+          "feature": "space"
+        }
+      ]
+    },
+    {
+      "title": "385",
+      "text": "hybrid fuel cars",
+      "constraint": "#syn(#band(hybrid fuel) #band(hybrid cars) #band(fuel cars) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "cars"
+        },
+        {
+          "weight": "1",
+          "feature": "fuel"
+        },
+        {
+          "weight": "1",
+          "feature": "hybrid"
+        }
+      ]
+    },
+    {
+      "title": "386",
+      "text": "teaching disabled children",
+      "constraint": "#syn(#band(teaching disabled) #band(teaching children) #band(disabled children) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "teaching"
+        },
+        {
+          "weight": "1",
+          "feature": "children"
+        },
+        {
+          "weight": "1",
+          "feature": "disabled"
+        }
+      ]
+    },
+    {
+      "title": "387",
+      "text": "radioactive waste",
+      "constraint": "#syn(#band(radioactive waste) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "waste"
+        },
+        {
+          "weight": "1",
+          "feature": "radioactive"
+        }
+      ]
+    },
+    {
+      "title": "388",
+      "text": "organic soil enhancement",
+      "constraint": "#syn(#band(organic soil) #band(organic enhancement) #band(soil enhancement) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "organic"
+        },
+        {
+          "weight": "1",
+          "feature": "enhancement"
+        },
+        {
+          "weight": "1",
+          "feature": "soil"
+        }
+      ]
+    },
+    {
+      "title": "389",
+      "text": "illegal technology transfer",
+      "constraint": "#syn(#band(illegal technology) #band(illegal transfer) #band(technology transfer) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "transfer"
+        },
+        {
+          "weight": "1",
+          "feature": "technology"
+        },
+        {
+          "weight": "1",
+          "feature": "illegal"
+        }
+      ]
+    },
+    {
+      "title": "390",
+      "text": "orphan drugs",
+      "constraint": "#syn(#band(orphan drugs) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "orphan"
+        },
+        {
+          "weight": "1",
+          "feature": "drugs"
+        }
+      ]
+    },
+    {
+      "title": "391",
+      "text": "r d drug prices",
+      "constraint": "#syn(#band(r d) #band(r drug) #band(r prices) #band(d drug) #band(d prices) #band(drug prices) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "d"
+        },
+        {
+          "weight": "1",
+          "feature": "r"
+        },
+        {
+          "weight": "1",
+          "feature": "prices"
+        },
+        {
+          "weight": "1",
+          "feature": "drug"
+        }
+      ]
+    },
+    {
+      "title": "392",
+      "text": "robotics",
+      "constraint": "#syn(robotics)",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "robotics"
+        }
+      ]
+    },
+    {
+      "title": "393",
+      "text": "mercy killing",
+      "constraint": "#syn(#band(mercy killing) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "killing"
+        },
+        {
+          "weight": "1",
+          "feature": "mercy"
+        }
+      ]
+    },
+    {
+      "title": "394",
+      "text": "home schooling",
+      "constraint": "#syn(#band(home schooling) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "home"
+        },
+        {
+          "weight": "1",
+          "feature": "schooling"
+        }
+      ]
+    },
+    {
+      "title": "395",
+      "text": "tourism",
+      "constraint": "#syn(tourism)",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "tourism"
+        }
+      ]
+    },
+    {
+      "title": "396",
+      "text": "sick building syndrome",
+      "constraint": "#syn(#band(sick building) #band(sick syndrome) #band(building syndrome) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "building"
+        },
+        {
+          "weight": "1",
+          "feature": "syndrome"
+        },
+        {
+          "weight": "1",
+          "feature": "sick"
+        }
+      ]
+    },
+    {
+      "title": "397",
+      "text": "automobile recalls",
+      "constraint": "#syn(#band(automobile recalls) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "automobile"
+        },
+        {
+          "weight": "1",
+          "feature": "recalls"
+        }
+      ]
+    },
+    {
+      "title": "398",
+      "text": "dismantling europe s arsenal",
+      "constraint": "#syn(#band(dismantling europe) #band(dismantling s) #band(dismantling arsenal) #band(europe s) #band(europe arsenal) #band(s arsenal) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "europe"
+        },
+        {
+          "weight": "1",
+          "feature": "arsenal"
+        },
+        {
+          "weight": "1",
+          "feature": "s"
+        },
+        {
+          "weight": "1",
+          "feature": "dismantling"
+        }
+      ]
+    },
+    {
+      "title": "399",
+      "text": "oceanographic vessels",
+      "constraint": "#syn(#band(oceanographic vessels) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "oceanographic"
+        },
+        {
+          "weight": "1",
+          "feature": "vessels"
+        }
+      ]
+    },
+    {
+      "title": "400",
+      "text": "amazon rain forest",
+      "constraint": "#syn(#band(amazon rain) #band(amazon forest) #band(rain forest) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "forest"
+        },
+        {
+          "weight": "1",
+          "feature": "rain"
+        },
+        {
+          "weight": "1",
+          "feature": "amazon"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1062 @@
+{
+  "queries": [
+    {
+      "title": "101",
+      "text": "design star wars anti missile defense system",
+      "constraint": "#syn(#band(design star) #band(design wars) #band(design anti) #band(design missile) #band(design defense) #band(design system) #band(star wars) #band(star anti) #band(star missile) #band(star defense) #band(star system) #band(wars anti) #band(wars missile) #band(wars defense) #band(wars system) #band(anti missile) #band(anti defense) #band(anti system) #band(missile defense) #band(missile system) #band(defense system) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "defense"
+        },
+        {
+          "weight": "1",
+          "feature": "system"
+        },
+        {
+          "weight": "1",
+          "feature": "missile"
+        },
+        {
+          "weight": "1",
+          "feature": "anti"
+        },
+        {
+          "weight": "1",
+          "feature": "star"
+        },
+        {
+          "weight": "1",
+          "feature": "wars"
+        },
+        {
+          "weight": "1",
+          "feature": "design"
+        }
+      ]
+    },
+    {
+      "title": "102",
+      "text": "laser research applicable us strategic defense initiative",
+      "constraint": "#syn(#band(laser research) #band(laser applicable) #band(laser strategic) #band(laser defense) #band(laser initiative) #band(research applicable) #band(research strategic) #band(research defense) #band(research initiative) #band(applicable strategic) #band(applicable defense) #band(applicable initiative) #band(strategic defense) #band(strategic initiative) #band(defense initiative) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "defense"
+        },
+        {
+          "weight": "1",
+          "feature": "laser"
+        },
+        {
+          "weight": "1",
+          "feature": "applicable"
+        },
+        {
+          "weight": "1",
+          "feature": "strategic"
+        },
+        {
+          "weight": "1",
+          "feature": "research"
+        },
+        {
+          "weight": "1",
+          "feature": "initiative"
+        }
+      ]
+    },
+    {
+      "title": "103",
+      "text": "welfare reform",
+      "constraint": "#syn(#band(welfare reform) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "reform"
+        },
+        {
+          "weight": "1",
+          "feature": "welfare"
+        }
+      ]
+    },
+    {
+      "title": "104",
+      "text": "catastrophic health insurance",
+      "constraint": "#syn(#band(catastrophic health) #band(catastrophic insurance) #band(health insurance) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "insurance"
+        },
+        {
+          "weight": "1",
+          "feature": "catastrophic"
+        },
+        {
+          "weight": "1",
+          "feature": "health"
+        }
+      ]
+    },
+    {
+      "title": "105",
+      "text": "black monday",
+      "constraint": "#syn(#band(black monday) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "monday"
+        },
+        {
+          "weight": "1",
+          "feature": "black"
+        }
+      ]
+    },
+    {
+      "title": "106",
+      "text": "us control insider trading",
+      "constraint": "#syn(#band(control insider) #band(control trading) #band(insider trading) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "control"
+        },
+        {
+          "weight": "1",
+          "feature": "insider"
+        },
+        {
+          "weight": "1",
+          "feature": "trading"
+        }
+      ]
+    },
+    {
+      "title": "107",
+      "text": "japanese regulation insider trading",
+      "constraint": "#syn(#band(japanese regulation) #band(japanese insider) #band(japanese trading) #band(regulation insider) #band(regulation trading) #band(insider trading) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "insider"
+        },
+        {
+          "weight": "1",
+          "feature": "regulation"
+        },
+        {
+          "weight": "1",
+          "feature": "japanese"
+        },
+        {
+          "weight": "1",
+          "feature": "trading"
+        }
+      ]
+    },
+    {
+      "title": "108",
+      "text": "japanese protectionist measures",
+      "constraint": "#syn(#band(japanese protectionist) #band(japanese measures) #band(protectionist measures) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "protectionist"
+        },
+        {
+          "weight": "1",
+          "feature": "measures"
+        },
+        {
+          "weight": "1",
+          "feature": "japanese"
+        }
+      ]
+    },
+    {
+      "title": "109",
+      "text": "innovative companies",
+      "constraint": "#syn(#band(innovative companies) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "companies"
+        },
+        {
+          "weight": "1",
+          "feature": "innovative"
+        }
+      ]
+    },
+    {
+      "title": "110",
+      "text": "black resistance against south african government",
+      "constraint": "#syn(#band(black resistance) #band(black south) #band(black african) #band(black government) #band(resistance south) #band(resistance african) #band(resistance government) #band(south african) #band(south government) #band(african government) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "african"
+        },
+        {
+          "weight": "1",
+          "feature": "south"
+        },
+        {
+          "weight": "1",
+          "feature": "resistance"
+        },
+        {
+          "weight": "1",
+          "feature": "government"
+        },
+        {
+          "weight": "1",
+          "feature": "black"
+        }
+      ]
+    },
+    {
+      "title": "111",
+      "text": "nuclear proliferation",
+      "constraint": "#syn(#band(nuclear proliferation) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "proliferation"
+        },
+        {
+          "weight": "1",
+          "feature": "nuclear"
+        }
+      ]
+    },
+    {
+      "title": "112",
+      "text": "funding biotechnology",
+      "constraint": "#syn(#band(funding biotechnology) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "biotechnology"
+        },
+        {
+          "weight": "1",
+          "feature": "funding"
+        }
+      ]
+    },
+    {
+      "title": "113",
+      "text": "new space satellite applications",
+      "constraint": "#syn(#band(space satellite) #band(space applications) #band(satellite applications) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "satellite"
+        },
+        {
+          "weight": "1",
+          "feature": "applications"
+        },
+        {
+          "weight": "1",
+          "feature": "space"
+        }
+      ]
+    },
+    {
+      "title": "114",
+      "text": "non commercial satellite launches",
+      "constraint": "#syn(#band(non commercial) #band(non satellite) #band(non launches) #band(commercial satellite) #band(commercial launches) #band(satellite launches) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "launches"
+        },
+        {
+          "weight": "1",
+          "feature": "satellite"
+        },
+        {
+          "weight": "1",
+          "feature": "commercial"
+        },
+        {
+          "weight": "1",
+          "feature": "non"
+        }
+      ]
+    },
+    {
+      "title": "115",
+      "text": "impact 1986 immigration law",
+      "constraint": "#syn(#band(impact 1986) #band(impact immigration) #band(impact law) #band(1986 immigration) #band(1986 law) #band(immigration law) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "law"
+        },
+        {
+          "weight": "1",
+          "feature": "1986"
+        },
+        {
+          "weight": "1",
+          "feature": "immigration"
+        },
+        {
+          "weight": "1",
+          "feature": "impact"
+        }
+      ]
+    },
+    {
+      "title": "116",
+      "text": "generic drug substitutions",
+      "constraint": "#syn(#band(generic drug) #band(generic substitutions) #band(drug substitutions) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "generic"
+        },
+        {
+          "weight": "1",
+          "feature": "substitutions"
+        },
+        {
+          "weight": "1",
+          "feature": "drug"
+        }
+      ]
+    },
+    {
+      "title": "117",
+      "text": "capacity us cellular telephone network",
+      "constraint": "#syn(#band(capacity cellular) #band(capacity telephone) #band(capacity network) #band(cellular telephone) #band(cellular network) #band(telephone network) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "cellular"
+        },
+        {
+          "weight": "1",
+          "feature": "capacity"
+        },
+        {
+          "weight": "1",
+          "feature": "telephone"
+        },
+        {
+          "weight": "1",
+          "feature": "network"
+        }
+      ]
+    },
+    {
+      "title": "118",
+      "text": "international terrorists",
+      "constraint": "#syn(#band(international terrorists) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "terrorists"
+        },
+        {
+          "weight": "1",
+          "feature": "international"
+        }
+      ]
+    },
+    {
+      "title": "119",
+      "text": "actions against international terrorists",
+      "constraint": "#syn(#band(actions international) #band(actions terrorists) #band(international terrorists) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "terrorists"
+        },
+        {
+          "weight": "1",
+          "feature": "international"
+        },
+        {
+          "weight": "1",
+          "feature": "actions"
+        }
+      ]
+    },
+    {
+      "title": "120",
+      "text": "economic impact international terrorism",
+      "constraint": "#syn(#band(economic impact) #band(economic international) #band(economic terrorism) #band(impact international) #band(impact terrorism) #band(international terrorism) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "terrorism"
+        },
+        {
+          "weight": "1",
+          "feature": "international"
+        },
+        {
+          "weight": "1",
+          "feature": "impact"
+        },
+        {
+          "weight": "1",
+          "feature": "economic"
+        }
+      ]
+    },
+    {
+      "title": "121",
+      "text": "death from cancer",
+      "constraint": "#syn(#band(death cancer) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "death"
+        },
+        {
+          "weight": "1",
+          "feature": "cancer"
+        }
+      ]
+    },
+    {
+      "title": "122",
+      "text": "rdt new cancer fighting drugs",
+      "constraint": "#syn(#band(rdt cancer) #band(rdt fighting) #band(rdt drugs) #band(cancer fighting) #band(cancer drugs) #band(fighting drugs) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "rdt"
+        },
+        {
+          "weight": "1",
+          "feature": "drugs"
+        },
+        {
+          "weight": "1",
+          "feature": "fighting"
+        },
+        {
+          "weight": "1",
+          "feature": "cancer"
+        }
+      ]
+    },
+    {
+      "title": "123",
+      "text": "research control carcinogens",
+      "constraint": "#syn(#band(research control) #band(research carcinogens) #band(control carcinogens) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "carcinogens"
+        },
+        {
+          "weight": "1",
+          "feature": "control"
+        },
+        {
+          "weight": "1",
+          "feature": "research"
+        }
+      ]
+    },
+    {
+      "title": "124",
+      "text": "alternatives traditional cancer therapies",
+      "constraint": "#syn(#band(alternatives traditional) #band(alternatives cancer) #band(alternatives therapies) #band(traditional cancer) #band(traditional therapies) #band(cancer therapies) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "alternatives"
+        },
+        {
+          "weight": "1",
+          "feature": "traditional"
+        },
+        {
+          "weight": "1",
+          "feature": "therapies"
+        },
+        {
+          "weight": "1",
+          "feature": "cancer"
+        }
+      ]
+    },
+    {
+      "title": "125",
+      "text": "anti smoking actions government",
+      "constraint": "#syn(#band(anti smoking) #band(anti actions) #band(anti government) #band(smoking actions) #band(smoking government) #band(actions government) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "anti"
+        },
+        {
+          "weight": "1",
+          "feature": "smoking"
+        },
+        {
+          "weight": "1",
+          "feature": "government"
+        },
+        {
+          "weight": "1",
+          "feature": "actions"
+        }
+      ]
+    },
+    {
+      "title": "126",
+      "text": "medical ethics modern technology",
+      "constraint": "#syn(#band(medical ethics) #band(medical modern) #band(medical technology) #band(ethics modern) #band(ethics technology) #band(modern technology) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "modern"
+        },
+        {
+          "weight": "1",
+          "feature": "technology"
+        },
+        {
+          "weight": "1",
+          "feature": "medical"
+        },
+        {
+          "weight": "1",
+          "feature": "ethics"
+        }
+      ]
+    },
+    {
+      "title": "127",
+      "text": "us ussr arms control agreements",
+      "constraint": "#syn(#band(ussr arms) #band(ussr control) #band(ussr agreements) #band(arms control) #band(arms agreements) #band(control agreements) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "control"
+        },
+        {
+          "weight": "1",
+          "feature": "agreements"
+        },
+        {
+          "weight": "1",
+          "feature": "arms"
+        },
+        {
+          "weight": "1",
+          "feature": "ussr"
+        }
+      ]
+    },
+    {
+      "title": "128",
+      "text": "privatization state assets",
+      "constraint": "#syn(#band(privatization state) #band(privatization assets) #band(state assets) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "assets"
+        },
+        {
+          "weight": "1",
+          "feature": "state"
+        },
+        {
+          "weight": "1",
+          "feature": "privatization"
+        }
+      ]
+    },
+    {
+      "title": "129",
+      "text": "soviet spying us",
+      "constraint": "#syn(#band(soviet spying) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "spying"
+        },
+        {
+          "weight": "1",
+          "feature": "soviet"
+        }
+      ]
+    },
+    {
+      "title": "130",
+      "text": "jewish emigration us ussr relations",
+      "constraint": "#syn(#band(jewish emigration) #band(jewish ussr) #band(jewish relations) #band(emigration ussr) #band(emigration relations) #band(ussr relations) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "jewish"
+        },
+        {
+          "weight": "1",
+          "feature": "relations"
+        },
+        {
+          "weight": "1",
+          "feature": "ussr"
+        },
+        {
+          "weight": "1",
+          "feature": "emigration"
+        }
+      ]
+    },
+    {
+      "title": "131",
+      "text": "mcdonnell douglas contracts military aircraft",
+      "constraint": "#syn(#band(mcdonnell douglas) #band(mcdonnell contracts) #band(mcdonnell military) #band(mcdonnell aircraft) #band(douglas contracts) #band(douglas military) #band(douglas aircraft) #band(contracts military) #band(contracts aircraft) #band(military aircraft) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "mcdonnell"
+        },
+        {
+          "weight": "1",
+          "feature": "douglas"
+        },
+        {
+          "weight": "1",
+          "feature": "aircraft"
+        },
+        {
+          "weight": "1",
+          "feature": "contracts"
+        },
+        {
+          "weight": "1",
+          "feature": "military"
+        }
+      ]
+    },
+    {
+      "title": "132",
+      "text": "stealth aircraft",
+      "constraint": "#syn(#band(stealth aircraft) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "aircraft"
+        },
+        {
+          "weight": "1",
+          "feature": "stealth"
+        }
+      ]
+    },
+    {
+      "title": "133",
+      "text": "hubble space telescope",
+      "constraint": "#syn(#band(hubble space) #band(hubble telescope) #band(space telescope) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "hubble"
+        },
+        {
+          "weight": "1",
+          "feature": "telescope"
+        },
+        {
+          "weight": "1",
+          "feature": "space"
+        }
+      ]
+    },
+    {
+      "title": "134",
+      "text": "human genome project",
+      "constraint": "#syn(#band(human genome) #band(human project) #band(genome project) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "project"
+        },
+        {
+          "weight": "1",
+          "feature": "genome"
+        },
+        {
+          "weight": "1",
+          "feature": "human"
+        }
+      ]
+    },
+    {
+      "title": "135",
+      "text": "possible contributions gene mapping medicine",
+      "constraint": "#syn(#band(possible contributions) #band(possible gene) #band(possible mapping) #band(possible medicine) #band(contributions gene) #band(contributions mapping) #band(contributions medicine) #band(gene mapping) #band(gene medicine) #band(mapping medicine) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "gene"
+        },
+        {
+          "weight": "1",
+          "feature": "possible"
+        },
+        {
+          "weight": "1",
+          "feature": "mapping"
+        },
+        {
+          "weight": "1",
+          "feature": "medicine"
+        },
+        {
+          "weight": "1",
+          "feature": "contributions"
+        }
+      ]
+    },
+    {
+      "title": "136",
+      "text": "diversification pacific telesis",
+      "constraint": "#syn(#band(diversification pacific) #band(diversification telesis) #band(pacific telesis) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "telesis"
+        },
+        {
+          "weight": "1",
+          "feature": "pacific"
+        },
+        {
+          "weight": "1",
+          "feature": "diversification"
+        }
+      ]
+    },
+    {
+      "title": "137",
+      "text": "expansion us theme park industry",
+      "constraint": "#syn(#band(expansion theme) #band(expansion park) #band(expansion industry) #band(theme park) #band(theme industry) #band(park industry) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "expansion"
+        },
+        {
+          "weight": "1",
+          "feature": "park"
+        },
+        {
+          "weight": "1",
+          "feature": "theme"
+        },
+        {
+          "weight": "1",
+          "feature": "industry"
+        }
+      ]
+    },
+    {
+      "title": "138",
+      "text": "iranian support lebanese hostage takers",
+      "constraint": "#syn(#band(iranian support) #band(iranian lebanese) #band(iranian hostage) #band(iranian takers) #band(support lebanese) #band(support hostage) #band(support takers) #band(lebanese hostage) #band(lebanese takers) #band(hostage takers) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "takers"
+        },
+        {
+          "weight": "1",
+          "feature": "support"
+        },
+        {
+          "weight": "1",
+          "feature": "hostage"
+        },
+        {
+          "weight": "1",
+          "feature": "iranian"
+        },
+        {
+          "weight": "1",
+          "feature": "lebanese"
+        }
+      ]
+    },
+    {
+      "title": "139",
+      "text": "iran islamic revolution domestic foreign social",
+      "constraint": "#syn(#band(iran islamic) #band(iran revolution) #band(iran domestic) #band(iran foreign) #band(islamic revolution) #band(islamic domestic) #band(islamic foreign) #band(revolution domestic) #band(revolution foreign) #band(domestic foreign) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "iran"
+        },
+        {
+          "weight": "1",
+          "feature": "islamic"
+        },
+        {
+          "weight": "1",
+          "feature": "revolution"
+        },
+        {
+          "weight": "1",
+          "feature": "foreign"
+        },
+        {
+          "weight": "1",
+          "feature": "domestic"
+        }
+      ]
+    },
+    {
+      "title": "140",
+      "text": "political impact islamic fundamentalism",
+      "constraint": "#syn(#band(political impact) #band(political islamic) #band(political fundamentalism) #band(impact islamic) #band(impact fundamentalism) #band(islamic fundamentalism) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "fundamentalism"
+        },
+        {
+          "weight": "1",
+          "feature": "political"
+        },
+        {
+          "weight": "1",
+          "feature": "islamic"
+        },
+        {
+          "weight": "1",
+          "feature": "impact"
+        }
+      ]
+    },
+    {
+      "title": "141",
+      "text": "japan handling trade surplus us",
+      "constraint": "#syn(#band(japan handling) #band(japan trade) #band(japan surplus) #band(handling trade) #band(handling surplus) #band(trade surplus) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "japan"
+        },
+        {
+          "weight": "1",
+          "feature": "trade"
+        },
+        {
+          "weight": "1",
+          "feature": "surplus"
+        },
+        {
+          "weight": "1",
+          "feature": "handling"
+        }
+      ]
+    },
+    {
+      "title": "142",
+      "text": "impact government regulated grain farming international",
+      "constraint": "#syn(#band(impact government) #band(impact regulated) #band(impact grain) #band(impact farming) #band(impact international) #band(government regulated) #band(government grain) #band(government farming) #band(government international) #band(regulated grain) #band(regulated farming) #band(regulated international) #band(grain farming) #band(grain international) #band(farming international) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "grain"
+        },
+        {
+          "weight": "1",
+          "feature": "international"
+        },
+        {
+          "weight": "1",
+          "feature": "regulated"
+        },
+        {
+          "weight": "1",
+          "feature": "government"
+        },
+        {
+          "weight": "1",
+          "feature": "farming"
+        },
+        {
+          "weight": "1",
+          "feature": "impact"
+        }
+      ]
+    },
+    {
+      "title": "143",
+      "text": "why protect us farmers",
+      "constraint": "#syn(#band(protect farmers) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "farmers"
+        },
+        {
+          "weight": "1",
+          "feature": "protect"
+        }
+      ]
+    },
+    {
+      "title": "144",
+      "text": "management problems united nations",
+      "constraint": "#syn(#band(management problems) #band(management united) #band(management nations) #band(problems united) #band(problems nations) #band(united nations) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "united"
+        },
+        {
+          "weight": "1",
+          "feature": "problems"
+        },
+        {
+          "weight": "1",
+          "feature": "nations"
+        },
+        {
+          "weight": "1",
+          "feature": "management"
+        }
+      ]
+    },
+    {
+      "title": "145",
+      "text": "influence pro israel lobby",
+      "constraint": "#syn(#band(influence pro) #band(influence israel) #band(influence lobby) #band(pro israel) #band(pro lobby) #band(israel lobby) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "lobby"
+        },
+        {
+          "weight": "1",
+          "feature": "pro"
+        },
+        {
+          "weight": "1",
+          "feature": "influence"
+        },
+        {
+          "weight": "1",
+          "feature": "israel"
+        }
+      ]
+    },
+    {
+      "title": "146",
+      "text": "negotiating end nicaraguan civil war",
+      "constraint": "#syn(#band(negotiating end) #band(negotiating nicaraguan) #band(negotiating civil) #band(negotiating war) #band(end nicaraguan) #band(end civil) #band(end war) #band(nicaraguan civil) #band(nicaraguan war) #band(civil war) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "nicaraguan"
+        },
+        {
+          "weight": "1",
+          "feature": "negotiating"
+        },
+        {
+          "weight": "1",
+          "feature": "civil"
+        },
+        {
+          "weight": "1",
+          "feature": "war"
+        },
+        {
+          "weight": "1",
+          "feature": "end"
+        }
+      ]
+    },
+    {
+      "title": "147",
+      "text": "productivity trends us economy",
+      "constraint": "#syn(#band(productivity trends) #band(productivity economy) #band(trends economy) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "trends"
+        },
+        {
+          "weight": "1",
+          "feature": "economy"
+        },
+        {
+          "weight": "1",
+          "feature": "productivity"
+        }
+      ]
+    },
+    {
+      "title": "148",
+      "text": "conflict horn africa",
+      "constraint": "#syn(#band(conflict horn) #band(conflict africa) #band(horn africa) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "horn"
+        },
+        {
+          "weight": "1",
+          "feature": "conflict"
+        },
+        {
+          "weight": "1",
+          "feature": "africa"
+        }
+      ]
+    },
+    {
+      "title": "149",
+      "text": "industrial espionage",
+      "constraint": "#syn(#band(industrial espionage) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "espionage"
+        },
+        {
+          "weight": "1",
+          "feature": "industrial"
+        }
+      ]
+    },
+    {
+      "title": "150",
+      "text": "us political campaign financing",
+      "constraint": "#syn(#band(political campaign) #band(political financing) #band(campaign financing) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "financing"
+        },
+        {
+          "weight": "1",
+          "feature": "political"
+        },
+        {
+          "weight": "1",
+          "feature": "campaign"
+        }
+      ]
+    }
+  ]
+}

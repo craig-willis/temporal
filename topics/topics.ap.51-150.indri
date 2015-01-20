@@ -1,0 +1,596 @@
+<parameters>
+<query>
+<number>51</number>
+<text>
+ airbus subsidies
+</text>
+</query>
+<query>
+<number>52</number>
+<text>
+ south african sanctions
+</text>
+</query>
+<query>
+<number>53</number>
+<text>
+ leveraged buyouts 
+</text>
+</query>
+<query>
+<number>54</number>
+<text>
+ satellite launch contracts
+</text>
+</query>
+<query>
+<number>55</number>
+<text>
+ insider trading
+</text>
+</query>
+<query>
+<number>56</number>
+<text>
+ prime lending rate moves predictions
+</text>
+</query>
+<query>
+<number>57</number>
+<text>
+ mci
+</text>
+</query>
+<query>
+<number>58</number>
+<text>
+ rail strikes
+</text>
+</query>
+<query>
+<number>59</number>
+<text>
+ weather related fatalities
+</text>
+</query>
+<query>
+<number>60</number>
+<text>
+ merit pay vs seniority
+</text>
+</query>
+<query>
+<number>61</number>
+<text>
+ israeli role in iran contra affair
+</text>
+</query>
+<query>
+<number>62</number>
+<text>
+ military coups d etat
+</text>
+</query>
+<query>
+<number>63</number>
+<text>
+ machine translation
+</text>
+</query>
+<query>
+<number>64</number>
+<text>
+ hostage taking
+</text>
+</query>
+<query>
+<number>66</number>
+<text>
+ natural language processing
+</text>
+</query>
+<query>
+<number>67</number>
+<text>
+ politically motivated civil disturbances
+</text>
+</query>
+<query>
+<number>68</number>
+<text>
+ health hazards from fine diameter fibers
+</text>
+</query>
+<query>
+<number>69</number>
+<text>
+ attempts to revive the salt ii treaty
+</text>
+</query>
+<query>
+<number>70</number>
+<text>
+ surrogate motherhood
+</text>
+</query>
+<query>
+<number>71</number>
+<text>
+ border incursions
+</text>
+</query>
+<query>
+<number>72</number>
+<text>
+ demographic shifts in the us
+</text>
+</query>
+<query>
+<number>73</number>
+<text>
+ demographic shifts across national boundaries
+</text>
+</query>
+<query>
+<number>74</number>
+<text>
+ conflicting policy 
+</text>
+</query>
+<query>
+<number>75</number>
+<text>
+ automation
+</text>
+</query>
+<query>
+<number>76</number>
+<text>
+ us constitution original intent
+</text>
+</query>
+<query>
+<number>77</number>
+<text>
+ poaching
+</text>
+</query>
+<query>
+<number>78</number>
+<text>
+ greenpeace
+</text>
+</query>
+<query>
+<number>79</number>
+<text>
+ frg political party positions
+</text>
+</query>
+<query>
+<number>80</number>
+<text>
+ 1988 presidential candidates platforms
+</text>
+</query>
+<query>
+<number>81</number>
+<text>
+ financial crunch for televangelists in the wake of the ptl scandal
+</text>
+</query>
+<query>
+<number>82</number>
+<text>
+ genetic engineering
+</text>
+</query>
+<query>
+<number>83</number>
+<text>
+ measures to protect the atmosphere
+</text>
+</query>
+<query>
+<number>84</number>
+<text>
+ alternative renewable energy plant equipment installation
+</text>
+</query>
+<query>
+<number>85</number>
+<text>
+ official corruption
+</text>
+</query>
+<query>
+<number>86</number>
+<text>
+ bank failures
+</text>
+</query>
+<query>
+<number>87</number>
+<text>
+ criminal actions against officers of failed financial institutions
+</text>
+</query>
+<query>
+<number>88</number>
+<text>
+ crude oil price trends
+</text>
+</query>
+<query>
+<number>89</number>
+<text>
+ downstream investments by opec member states
+</text>
+</query>
+<query>
+<number>90</number>
+<text>
+ data on proven reserves of oil natural gas producers
+</text>
+</query>
+<query>
+<number>91</number>
+<text>
+ us army acquisition of advanced weapons systems
+</text>
+</query>
+<query>
+<number>92</number>
+<text>
+ international military equipment sales
+</text>
+</query>
+<query>
+<number>93</number>
+<text>
+ what backing does the national rifle association have
+</text>
+</query>
+<query>
+<number>94</number>
+<text>
+ computer aided crime
+</text>
+</query>
+<query>
+<number>95</number>
+<text>
+ computer aided crime detection
+</text>
+</query>
+<query>
+<number>96</number>
+<text>
+ computer aided medical diagnosis
+</text>
+</query>
+<query>
+<number>97</number>
+<text>
+ fiber optics applications 
+</text>
+</query>
+<query>
+<number>98</number>
+<text>
+ fiber optics equipment manufacturers
+</text>
+</query>
+<query>
+<number>99</number>
+<text>
+ iran contra affair
+</text>
+</query>
+<query>
+<number>100</number>
+<text>
+ controlling the transfer of high technology
+</text>
+</query>
+<query>
+<number>101</number>
+<text>
+ design of the star wars anti missile defense system
+</text>
+</query>
+<query>
+<number>102</number>
+<text>
+ laser research applicable to the us s strategic defense initiative
+</text>
+</query>
+<query>
+<number>103</number>
+<text>
+ welfare reform
+</text>
+</query>
+<query>
+<number>104</number>
+<text>
+ catastrophic health insurance
+</text>
+</query>
+<query>
+<number>105</number>
+<text>
+ black monday
+</text>
+</query>
+<query>
+<number>106</number>
+<text>
+ us control of insider trading
+</text>
+</query>
+<query>
+<number>107</number>
+<text>
+ japanese regulation of insider trading
+</text>
+</query>
+<query>
+<number>108</number>
+<text>
+ japanese protectionist measures
+</text>
+</query>
+<query>
+<number>109</number>
+<text>
+ find innovative companies
+</text>
+</query>
+<query>
+<number>110</number>
+<text>
+ black resistance against the south african government
+</text>
+</query>
+<query>
+<number>111</number>
+<text>
+ nuclear proliferation
+</text>
+</query>
+<query>
+<number>112</number>
+<text>
+ funding biotechnology
+</text>
+</query>
+<query>
+<number>113</number>
+<text>
+ new space satellite applications
+</text>
+</query>
+<query>
+<number>114</number>
+<text>
+ non commercial satellite launches
+</text>
+</query>
+<query>
+<number>115</number>
+<text>
+ impact of the 1986 immigration law
+</text>
+</query>
+<query>
+<number>116</number>
+<text>
+ generic drug substitutions
+</text>
+</query>
+<query>
+<number>117</number>
+<text>
+ capacity of the us cellular telephone network
+</text>
+</query>
+<query>
+<number>118</number>
+<text>
+ international terrorists
+</text>
+</query>
+<query>
+<number>119</number>
+<text>
+ actions against international terrorists
+</text>
+</query>
+<query>
+<number>120</number>
+<text>
+ economic impact of international terrorism
+</text>
+</query>
+<query>
+<number>121</number>
+<text>
+ death from cancer
+</text>
+</query>
+<query>
+<number>122</number>
+<text>
+ rdt e of new cancer fighting drugs 
+</text>
+</query>
+<query>
+<number>123</number>
+<text>
+ research into control of carcinogens
+</text>
+</query>
+<query>
+<number>124</number>
+<text>
+ alternatives to traditional cancer therapies
+</text>
+</query>
+<query>
+<number>125</number>
+<text>
+ anti smoking actions by government
+</text>
+</query>
+<query>
+<number>126</number>
+<text>
+ medical ethics and modern technology
+</text>
+</query>
+<query>
+<number>127</number>
+<text>
+ us ussr arms control agreements
+</text>
+</query>
+<query>
+<number>128</number>
+<text>
+ privatization of state assets 
+</text>
+</query>
+<query>
+<number>129</number>
+<text>
+ soviet spying on the us
+</text>
+</query>
+<query>
+<number>130</number>
+<text>
+ jewish emigration and us ussr relations
+</text>
+</query>
+<query>
+<number>131</number>
+<text>
+ mcdonnell douglas contracts for military aircraft
+</text>
+</query>
+<query>
+<number>132</number>
+<text>
+ stealth aircraft 
+</text>
+</query>
+<query>
+<number>133</number>
+<text>
+ hubble space telescope
+</text>
+</query>
+<query>
+<number>134</number>
+<text>
+ the human genome project
+</text>
+</query>
+<query>
+<number>135</number>
+<text>
+ possible contributions of gene mapping to medicine
+</text>
+</query>
+<query>
+<number>136</number>
+<text>
+ diversification by pacific telesis
+</text>
+</query>
+<query>
+<number>137</number>
+<text>
+ expansion in the us theme park industry
+</text>
+</query>
+<query>
+<number>138</number>
+<text>
+ iranian support for lebanese hostage takers
+</text>
+</query>
+<query>
+<number>139</number>
+<text>
+ iran s islamic revolution domestic and foreign social consequences
+</text>
+</query>
+<query>
+<number>140</number>
+<text>
+ political impact of islamic fundamentalism
+</text>
+</query>
+<query>
+<number>141</number>
+<text>
+ japan s handling of its trade surplus with the us
+</text>
+</query>
+<query>
+<number>142</number>
+<text>
+ impact of government regulated grain farming on international relations
+</text>
+</query>
+<query>
+<number>143</number>
+<text>
+ why protect us farmers
+</text>
+</query>
+<query>
+<number>144</number>
+<text>
+ management problems at the united nations
+</text>
+</query>
+<query>
+<number>145</number>
+<text>
+ influence of the pro israel lobby
+</text>
+</query>
+<query>
+<number>146</number>
+<text>
+ negotiating an end to the nicaraguan civil war
+</text>
+</query>
+<query>
+<number>147</number>
+<text>
+ productivity trends in the us economy
+</text>
+</query>
+<query>
+<number>148</number>
+<text>
+ conflict in the horn of africa
+</text>
+</query>
+<query>
+<number>149</number>
+<text>
+ industrial espionage
+</text>
+</query>
+<query>
+<number>150</number>
+<text>
+ us political campaign financing
+</text>
+</query>
+</parameters>

@@ -1,0 +1,838 @@
+{
+  "queries": [
+    {
+      "title": "401",
+      "text": "foreign minorities germany",
+      "constraint": "#syn(#band(foreign minorities) #band(foreign germany) #band(minorities germany) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "germany"
+        },
+        {
+          "weight": "1",
+          "feature": "minorities"
+        },
+        {
+          "weight": "1",
+          "feature": "foreign"
+        }
+      ]
+    },
+    {
+      "title": "402",
+      "text": "behavioral genetics",
+      "constraint": "#syn(#band(behavioral genetics) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "genetics"
+        },
+        {
+          "weight": "1",
+          "feature": "behavioral"
+        }
+      ]
+    },
+    {
+      "title": "403",
+      "text": "osteoporosis",
+      "constraint": "#syn(osteoporosis)",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "osteoporosis"
+        }
+      ]
+    },
+    {
+      "title": "404",
+      "text": "ireland peace talks",
+      "constraint": "#syn(#band(ireland peace) #band(ireland talks) #band(peace talks) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "ireland"
+        },
+        {
+          "weight": "1",
+          "feature": "peace"
+        },
+        {
+          "weight": "1",
+          "feature": "talks"
+        }
+      ]
+    },
+    {
+      "title": "405",
+      "text": "cosmic events",
+      "constraint": "#syn(#band(cosmic events) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "events"
+        },
+        {
+          "weight": "1",
+          "feature": "cosmic"
+        }
+      ]
+    },
+    {
+      "title": "406",
+      "text": "parkinson s disease",
+      "constraint": "#syn(#band(parkinson s) #band(parkinson disease) #band(s disease) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "s"
+        },
+        {
+          "weight": "1",
+          "feature": "parkinson"
+        },
+        {
+          "weight": "1",
+          "feature": "disease"
+        }
+      ]
+    },
+    {
+      "title": "407",
+      "text": "poaching wildlife preserves",
+      "constraint": "#syn(#band(poaching wildlife) #band(poaching preserves) #band(wildlife preserves) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "preserves"
+        },
+        {
+          "weight": "1",
+          "feature": "poaching"
+        },
+        {
+          "weight": "1",
+          "feature": "wildlife"
+        }
+      ]
+    },
+    {
+      "title": "408",
+      "text": "tropical storms",
+      "constraint": "#syn(#band(tropical storms) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "tropical"
+        },
+        {
+          "weight": "1",
+          "feature": "storms"
+        }
+      ]
+    },
+    {
+      "title": "409",
+      "text": "legal pan am 103",
+      "constraint": "#syn(#band(legal pan) #band(legal 103) #band(pan 103) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "legal"
+        },
+        {
+          "weight": "1",
+          "feature": "103"
+        },
+        {
+          "weight": "1",
+          "feature": "pan"
+        }
+      ]
+    },
+    {
+      "title": "410",
+      "text": "schengen agreement",
+      "constraint": "#syn(#band(schengen agreement) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "schengen"
+        },
+        {
+          "weight": "1",
+          "feature": "agreement"
+        }
+      ]
+    },
+    {
+      "title": "411",
+      "text": "salvaging shipwreck treasure",
+      "constraint": "#syn(#band(salvaging shipwreck) #band(salvaging treasure) #band(shipwreck treasure) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "shipwreck"
+        },
+        {
+          "weight": "1",
+          "feature": "treasure"
+        },
+        {
+          "weight": "1",
+          "feature": "salvaging"
+        }
+      ]
+    },
+    {
+      "title": "412",
+      "text": "airport security",
+      "constraint": "#syn(#band(airport security) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "airport"
+        },
+        {
+          "weight": "1",
+          "feature": "security"
+        }
+      ]
+    },
+    {
+      "title": "413",
+      "text": "steel production",
+      "constraint": "#syn(#band(steel production) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "steel"
+        },
+        {
+          "weight": "1",
+          "feature": "production"
+        }
+      ]
+    },
+    {
+      "title": "414",
+      "text": "cuba sugar exports",
+      "constraint": "#syn(#band(cuba sugar) #band(cuba exports) #band(sugar exports) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "exports"
+        },
+        {
+          "weight": "1",
+          "feature": "sugar"
+        },
+        {
+          "weight": "1",
+          "feature": "cuba"
+        }
+      ]
+    },
+    {
+      "title": "415",
+      "text": "drugs golden triangle",
+      "constraint": "#syn(#band(drugs golden) #band(drugs triangle) #band(golden triangle) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "triangle"
+        },
+        {
+          "weight": "1",
+          "feature": "drugs"
+        },
+        {
+          "weight": "1",
+          "feature": "golden"
+        }
+      ]
+    },
+    {
+      "title": "416",
+      "text": "three gorges project",
+      "constraint": "#syn(#band(three gorges) #band(three project) #band(gorges project) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "project"
+        },
+        {
+          "weight": "1",
+          "feature": "three"
+        },
+        {
+          "weight": "1",
+          "feature": "gorges"
+        }
+      ]
+    },
+    {
+      "title": "417",
+      "text": "creativity",
+      "constraint": "#syn(creativity)",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "creativity"
+        }
+      ]
+    },
+    {
+      "title": "418",
+      "text": "quilts income",
+      "constraint": "#syn(#band(quilts income) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "income"
+        },
+        {
+          "weight": "1",
+          "feature": "quilts"
+        }
+      ]
+    },
+    {
+      "title": "419",
+      "text": "recycle automobile tires",
+      "constraint": "#syn(#band(recycle automobile) #band(recycle tires) #band(automobile tires) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "recycle"
+        },
+        {
+          "weight": "1",
+          "feature": "automobile"
+        },
+        {
+          "weight": "1",
+          "feature": "tires"
+        }
+      ]
+    },
+    {
+      "title": "420",
+      "text": "carbon monoxide poisoning",
+      "constraint": "#syn(#band(carbon monoxide) #band(carbon poisoning) #band(monoxide poisoning) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "monoxide"
+        },
+        {
+          "weight": "1",
+          "feature": "carbon"
+        },
+        {
+          "weight": "1",
+          "feature": "poisoning"
+        }
+      ]
+    },
+    {
+      "title": "421",
+      "text": "industrial waste disposal",
+      "constraint": "#syn(#band(industrial waste) #band(industrial disposal) #band(waste disposal) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "waste"
+        },
+        {
+          "weight": "1",
+          "feature": "industrial"
+        },
+        {
+          "weight": "1",
+          "feature": "disposal"
+        }
+      ]
+    },
+    {
+      "title": "422",
+      "text": "art stolen forged",
+      "constraint": "#syn(#band(art stolen) #band(art forged) #band(stolen forged) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "art"
+        },
+        {
+          "weight": "1",
+          "feature": "forged"
+        },
+        {
+          "weight": "1",
+          "feature": "stolen"
+        }
+      ]
+    },
+    {
+      "title": "423",
+      "text": "milosevic mirjana markovic",
+      "constraint": "#syn(#band(milosevic mirjana) #band(milosevic markovic) #band(mirjana markovic) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "markovic"
+        },
+        {
+          "weight": "1",
+          "feature": "mirjana"
+        },
+        {
+          "weight": "1",
+          "feature": "milosevic"
+        }
+      ]
+    },
+    {
+      "title": "424",
+      "text": "suicides",
+      "constraint": "#syn(suicides)",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "suicides"
+        }
+      ]
+    },
+    {
+      "title": "425",
+      "text": "counterfeiting money",
+      "constraint": "#syn(#band(counterfeiting money) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "money"
+        },
+        {
+          "weight": "1",
+          "feature": "counterfeiting"
+        }
+      ]
+    },
+    {
+      "title": "426",
+      "text": "law enforcement dogs",
+      "constraint": "#syn(#band(law enforcement) #band(law dogs) #band(enforcement dogs) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "enforcement"
+        },
+        {
+          "weight": "1",
+          "feature": "law"
+        },
+        {
+          "weight": "1",
+          "feature": "dogs"
+        }
+      ]
+    },
+    {
+      "title": "427",
+      "text": "uv damage eyes",
+      "constraint": "#syn(#band(uv damage) #band(uv eyes) #band(damage eyes) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "uv"
+        },
+        {
+          "weight": "1",
+          "feature": "damage"
+        },
+        {
+          "weight": "1",
+          "feature": "eyes"
+        }
+      ]
+    },
+    {
+      "title": "428",
+      "text": "declining birth rates",
+      "constraint": "#syn(#band(declining birth) #band(declining rates) #band(birth rates) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "birth"
+        },
+        {
+          "weight": "1",
+          "feature": "declining"
+        },
+        {
+          "weight": "1",
+          "feature": "rates"
+        }
+      ]
+    },
+    {
+      "title": "429",
+      "text": "legionnaires disease",
+      "constraint": "#syn(#band(legionnaires disease) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "legionnaires"
+        },
+        {
+          "weight": "1",
+          "feature": "disease"
+        }
+      ]
+    },
+    {
+      "title": "430",
+      "text": "killer bee attacks",
+      "constraint": "#syn(#band(killer bee) #band(killer attacks) #band(bee attacks) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "bee"
+        },
+        {
+          "weight": "1",
+          "feature": "killer"
+        },
+        {
+          "weight": "1",
+          "feature": "attacks"
+        }
+      ]
+    },
+    {
+      "title": "431",
+      "text": "robotic technology",
+      "constraint": "#syn(#band(robotic technology) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "technology"
+        },
+        {
+          "weight": "1",
+          "feature": "robotic"
+        }
+      ]
+    },
+    {
+      "title": "432",
+      "text": "profiling motorists police",
+      "constraint": "#syn(#band(profiling motorists) #band(profiling police) #band(motorists police) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "police"
+        },
+        {
+          "weight": "1",
+          "feature": "motorists"
+        },
+        {
+          "weight": "1",
+          "feature": "profiling"
+        }
+      ]
+    },
+    {
+      "title": "433",
+      "text": "greek philosophy stoicism",
+      "constraint": "#syn(#band(greek philosophy) #band(greek stoicism) #band(philosophy stoicism) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "stoicism"
+        },
+        {
+          "weight": "1",
+          "feature": "greek"
+        },
+        {
+          "weight": "1",
+          "feature": "philosophy"
+        }
+      ]
+    },
+    {
+      "title": "434",
+      "text": "estonia economy",
+      "constraint": "#syn(#band(estonia economy) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "estonia"
+        },
+        {
+          "weight": "1",
+          "feature": "economy"
+        }
+      ]
+    },
+    {
+      "title": "435",
+      "text": "curbing population growth",
+      "constraint": "#syn(#band(curbing population) #band(curbing growth) #band(population growth) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "curbing"
+        },
+        {
+          "weight": "1",
+          "feature": "growth"
+        },
+        {
+          "weight": "1",
+          "feature": "population"
+        }
+      ]
+    },
+    {
+      "title": "436",
+      "text": "railway accidents",
+      "constraint": "#syn(#band(railway accidents) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "accidents"
+        },
+        {
+          "weight": "1",
+          "feature": "railway"
+        }
+      ]
+    },
+    {
+      "title": "437",
+      "text": "deregulation gas electric",
+      "constraint": "#syn(#band(deregulation gas) #band(deregulation electric) #band(gas electric) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "gas"
+        },
+        {
+          "weight": "1",
+          "feature": "deregulation"
+        },
+        {
+          "weight": "1",
+          "feature": "electric"
+        }
+      ]
+    },
+    {
+      "title": "438",
+      "text": "tourism increase",
+      "constraint": "#syn(#band(tourism increase) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "increase"
+        },
+        {
+          "weight": "1",
+          "feature": "tourism"
+        }
+      ]
+    },
+    {
+      "title": "439",
+      "text": "inventions scientific discoveries",
+      "constraint": "#syn(#band(inventions scientific) #band(inventions discoveries) #band(scientific discoveries) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "inventions"
+        },
+        {
+          "weight": "1",
+          "feature": "discoveries"
+        },
+        {
+          "weight": "1",
+          "feature": "scientific"
+        }
+      ]
+    },
+    {
+      "title": "440",
+      "text": "child labor",
+      "constraint": "#syn(#band(child labor) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "labor"
+        },
+        {
+          "weight": "1",
+          "feature": "child"
+        }
+      ]
+    },
+    {
+      "title": "441",
+      "text": "lyme disease",
+      "constraint": "#syn(#band(lyme disease) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "lyme"
+        },
+        {
+          "weight": "1",
+          "feature": "disease"
+        }
+      ]
+    },
+    {
+      "title": "442",
+      "text": "heroic acts",
+      "constraint": "#syn(#band(heroic acts) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "acts"
+        },
+        {
+          "weight": "1",
+          "feature": "heroic"
+        }
+      ]
+    },
+    {
+      "title": "443",
+      "text": "us investment africa",
+      "constraint": "#syn(#band(investment africa) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "africa"
+        },
+        {
+          "weight": "1",
+          "feature": "investment"
+        }
+      ]
+    },
+    {
+      "title": "444",
+      "text": "supercritical fluids",
+      "constraint": "#syn(#band(supercritical fluids) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "fluids"
+        },
+        {
+          "weight": "1",
+          "feature": "supercritical"
+        }
+      ]
+    },
+    {
+      "title": "445",
+      "text": "women clergy",
+      "constraint": "#syn(#band(women clergy) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "clergy"
+        },
+        {
+          "weight": "1",
+          "feature": "women"
+        }
+      ]
+    },
+    {
+      "title": "446",
+      "text": "tourists violence",
+      "constraint": "#syn(#band(tourists violence) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "violence"
+        },
+        {
+          "weight": "1",
+          "feature": "tourists"
+        }
+      ]
+    },
+    {
+      "title": "447",
+      "text": "stirling engine",
+      "constraint": "#syn(#band(stirling engine) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "stirling"
+        },
+        {
+          "weight": "1",
+          "feature": "engine"
+        }
+      ]
+    },
+    {
+      "title": "448",
+      "text": "ship losses",
+      "constraint": "#syn(#band(ship losses) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "ship"
+        },
+        {
+          "weight": "1",
+          "feature": "losses"
+        }
+      ]
+    },
+    {
+      "title": "449",
+      "text": "antibiotics ineffectiveness",
+      "constraint": "#syn(#band(antibiotics ineffectiveness) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "antibiotics"
+        },
+        {
+          "weight": "1",
+          "feature": "ineffectiveness"
+        }
+      ]
+    },
+    {
+      "title": "450",
+      "text": "king hussein peace",
+      "constraint": "#syn(#band(king hussein) #band(king peace) #band(hussein peace) )",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "hussein"
+        },
+        {
+          "weight": "1",
+          "feature": "peace"
+        },
+        {
+          "weight": "1",
+          "feature": "king"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,402 @@
+<parameters>
+<query>
+<number>51</number>
+<text>airbus subsidy</text>
+</query>
+<query>
+<number>52</number>
+<text>south africa sanction</text>
+</query>
+<query>
+<number>53</number>
+<text>leverage buyout</text>
+</query>
+<query>
+<number>54</number>
+<text>satellite launch contract</text>
+</query>
+<query>
+<number>55</number>
+<text>insider trade</text>
+</query>
+<query>
+<number>56</number>
+<text>prime lend rate move prediction</text>
+</query>
+<query>
+<number>57</number>
+<text>mci</text>
+</query>
+<query>
+<number>58</number>
+<text>rail strike</text>
+</query>
+<query>
+<number>59</number>
+<text>weather related fatality</text>
+</query>
+<query>
+<number>60</number>
+<text>merit pay seniority</text>
+</query>
+<query>
+<number>61</number>
+<text>israel role iran contra affair</text>
+</query>
+<query>
+<number>62</number>
+<text>military coup d etat</text>
+</query>
+<query>
+<number>63</number>
+<text>machine translate</text>
+</query>
+<query>
+<number>64</number>
+<text>hostage taking</text>
+</query>
+<query>
+<number>65</number>
+<text>information retrieval system</text>
+</query>
+<query>
+<number>66</number>
+<text>natural language process</text>
+</query>
+<query>
+<number>67</number>
+<text>politics motivate civil disturbance</text>
+</query>
+<query>
+<number>68</number>
+<text>health hazard fine diameter fiber</text>
+</query>
+<query>
+<number>69</number>
+<text>attempt revive salt ii treaty</text>
+</query>
+<query>
+<number>70</number>
+<text>surrogate motherhood</text>
+</query>
+<query>
+<number>71</number>
+<text>border incursion</text>
+</query>
+<query>
+<number>72</number>
+<text>demography shift</text>
+</query>
+<query>
+<number>73</number>
+<text>demography shift national boundary</text>
+</query>
+<query>
+<number>74</number>
+<text>conflict policy</text>
+</query>
+<query>
+<number>75</number>
+<text>automation</text>
+</query>
+<query>
+<number>76</number>
+<text>constitution original intent</text>
+</query>
+<query>
+<number>77</number>
+<text>poach</text>
+</query>
+<query>
+<number>78</number>
+<text>greenpeace</text>
+</query>
+<query>
+<number>79</number>
+<text>frg politics party position</text>
+</query>
+<query>
+<number>80</number>
+<text>1988 presidential candidate platform</text>
+</query>
+<query>
+<number>81</number>
+<text>financial crunch televangelist wake ptlscandal</text>
+</query>
+<query>
+<number>82</number>
+<text>genetic engineering</text>
+</query>
+<query>
+<number>83</number>
+<text>measure protect atmosphere</text>
+</query>
+<query>
+<number>84</number>
+<text>alternative renewable energy plant equipment installation</text>
+</query>
+<query>
+<number>85</number>
+<text>official corruption</text>
+</query>
+<query>
+<number>86</number>
+<text>bank failure</text>
+</query>
+<query>
+<number>87</number>
+<text>criminal action officer fail financial institution</text>
+</query>
+<query>
+<number>88</number>
+<text>crude oil price trend</text>
+</query>
+<query>
+<number>89</number>
+<text>downstream investment opec member states</text>
+</query>
+<query>
+<number>90</number>
+<text>data proven reserve oil natural gas producer</text>
+</query>
+<query>
+<number>91</number>
+<text>army acquisition advanced weapon system</text>
+</query>
+<query>
+<number>92</number>
+<text>international military equipment sales</text>
+</query>
+<query>
+<number>93</number>
+<text>backing national rifle association</text>
+</query>
+<query>
+<number>94</number>
+<text>computer aid crime</text>
+</query>
+<query>
+<number>95</number>
+<text>computer aid crime detection</text>
+</query>
+<query>
+<number>96</number>
+<text>computer aid medical diagnosis</text>
+</query>
+<query>
+<number>97</number>
+<text>fiber optics application</text>
+</query>
+<query>
+<number>98</number>
+<text>fiber optics equipment manufacturer</text>
+</query>
+<query>
+<number>99</number>
+<text>iran contra affair</text>
+</query>
+<query>
+<number>100</number>
+<text>control transfer high technology</text>
+</query>
+<query>
+<number>151</number>
+<text>coping overcrowd prison</text>
+</query>
+<query>
+<number>152</number>
+<text>accusation cheat contractor defense project</text>
+</query>
+<query>
+<number>153</number>
+<text>insurance coverage pay long term care</text>
+</query>
+<query>
+<number>154</number>
+<text>oil spill</text>
+</query>
+<query>
+<number>155</number>
+<text>right wing christian fundamentalism</text>
+</query>
+<query>
+<number>156</number>
+<text>effort enact gun control legislation</text>
+</query>
+<query>
+<number>157</number>
+<text>cause treatment multiple sclerosis</text>
+</query>
+<query>
+<number>158</number>
+<text>term limitation member congress</text>
+</query>
+<query>
+<number>159</number>
+<text>electric car development</text>
+</query>
+<query>
+<number>160</number>
+<text>vitamin cure cause ofhuman ailment</text>
+</query>
+<query>
+<number>161</number>
+<text>acid rain</text>
+</query>
+<query>
+<number>162</number>
+<text>automobile recall</text>
+</query>
+<query>
+<number>163</number>
+<text>vietnam veteran agent orange</text>
+</query>
+<query>
+<number>164</number>
+<text>generic drug illegal activity manufacturer</text>
+</query>
+<query>
+<number>165</number>
+<text>tobacco company advertising young</text>
+</query>
+<query>
+<number>166</number>
+<text>standardize test cultural bias</text>
+</query>
+<query>
+<number>167</number>
+<text>regulation showing violence explicitsex motion picture theater television video cassette</text>
+</query>
+<query>
+<number>168</number>
+<text>finance amtrak</text>
+</query>
+<query>
+<number>169</number>
+<text>cost garbage trash removal</text>
+</query>
+<query>
+<number>170</number>
+<text>consequence implant silicone gel breast device</text>
+</query>
+<query>
+<number>171</number>
+<text>mutual funds individual s retirement strategy</text>
+</query>
+<query>
+<number>172</number>
+<text>effectiveness medical product andrelate program utilize cessation smoking</text>
+</query>
+<query>
+<number>173</number>
+<text>smoking ban</text>
+</query>
+<query>
+<number>174</number>
+<text>hazardous waste cleanup</text>
+</query>
+<query>
+<number>175</number>
+<text>nra prevention gun control legislation</text>
+</query>
+<query>
+<number>176</number>
+<text>real life private investigate</text>
+</query>
+<query>
+<number>177</number>
+<text>english official language</text>
+</query>
+<query>
+<number>178</number>
+<text>dog maul</text>
+</query>
+<query>
+<number>179</number>
+<text>u s restaurant foreign lands</text>
+</query>
+<query>
+<number>180</number>
+<text>ineffective embargo sanction</text>
+</query>
+<query>
+<number>181</number>
+<text>abuse elderly family member medical andnonmedic personnel initiative taken minimize mistreatment</text>
+</query>
+<query>
+<number>182</number>
+<text>commercial overfish create food fish deficit</text>
+</query>
+<query>
+<number>183</number>
+<text>asbestos related lawsuit</text>
+</query>
+<query>
+<number>184</number>
+<text>corporate pension plan funds</text>
+</query>
+<query>
+<number>185</number>
+<text>reform welfare system</text>
+</query>
+<query>
+<number>186</number>
+<text>difference learning level innerc suburban school student</text>
+</query>
+<query>
+<number>187</number>
+<text>sign demise independent publishing</text>
+</query>
+<query>
+<number>188</number>
+<text>beachfront erosion</text>
+</query>
+<query>
+<number>189</number>
+<text>real motive murder</text>
+</query>
+<query>
+<number>190</number>
+<text>instance fraud involve computer</text>
+</query>
+<query>
+<number>191</number>
+<text>effort improve schooling</text>
+</query>
+<query>
+<number>192</number>
+<text>oil spill cleanup</text>
+</query>
+<query>
+<number>193</number>
+<text>toy r dangerous</text>
+</query>
+<query>
+<number>194</number>
+<text>amount money earn writer</text>
+</query>
+<query>
+<number>195</number>
+<text>stock market perturbation attributable tocomputer initiate trade</text>
+</query>
+<query>
+<number>196</number>
+<text>school choice voucher system effectsupon entire educational program</text>
+</query>
+<query>
+<number>197</number>
+<text>reform jurisprudence systemto stop jury grant unreasonable monetaryaward</text>
+</query>
+<query>
+<number>198</number>
+<text>gene therapy benefit humankind</text>
+</query>
+<query>
+<number>199</number>
+<text>legality medical assist suicide</text>
+</query>
+<query>
+<number>200</number>
+<text>impact foreign textile import ustextile industry</text>
+</query>
+</parameters>

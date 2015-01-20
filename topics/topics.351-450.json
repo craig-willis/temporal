@@ -1,0 +1,1588 @@
+{
+  "queries": [
+    {
+      "title": "351",
+      "text": "falkland petroleum exploration",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "petroleum"
+        },
+        {
+          "weight": "1",
+          "feature": "falkland"
+        },
+        {
+          "weight": "1",
+          "feature": "exploration"
+        }
+      ]
+    },
+    {
+      "title": "352",
+      "text": "british chunnel impact",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "british"
+        },
+        {
+          "weight": "1",
+          "feature": "impact"
+        },
+        {
+          "weight": "1",
+          "feature": "chunnel"
+        }
+      ]
+    },
+    {
+      "title": "353",
+      "text": "antarctica exploration",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "antarctica"
+        },
+        {
+          "weight": "1",
+          "feature": "exploration"
+        }
+      ]
+    },
+    {
+      "title": "354",
+      "text": "journalist risks",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "risks"
+        },
+        {
+          "weight": "1",
+          "feature": "journalist"
+        }
+      ]
+    },
+    {
+      "title": "355",
+      "text": "ocean remote sensing",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "ocean"
+        },
+        {
+          "weight": "1",
+          "feature": "remote"
+        },
+        {
+          "weight": "1",
+          "feature": "sensing"
+        }
+      ]
+    },
+    {
+      "title": "356",
+      "text": "postmenopausal estrogen britain",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "estrogen"
+        },
+        {
+          "weight": "1",
+          "feature": "postmenopausal"
+        },
+        {
+          "weight": "1",
+          "feature": "britain"
+        }
+      ]
+    },
+    {
+      "title": "357",
+      "text": "territorial waters dispute",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "waters"
+        },
+        {
+          "weight": "1",
+          "feature": "territorial"
+        },
+        {
+          "weight": "1",
+          "feature": "dispute"
+        }
+      ]
+    },
+    {
+      "title": "358",
+      "text": "blood alcohol fatalities",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "alcohol"
+        },
+        {
+          "weight": "1",
+          "feature": "fatalities"
+        },
+        {
+          "weight": "1",
+          "feature": "blood"
+        }
+      ]
+    },
+    {
+      "title": "359",
+      "text": "mutual fund predictors",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "predictors"
+        },
+        {
+          "weight": "1",
+          "feature": "mutual"
+        },
+        {
+          "weight": "1",
+          "feature": "fund"
+        }
+      ]
+    },
+    {
+      "title": "360",
+      "text": "drug legalization benefits",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "legalization"
+        },
+        {
+          "weight": "1",
+          "feature": "benefits"
+        },
+        {
+          "weight": "1",
+          "feature": "drug"
+        }
+      ]
+    },
+    {
+      "title": "361",
+      "text": "clothing sweatshops",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "clothing"
+        },
+        {
+          "weight": "1",
+          "feature": "sweatshops"
+        }
+      ]
+    },
+    {
+      "title": "362",
+      "text": "human smuggling",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "smuggling"
+        },
+        {
+          "weight": "1",
+          "feature": "human"
+        }
+      ]
+    },
+    {
+      "title": "363",
+      "text": "transportation tunnel disasters",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "disasters"
+        },
+        {
+          "weight": "1",
+          "feature": "transportation"
+        },
+        {
+          "weight": "1",
+          "feature": "tunnel"
+        }
+      ]
+    },
+    {
+      "title": "364",
+      "text": "rabies",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "rabies"
+        }
+      ]
+    },
+    {
+      "title": "365",
+      "text": "el nino",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "el"
+        },
+        {
+          "weight": "1",
+          "feature": "nino"
+        }
+      ]
+    },
+    {
+      "title": "366",
+      "text": "commercial cyanide uses",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "cyanide"
+        },
+        {
+          "weight": "1",
+          "feature": "uses"
+        },
+        {
+          "weight": "1",
+          "feature": "commercial"
+        }
+      ]
+    },
+    {
+      "title": "367",
+      "text": "piracy",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "piracy"
+        }
+      ]
+    },
+    {
+      "title": "368",
+      "text": "in vitro fertilization",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "fertilization"
+        },
+        {
+          "weight": "1",
+          "feature": "vitro"
+        }
+      ]
+    },
+    {
+      "title": "369",
+      "text": "anorexia nervosa bulimia",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "anorexia"
+        },
+        {
+          "weight": "1",
+          "feature": "nervosa"
+        },
+        {
+          "weight": "1",
+          "feature": "bulimia"
+        }
+      ]
+    },
+    {
+      "title": "370",
+      "text": "food drug laws",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "food"
+        },
+        {
+          "weight": "1",
+          "feature": "laws"
+        },
+        {
+          "weight": "1",
+          "feature": "drug"
+        }
+      ]
+    },
+    {
+      "title": "371",
+      "text": "health insurance holistic",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "insurance"
+        },
+        {
+          "weight": "1",
+          "feature": "holistic"
+        },
+        {
+          "weight": "1",
+          "feature": "health"
+        }
+      ]
+    },
+    {
+      "title": "372",
+      "text": "native american casino",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "native"
+        },
+        {
+          "weight": "1",
+          "feature": "american"
+        },
+        {
+          "weight": "1",
+          "feature": "casino"
+        }
+      ]
+    },
+    {
+      "title": "373",
+      "text": "encryption equipment export",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "export"
+        },
+        {
+          "weight": "1",
+          "feature": "encryption"
+        },
+        {
+          "weight": "1",
+          "feature": "equipment"
+        }
+      ]
+    },
+    {
+      "title": "374",
+      "text": "nobel prize winners",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "winners"
+        },
+        {
+          "weight": "1",
+          "feature": "nobel"
+        },
+        {
+          "weight": "1",
+          "feature": "prize"
+        }
+      ]
+    },
+    {
+      "title": "375",
+      "text": "hydrogen energy",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "hydrogen"
+        },
+        {
+          "weight": "1",
+          "feature": "energy"
+        }
+      ]
+    },
+    {
+      "title": "376",
+      "text": "world court",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "court"
+        },
+        {
+          "weight": "1",
+          "feature": "world"
+        }
+      ]
+    },
+    {
+      "title": "377",
+      "text": "cigar smoking",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "cigar"
+        },
+        {
+          "weight": "1",
+          "feature": "smoking"
+        }
+      ]
+    },
+    {
+      "title": "378",
+      "text": "euro opposition",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "opposition"
+        },
+        {
+          "weight": "1",
+          "feature": "euro"
+        }
+      ]
+    },
+    {
+      "title": "379",
+      "text": "mainstreaming",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "mainstreaming"
+        }
+      ]
+    },
+    {
+      "title": "380",
+      "text": "obesity medical treatment",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "medical"
+        },
+        {
+          "weight": "1",
+          "feature": "treatment"
+        },
+        {
+          "weight": "1",
+          "feature": "obesity"
+        }
+      ]
+    },
+    {
+      "title": "381",
+      "text": "alternative medicine",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "alternative"
+        },
+        {
+          "weight": "1",
+          "feature": "medicine"
+        }
+      ]
+    },
+    {
+      "title": "382",
+      "text": "hydrogen fuel automobiles",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "automobiles"
+        },
+        {
+          "weight": "1",
+          "feature": "hydrogen"
+        },
+        {
+          "weight": "1",
+          "feature": "fuel"
+        }
+      ]
+    },
+    {
+      "title": "383",
+      "text": "mental illness drugs",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "drugs"
+        },
+        {
+          "weight": "1",
+          "feature": "illness"
+        },
+        {
+          "weight": "1",
+          "feature": "mental"
+        }
+      ]
+    },
+    {
+      "title": "384",
+      "text": "space station moon",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "moon"
+        },
+        {
+          "weight": "1",
+          "feature": "station"
+        },
+        {
+          "weight": "1",
+          "feature": "space"
+        }
+      ]
+    },
+    {
+      "title": "385",
+      "text": "hybrid fuel cars",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "cars"
+        },
+        {
+          "weight": "1",
+          "feature": "fuel"
+        },
+        {
+          "weight": "1",
+          "feature": "hybrid"
+        }
+      ]
+    },
+    {
+      "title": "386",
+      "text": "teaching disabled children",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "teaching"
+        },
+        {
+          "weight": "1",
+          "feature": "children"
+        },
+        {
+          "weight": "1",
+          "feature": "disabled"
+        }
+      ]
+    },
+    {
+      "title": "387",
+      "text": "radioactive waste",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "waste"
+        },
+        {
+          "weight": "1",
+          "feature": "radioactive"
+        }
+      ]
+    },
+    {
+      "title": "388",
+      "text": "organic soil enhancement",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "organic"
+        },
+        {
+          "weight": "1",
+          "feature": "enhancement"
+        },
+        {
+          "weight": "1",
+          "feature": "soil"
+        }
+      ]
+    },
+    {
+      "title": "389",
+      "text": "illegal technology transfer",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "transfer"
+        },
+        {
+          "weight": "1",
+          "feature": "technology"
+        },
+        {
+          "weight": "1",
+          "feature": "illegal"
+        }
+      ]
+    },
+    {
+      "title": "390",
+      "text": "orphan drugs",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "orphan"
+        },
+        {
+          "weight": "1",
+          "feature": "drugs"
+        }
+      ]
+    },
+    {
+      "title": "391",
+      "text": "r d drug prices",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "d"
+        },
+        {
+          "weight": "1",
+          "feature": "r"
+        },
+        {
+          "weight": "1",
+          "feature": "prices"
+        },
+        {
+          "weight": "1",
+          "feature": "drug"
+        }
+      ]
+    },
+    {
+      "title": "392",
+      "text": "robotics",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "robotics"
+        }
+      ]
+    },
+    {
+      "title": "393",
+      "text": "mercy killing",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "killing"
+        },
+        {
+          "weight": "1",
+          "feature": "mercy"
+        }
+      ]
+    },
+    {
+      "title": "394",
+      "text": "home schooling",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "home"
+        },
+        {
+          "weight": "1",
+          "feature": "schooling"
+        }
+      ]
+    },
+    {
+      "title": "395",
+      "text": "tourism",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "tourism"
+        }
+      ]
+    },
+    {
+      "title": "396",
+      "text": "sick building syndrome",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "building"
+        },
+        {
+          "weight": "1",
+          "feature": "syndrome"
+        },
+        {
+          "weight": "1",
+          "feature": "sick"
+        }
+      ]
+    },
+    {
+      "title": "397",
+      "text": "automobile recalls",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "automobile"
+        },
+        {
+          "weight": "1",
+          "feature": "recalls"
+        }
+      ]
+    },
+    {
+      "title": "398",
+      "text": "dismantling europe s arsenal",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "europe"
+        },
+        {
+          "weight": "1",
+          "feature": "arsenal"
+        },
+        {
+          "weight": "1",
+          "feature": "s"
+        },
+        {
+          "weight": "1",
+          "feature": "dismantling"
+        }
+      ]
+    },
+    {
+      "title": "399",
+      "text": "oceanographic vessels",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "oceanographic"
+        },
+        {
+          "weight": "1",
+          "feature": "vessels"
+        }
+      ]
+    },
+    {
+      "title": "400",
+      "text": "amazon rain forest",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "forest"
+        },
+        {
+          "weight": "1",
+          "feature": "rain"
+        },
+        {
+          "weight": "1",
+          "feature": "amazon"
+        }
+      ]
+    },
+    {
+      "title": "401",
+      "text": "foreign minorities germany",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "germany"
+        },
+        {
+          "weight": "1",
+          "feature": "minorities"
+        },
+        {
+          "weight": "1",
+          "feature": "foreign"
+        }
+      ]
+    },
+    {
+      "title": "402",
+      "text": "behavioral genetics",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "genetics"
+        },
+        {
+          "weight": "1",
+          "feature": "behavioral"
+        }
+      ]
+    },
+    {
+      "title": "403",
+      "text": "osteoporosis",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "osteoporosis"
+        }
+      ]
+    },
+    {
+      "title": "404",
+      "text": "ireland peace talks",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "ireland"
+        },
+        {
+          "weight": "1",
+          "feature": "peace"
+        },
+        {
+          "weight": "1",
+          "feature": "talks"
+        }
+      ]
+    },
+    {
+      "title": "405",
+      "text": "cosmic events",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "events"
+        },
+        {
+          "weight": "1",
+          "feature": "cosmic"
+        }
+      ]
+    },
+    {
+      "title": "406",
+      "text": "parkinson s disease",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "s"
+        },
+        {
+          "weight": "1",
+          "feature": "parkinson"
+        },
+        {
+          "weight": "1",
+          "feature": "disease"
+        }
+      ]
+    },
+    {
+      "title": "407",
+      "text": "poaching wildlife preserves",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "preserves"
+        },
+        {
+          "weight": "1",
+          "feature": "poaching"
+        },
+        {
+          "weight": "1",
+          "feature": "wildlife"
+        }
+      ]
+    },
+    {
+      "title": "408",
+      "text": "tropical storms",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "tropical"
+        },
+        {
+          "weight": "1",
+          "feature": "storms"
+        }
+      ]
+    },
+    {
+      "title": "409",
+      "text": "legal pan am 103",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "legal"
+        },
+        {
+          "weight": "1",
+          "feature": "103"
+        },
+        {
+          "weight": "1",
+          "feature": "pan"
+        }
+      ]
+    },
+    {
+      "title": "410",
+      "text": "schengen agreement",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "schengen"
+        },
+        {
+          "weight": "1",
+          "feature": "agreement"
+        }
+      ]
+    },
+    {
+      "title": "411",
+      "text": "salvaging shipwreck treasure",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "shipwreck"
+        },
+        {
+          "weight": "1",
+          "feature": "treasure"
+        },
+        {
+          "weight": "1",
+          "feature": "salvaging"
+        }
+      ]
+    },
+    {
+      "title": "412",
+      "text": "airport security",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "airport"
+        },
+        {
+          "weight": "1",
+          "feature": "security"
+        }
+      ]
+    },
+    {
+      "title": "413",
+      "text": "steel production",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "steel"
+        },
+        {
+          "weight": "1",
+          "feature": "production"
+        }
+      ]
+    },
+    {
+      "title": "414",
+      "text": "cuba sugar exports",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "exports"
+        },
+        {
+          "weight": "1",
+          "feature": "sugar"
+        },
+        {
+          "weight": "1",
+          "feature": "cuba"
+        }
+      ]
+    },
+    {
+      "title": "415",
+      "text": "drugs golden triangle",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "triangle"
+        },
+        {
+          "weight": "1",
+          "feature": "drugs"
+        },
+        {
+          "weight": "1",
+          "feature": "golden"
+        }
+      ]
+    },
+    {
+      "title": "416",
+      "text": "three gorges project",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "project"
+        },
+        {
+          "weight": "1",
+          "feature": "three"
+        },
+        {
+          "weight": "1",
+          "feature": "gorges"
+        }
+      ]
+    },
+    {
+      "title": "417",
+      "text": "creativity",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "creativity"
+        }
+      ]
+    },
+    {
+      "title": "418",
+      "text": "quilts income",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "income"
+        },
+        {
+          "weight": "1",
+          "feature": "quilts"
+        }
+      ]
+    },
+    {
+      "title": "419",
+      "text": "recycle automobile tires",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "recycle"
+        },
+        {
+          "weight": "1",
+          "feature": "automobile"
+        },
+        {
+          "weight": "1",
+          "feature": "tires"
+        }
+      ]
+    },
+    {
+      "title": "420",
+      "text": "carbon monoxide poisoning",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "monoxide"
+        },
+        {
+          "weight": "1",
+          "feature": "carbon"
+        },
+        {
+          "weight": "1",
+          "feature": "poisoning"
+        }
+      ]
+    },
+    {
+      "title": "421",
+      "text": "industrial waste disposal",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "waste"
+        },
+        {
+          "weight": "1",
+          "feature": "industrial"
+        },
+        {
+          "weight": "1",
+          "feature": "disposal"
+        }
+      ]
+    },
+    {
+      "title": "422",
+      "text": "art stolen forged",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "art"
+        },
+        {
+          "weight": "1",
+          "feature": "forged"
+        },
+        {
+          "weight": "1",
+          "feature": "stolen"
+        }
+      ]
+    },
+    {
+      "title": "423",
+      "text": "milosevic mirjana markovic",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "markovic"
+        },
+        {
+          "weight": "1",
+          "feature": "mirjana"
+        },
+        {
+          "weight": "1",
+          "feature": "milosevic"
+        }
+      ]
+    },
+    {
+      "title": "424",
+      "text": "suicides",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "suicides"
+        }
+      ]
+    },
+    {
+      "title": "425",
+      "text": "counterfeiting money",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "money"
+        },
+        {
+          "weight": "1",
+          "feature": "counterfeiting"
+        }
+      ]
+    },
+    {
+      "title": "426",
+      "text": "law enforcement dogs",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "enforcement"
+        },
+        {
+          "weight": "1",
+          "feature": "law"
+        },
+        {
+          "weight": "1",
+          "feature": "dogs"
+        }
+      ]
+    },
+    {
+      "title": "427",
+      "text": "uv damage eyes",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "uv"
+        },
+        {
+          "weight": "1",
+          "feature": "damage"
+        },
+        {
+          "weight": "1",
+          "feature": "eyes"
+        }
+      ]
+    },
+    {
+      "title": "428",
+      "text": "declining birth rates",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "birth"
+        },
+        {
+          "weight": "1",
+          "feature": "declining"
+        },
+        {
+          "weight": "1",
+          "feature": "rates"
+        }
+      ]
+    },
+    {
+      "title": "429",
+      "text": "legionnaires disease",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "legionnaires"
+        },
+        {
+          "weight": "1",
+          "feature": "disease"
+        }
+      ]
+    },
+    {
+      "title": "430",
+      "text": "killer bee attacks",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "bee"
+        },
+        {
+          "weight": "1",
+          "feature": "killer"
+        },
+        {
+          "weight": "1",
+          "feature": "attacks"
+        }
+      ]
+    },
+    {
+      "title": "431",
+      "text": "robotic technology",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "technology"
+        },
+        {
+          "weight": "1",
+          "feature": "robotic"
+        }
+      ]
+    },
+    {
+      "title": "432",
+      "text": "profiling motorists police",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "police"
+        },
+        {
+          "weight": "1",
+          "feature": "motorists"
+        },
+        {
+          "weight": "1",
+          "feature": "profiling"
+        }
+      ]
+    },
+    {
+      "title": "433",
+      "text": "greek philosophy stoicism",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "stoicism"
+        },
+        {
+          "weight": "1",
+          "feature": "greek"
+        },
+        {
+          "weight": "1",
+          "feature": "philosophy"
+        }
+      ]
+    },
+    {
+      "title": "434",
+      "text": "estonia economy",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "estonia"
+        },
+        {
+          "weight": "1",
+          "feature": "economy"
+        }
+      ]
+    },
+    {
+      "title": "435",
+      "text": "curbing population growth",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "curbing"
+        },
+        {
+          "weight": "1",
+          "feature": "growth"
+        },
+        {
+          "weight": "1",
+          "feature": "population"
+        }
+      ]
+    },
+    {
+      "title": "436",
+      "text": "railway accidents",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "accidents"
+        },
+        {
+          "weight": "1",
+          "feature": "railway"
+        }
+      ]
+    },
+    {
+      "title": "437",
+      "text": "deregulation gas electric",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "gas"
+        },
+        {
+          "weight": "1",
+          "feature": "deregulation"
+        },
+        {
+          "weight": "1",
+          "feature": "electric"
+        }
+      ]
+    },
+    {
+      "title": "438",
+      "text": "tourism increase",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "increase"
+        },
+        {
+          "weight": "1",
+          "feature": "tourism"
+        }
+      ]
+    },
+    {
+      "title": "439",
+      "text": "inventions scientific discoveries",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "inventions"
+        },
+        {
+          "weight": "1",
+          "feature": "discoveries"
+        },
+        {
+          "weight": "1",
+          "feature": "scientific"
+        }
+      ]
+    },
+    {
+      "title": "440",
+      "text": "child labor",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "labor"
+        },
+        {
+          "weight": "1",
+          "feature": "child"
+        }
+      ]
+    },
+    {
+      "title": "441",
+      "text": "lyme disease",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "lyme"
+        },
+        {
+          "weight": "1",
+          "feature": "disease"
+        }
+      ]
+    },
+    {
+      "title": "442",
+      "text": "heroic acts",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "acts"
+        },
+        {
+          "weight": "1",
+          "feature": "heroic"
+        }
+      ]
+    },
+    {
+      "title": "443",
+      "text": "us investment africa",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "africa"
+        },
+        {
+          "weight": "1",
+          "feature": "investment"
+        }
+      ]
+    },
+    {
+      "title": "444",
+      "text": "supercritical fluids",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "fluids"
+        },
+        {
+          "weight": "1",
+          "feature": "supercritical"
+        }
+      ]
+    },
+    {
+      "title": "445",
+      "text": "women clergy",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "clergy"
+        },
+        {
+          "weight": "1",
+          "feature": "women"
+        }
+      ]
+    },
+    {
+      "title": "446",
+      "text": "tourists violence",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "violence"
+        },
+        {
+          "weight": "1",
+          "feature": "tourists"
+        }
+      ]
+    },
+    {
+      "title": "447",
+      "text": "stirling engine",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "stirling"
+        },
+        {
+          "weight": "1",
+          "feature": "engine"
+        }
+      ]
+    },
+    {
+      "title": "448",
+      "text": "ship losses",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "ship"
+        },
+        {
+          "weight": "1",
+          "feature": "losses"
+        }
+      ]
+    },
+    {
+      "title": "449",
+      "text": "antibiotics ineffectiveness",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "antibiotics"
+        },
+        {
+          "weight": "1",
+          "feature": "ineffectiveness"
+        }
+      ]
+    },
+    {
+      "title": "450",
+      "text": "king hussein peace",
+      "model": [
+        {
+          "weight": "1",
+          "feature": "hussein"
+        },
+        {
+          "weight": "1",
+          "feature": "peace"
+        },
+        {
+          "weight": "1",
+          "feature": "king"
+        }
+      ]
+    }
+  ]
+}
