@@ -64,11 +64,11 @@ public class TimeSmoothedScorerAverage extends TemporalScorer
                 }
             }
             
-            // Document generation likelihood
+            // Approximate document generation likelihood
+            // Score each temporal model with respect to this document.
             double[] scores = new double[pis.size()];
             double z = 0;            
             for (int b: pis.keySet()) {
-                //System.out.println(gQuery.getTitle() + " scoring " + b + " of " + pis.size());
                 double score = scoreTemporalModel(dv, pis.get(b));
                 if (b < pis.size()) {
                     scores[b] = score;
@@ -118,23 +118,26 @@ public class TimeSmoothedScorerAverage extends TemporalScorer
     }
     
     
-
-    public double scoreTemporalModel(FeatureVector dv, FeatureVector tfv)
+    /**
+     * Score the temporal model with repsect to the document model.
+     * Smooth the temporal model using the collection model.
+     * 
+     * @param dv    Document model
+     * @param tfv   Temporal model
+     * @return
+     */
+    public double scoreTemporalModel(FeatureVector dm, FeatureVector tm)
     {
         double logLikelihood = 0.0;
-        
-        
-        double add = 1/(double)dv.getFeatureCount();
-        
-        for (String feature: dv.getFeatures())
-        {
-                                       
-            double tfreq = tfv.getFeatureWeight(feature);
-            double tlen = tfv.getLength();
+                     
+        for (String feature: dm.getFeatures())
+        {                                       
+            double tfreq = tm.getFeatureWeight(feature);
+            double tlen = tm.getLength();
             
-            double smoothedProb = (tfreq + add)/(tlen + 1);
+            double smoothedProb = (tfreq + 1)/(tlen + collectionStats.getTokCount());
 
-            double docWeight = dv.getFeatureWeight(feature);
+            double docWeight = dm.getFeatureWeight(feature);
             
             logLikelihood += docWeight * Math.log(smoothedProb);
         }                        
