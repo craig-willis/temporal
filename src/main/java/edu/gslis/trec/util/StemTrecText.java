@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -18,7 +19,6 @@ import org.apache.commons.io.FileUtils;
 import org.lemurproject.kstem.KrovetzStemmer;
 import org.lemurproject.kstem.Stemmer;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -58,6 +58,9 @@ public class StemTrecText
         process(inputFile, outputFile, stem, stopper, outputPath);
     }
     
+    static Pattern INVALID_XML_CHARS = Pattern.compile("[^\\u0009\\u000A\\u000D\\u0020-\\uD7FF\\uE000-\\uFFFD\uD800\uDC00-\uDBFF\uDFFF]");
+    
+    
     public static void process(File inputFile, File outputFile, boolean stem, Stopper stopper, String parentPath) 
             throws IOException {
        if (inputFile.isDirectory()) {
@@ -77,8 +80,12 @@ public class StemTrecText
 
                //Using factory get an instance of document builder
                DocumentBuilder db = dbf.newDocumentBuilder();
-               String trecText = FileUtils.readFileToString(inputFile);
+               String trecText = FileUtils.readFileToString(inputFile, "UTF-8");
+               trecText = INVALID_XML_CHARS.matcher(trecText).replaceAll("");
+               
                trecText = trecText.replaceAll("&", "&amp;");
+               trecText = trecText.replaceAll("<P>", "");
+               trecText = trecText.replaceAll("</P>", "");
                trecText = "<ROOT>" + trecText + "</ROOT>";
                Document dom = db.parse(new InputSource(new StringReader(trecText)));
                
