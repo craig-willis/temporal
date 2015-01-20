@@ -7,19 +7,28 @@ import java.util.TreeMap;
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
+import edu.gslis.temporal.util.RKernelDensity;
 import edu.gslis.textrepresentation.FeatureVector;
 
-/**
- * Uses a TimeSeriesIndex to calculate a temporal language model for a given
- * interval and smooth the document using the best matching temporal model to theta_D
- * based on KL divergence
- */
-public class TimeSmoothedScorerBestMultinomial extends TemporalScorer 
+
+public class KDEBMNScorer extends TemporalScorer 
 {
 
-    String MU = "mu";
-    String LAMBDA = "lambda";
+    static String MU = "mu";
+    static String LAMBDA = "lambda";
+    static String ALPHA = "alpha";
     
+    
+    RKernelDensity dist = null;
+    
+    
+    @Override
+    public void init(SearchHits hits) {
+        double[] x = TemporalScorer.getTimes(hits);
+        double[] w = KDEScorer.getUniformWeights(hits);
+        dist = new RKernelDensity(x, w);            
+    }
+
     
     public double score(SearchHit doc)
     {
@@ -43,6 +52,7 @@ public class TimeSmoothedScorerBestMultinomial extends TemporalScorer
         {
             // Total number of events for each time = bin(t)
             // The TimeSeriesIndex contains 1 row per term and 1 column per bin based on interval.
+            // There are tf and df versions of each index.
             double[] total = tsIndex.get("_total_");
             
             FeatureVector dv = doc.getFeatureVector();
@@ -65,43 +75,32 @@ public class TimeSmoothedScorerBestMultinomial extends TemporalScorer
                         FeatureVector pi = pis.get(i);
                         if (pi == null)
                             pi = new FeatureVector(null);
-                        pi.addTerm(feature, series[i]/total[i]);
+                        pi.addTerm(feature, series[i]);
                         pis.put(i, pi);
                     }
                 }
             }
+            // At this point, pis contains a FeatureVector for each bin.
             
-            // Rank temporal models with respect to documents
+            // Find the best bin for this document based on KL(tlm, dlm)
             FeatureVector bestTM = pis.get(t);
-            double maxScore = Double.NEGATIVE_INFINITY;
-            int bestBin = t;
-            for (int bin: pis.keySet()) {
-//            for (FeatureVector tfv: pis.values()) {
-                FeatureVector tfv = pis.get(bin);
-                tfv.normalize();
-                double score = scoreTemporalModel(dv, tfv);
-                if (score > maxScore) {
-                    maxScore = score;
-                    bestTM = tfv;
-                    bestBin = bin;
-                }                    
-            }            
-            
-            // Select the temporal model with the smallest KL divergence from the document
-            /*
-            FeatureVector bestTM2 = pis.get(t);
             double minKL = -1;
+            int bestBin = 0;
             for (int bin: pis.keySet()) {
                 FeatureVector pi = pis.get(bin);
                 // KL (pi|dv)
                 double kl = kl(pi, dv);
                 if ((kl > 0 && minKL < 0) || (kl > 0 && kl < minKL)) {
                     minKL = kl;
-                    bestTM2 = pi;
+                    bestTM = pi;
+                    bestBin = bin;
                 }
             }
-            */
             
+            
+            // Total number of events for the best matching bin
+            double binLen = total[bestBin];
+
             // Now calculate the score for this document using 
             // a combination of the temporal and collection LM.
             while(queryIterator.hasNext()) 
@@ -112,60 +111,40 @@ public class TimeSmoothedScorerBestMultinomial extends TemporalScorer
                 double pwC = (1 + collectionStats.termCount(feature)) / collectionStats.getTokCount();
 
                 //p(w | T)
-                double timePr = bestTM.getFeatureWeight(feature);
+                double timePr = bestTM.getFeatureWeight(feature)/binLen;
                                            
                 double docFreq = doc.getFeatureVector().getFeatureWeight(feature);
                 double docLength = doc.getLength();
-
-                double smoothedTempPr = pwC;
-
-                //System.out.println(kls[bestBin]);
-                //System.out.println(klstats.getMean() + klstats.getStandardDeviation());
-
-                // Only smooth if temporal bin has enough info to do so
-                //if (kls[bestBin] > (klstats.getMean() + 2*  klstats.getStandardDeviation())) {
-                    // Smooth temporal language model with collection language model
-                    smoothedTempPr = lambda*timePr + (1-lambda)*pwC;
-                //}
-                    
-                // Smooth document language model with temporal language model
-                double smoothedDocProb = (docFreq + mu*smoothedTempPr)/(docLength + mu);
-
+                double pr = (docFreq + mu*(lambda*timePr + (1-lambda)*pwC))/(docLength + mu);
+                
                 double queryWeight = gQuery.getFeatureVector().getFeatureWeight(feature);
                 
-                logLikelihood += queryWeight * Math.log(smoothedDocProb);
-
+                logLikelihood += queryWeight * Math.log(pr);
             }
         } catch (Exception e) {
             e.printStackTrace(); 
         }                        
            
-        return logLikelihood;
+        double alpha = paramTable.get(ALPHA);        
+        double kde = Math.log(dist.density(TemporalScorer.getTime(doc)));
+        
+        return alpha*kde + (1-alpha)*logLikelihood;
     }
     
-    public double scoreTemporalModel(FeatureVector dv, FeatureVector tfv)
-    {
-        double logLikelihood = 0.0;
-        
-        
-        double add = 1/(double)dv.getFeatureCount();
-        
-        for (String feature: dv.getFeatures())
-        {
-                                       
-            double tfreq = tfv.getFeatureWeight(feature);
-            double tlen = tfv.getLength();
-            
-            double smoothedProb = (tfreq + add)/(tlen + 1);
-
-            double docWeight = dv.getFeatureWeight(feature);
-            
-            logLikelihood += docWeight * Math.log(smoothedProb);
-        }                        
-           
-        return logLikelihood;
-    }
     
+    public double kl(FeatureVector p, FeatureVector q) {
+        double kl = 0;
+        
+        Iterator<String> it = p.iterator();
+        while(it.hasNext()) {
+            String feature = it.next();
+            double pi = p.getFeatureWeight(feature)/p.getLength();
+            double qi = q.getFeatureWeight(feature)/q.getLength();
+            if (pi > 0 && qi > 0)
+                kl += pi * Math.log(pi/qi);
+        }
+        return kl;
+    }
     
     @Override
     public void close() {
@@ -175,10 +154,5 @@ public class TimeSmoothedScorerBestMultinomial extends TemporalScorer
             e.printStackTrace();
         }
     }
-    @Override
-    public void init(SearchHits hits) {
-        // TODO Auto-generated method stub
-        
-    }   
     
 }

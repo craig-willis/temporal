@@ -1,15 +1,9 @@
 package edu.gslis.temporal.scorers;
 
-import java.text.DateFormat;
 import java.util.Iterator;
 
-import umontreal.iro.lecuyer.gof.KernelDensity;
-import umontreal.iro.lecuyer.probdist.EmpiricalDist;
-import umontreal.iro.lecuyer.probdist.NormalDist;
 import weka.estimators.KernelEstimator;
-import edu.gslis.indexes.TimeSeriesIndex;
 import edu.gslis.lucene.indexer.Indexer;
-import edu.gslis.queries.GQuery;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 import edu.gslis.temporal.util.RKernelDensity;
@@ -38,37 +32,6 @@ public class TimeSmoothedScorerKD extends TemporalScorer
     String MU = "mu";
     String LAMBDA = "lambda";
     
-    long startTime = 0;
-    long endTime = 0;
-    long interval = 0;
-    DateFormat df = null;
-    
-    TimeSeriesIndex index = new TimeSeriesIndex();
-    
-    public void setTsIndex(String tsIndex) {
-        try {
-            System.out.println("Opening: " + tsIndex);
-            index.open(tsIndex, true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }               
-    }
-    public void setDateFormat(DateFormat df) {
-        this.df = df;
-    }
-    public void setQuery(GQuery query) {
-        this.gQuery = query;
-    }
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
-    }
-    public void setEndTime(long endTime) {
-        this.endTime = endTime;
-    }
-    public void setInterval(long interval) {
-        this.interval = interval;
-    }
-    
     public double score(SearchHit doc)
     {
         double logLikelihood = 0.0;
@@ -90,9 +53,6 @@ public class TimeSmoothedScorerKD extends TemporalScorer
         try
         {
             
-
-            double z = index.getNorm("weka", t);  
-            
             // Now calculate the score for this document using 
             // a combination of the temporal and collection LM.
             while(queryIterator.hasNext()) 
@@ -100,16 +60,12 @@ public class TimeSmoothedScorerKD extends TemporalScorer
                 String feature = queryIterator.next();
                 
                 // Get the series for this feature
-                double[] hist = index.get(feature);
+                double[] hist = tsIndex.get(feature);
                
                 //p(w | C): +1 is necessary when working with partial collections (i.e., latimes)
                 double pwC = (1 + collectionStats.termCount(feature)) / collectionStats.getTokCount();
                                            
-                //double timePr = probabilitySSJ(t, hist);
-                //double timePr = probabilityR(t, hist);
                 double timePr = probabilityWeka(t, hist);
-                if (z > 0)
-                    timePr /= z;
                 
                 double docFreq = doc.getFeatureVector().getFeatureWeight(feature);
                 double docLength = doc.getLength();
@@ -161,42 +117,7 @@ public class TimeSmoothedScorerKD extends TemporalScorer
         return density;
     }
 
-    public double probabilitySSJ(double t, double[] hist) {
-        
-        int total =0;
-        for (int i=0; i<hist.length; i++) {
-            total += hist[i];
-        }        
-        
-        double[] y = new double[1];
-        y[0] = t;
 
-        // replicate the histogram into x
-        double[] x = new double[total];
-        int l=0;
-        for (int bin=0; bin<hist.length; bin++) {
-            double freq = hist[bin];
-            for (int k=0; k<freq; k++) {
-                x[l++] = bin;
-            }
-        }
-        double pt = 0;
-        if (x.length > 2) {
-            
-            EmpiricalDist ed = new EmpiricalDist(x);
-            double[] density = KernelDensity.computeDensity(ed, new NormalDist(), hist);
-            
-            double sum=0;
-            for (double d: density)
-                sum+= d;
-            
-            double d = density[(int)t];
-            
-            if (!Double.isNaN(d) && !Double.isInfinite(d))
-                pt = d/sum;
-        }    
-        return pt;
-    }
     
     public double kl(FeatureVector p, FeatureVector q) {
         double kl = 0;
@@ -211,14 +132,7 @@ public class TimeSmoothedScorerKD extends TemporalScorer
         }
         return kl;
     }
-    @Override
-    public void close() {
-        try {
-            index.close();            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+
     @Override
     public void init(SearchHits hits) {
         // TODO Auto-generated method stub

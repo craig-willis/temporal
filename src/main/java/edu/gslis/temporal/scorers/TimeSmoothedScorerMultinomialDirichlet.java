@@ -39,7 +39,7 @@ public class TimeSmoothedScorerMultinomialDirichlet extends TemporalScorer
     public void setTsIndex(String tsIndex) {
         try {
             System.out.println("Opening: " + tsIndex);
-            index.open(tsIndex, true);
+            index.open(tsIndex, true, "h2");
         } catch (Exception e) {
             e.printStackTrace();
         }               

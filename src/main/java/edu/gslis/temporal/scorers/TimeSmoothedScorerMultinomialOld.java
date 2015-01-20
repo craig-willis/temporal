@@ -8,13 +8,14 @@ import edu.gslis.searchhits.SearchHits;
 import edu.gslis.textrepresentation.FeatureVector;
 
 /*
- * Model 2: Time smoothed scorer based on temporal language model of document
+ * Model 2  : Time smoothed scorer using weighted temporal model based on KL divergence
  */
-public class TimeSmoothedScorerMultinomial extends TemporalScorer 
+public class TimeSmoothedScorerMultinomialOld extends TemporalScorer 
 {
 
     String MU = "mu";
     String LAMBDA = "lambda";
+    int WINSIZE = 3;
     
     public double score(SearchHit doc)
     {
@@ -30,7 +31,6 @@ public class TimeSmoothedScorerMultinomial extends TemporalScorer
         int t = (int)((docTime - startTime)/interval);
 
         // Only score documents published after startTime
-        
         if (docTime > startTime) {
             
             // Usual Dirichlet parameter
@@ -39,6 +39,7 @@ public class TimeSmoothedScorerMultinomial extends TemporalScorer
             // Parameter controlling smoothing of temporal language models.
             double lambda = paramTable.get(LAMBDA);
     
+           // System.out.println(doc.getDocno()  + "," + t);
             try
             {
                 // Total number of events for each time = bin(t)
@@ -54,6 +55,7 @@ public class TimeSmoothedScorerMultinomial extends TemporalScorer
                     // Get the series for this feature
                     double[] series = tsIndex.get(feature);
                                     
+                    //double timePr = movingAverage(series, total, t, WINSIZE);
                     if (series == null)
                         continue;
                     
@@ -67,12 +69,8 @@ public class TimeSmoothedScorerMultinomial extends TemporalScorer
                     double docFreq = doc.getFeatureVector().getFeatureWeight(feature);
                     double docLength = doc.getLength();
                     
-                    double smoothedTempPr = pwC;                    
-                    //if (kls[t] > (klstats.getMean() +  klstats.getStandardDeviation())) {
-                        // Smooth temporal language model with collection language model
-                        //smoothedTempPr = kls[t]* (lambda*timePr + (1-lambda)*pwC);
-                        smoothedTempPr = (lambda*timePr + (1-lambda)*pwC);
-                    //}                                        
+                    // Smooth temporal language model with collection language model
+                    double smoothedTempPr = lambda*timePr + (1-lambda)*pwC;
                                             
                     // Smooth document language model with temporal language model
                     double smoothedDocProb = (docFreq + mu*smoothedTempPr)/(docLength + mu);
@@ -80,17 +78,55 @@ public class TimeSmoothedScorerMultinomial extends TemporalScorer
                     double queryWeight = gQuery.getFeatureVector().getFeatureWeight(feature);
                     
                     logLikelihood += queryWeight * Math.log(smoothedDocProb);
-                    
                 }
             } catch (Exception e) {
                 e.printStackTrace(); 
             }                      
         }
-        else
-            logLikelihood = Double.NEGATIVE_INFINITY;
         return logLikelihood;
     }
     
+    public double movingAverage(double[] series, double[] total, int t, int winSize) 
+    {        
+        double timePr = 0;
+        
+        double timeFreq = series[t];
+        int n = 1;
+        
+        int size = series.length;
+        if (t < size) {
+
+            for (int i=0; i < winSize; i++) {
+                if (t > i)
+                    timeFreq += series[t - i];
+                if (t < size - i)
+                    timeFreq += series[t + i];
+                n++;
+            }
+        }
+
+        // Average freq at time t
+        timeFreq = timeFreq/(double)n;
+        
+        if (series[t] > 0 && total[t] > 0)
+            timePr = timeFreq / total[t];
+        
+        return timePr;
+    }
+    
+    public double kl(FeatureVector p, FeatureVector q) {
+        double kl = 0;
+        
+        Iterator<String> it = p.iterator();
+        while(it.hasNext()) {
+            String feature = it.next();
+            double pi = p.getFeatureWeight(feature)/p.getLength();
+            double qi = q.getFeatureWeight(feature)/q.getLength();
+            if (pi > 0 && qi > 0)
+                kl += pi * Math.log(pi/qi);
+        }
+        return kl;
+    }
     @Override
     public void close() {
         try {

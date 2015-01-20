@@ -8,9 +8,11 @@ import edu.gslis.searchhits.SearchHits;
 import edu.gslis.textrepresentation.FeatureVector;
 
 /*
- * Model 2: Time smoothed scorer based on temporal language model of document
+ * Model 2: Time smoothed scorer based on temporal language model of document.
+ * In this case, temporal score is weighted by KL divergence of temporal
+ * model from collection.
  */
-public class TimeSmoothedScorerMultinomial extends TemporalScorer 
+public class TimeSmoothedScorerMultinomialWeighted extends TemporalScorer 
 {
 
     String MU = "mu";
@@ -67,12 +69,7 @@ public class TimeSmoothedScorerMultinomial extends TemporalScorer
                     double docFreq = doc.getFeatureVector().getFeatureWeight(feature);
                     double docLength = doc.getLength();
                     
-                    double smoothedTempPr = pwC;                    
-                    //if (kls[t] > (klstats.getMean() +  klstats.getStandardDeviation())) {
-                        // Smooth temporal language model with collection language model
-                        //smoothedTempPr = kls[t]* (lambda*timePr + (1-lambda)*pwC);
-                        smoothedTempPr = (lambda*timePr + (1-lambda)*pwC);
-                    //}                                        
+                    double smoothedTempPr = kls[t]* (lambda*timePr + (1-lambda)*pwC);;                                           
                                             
                     // Smooth document language model with temporal language model
                     double smoothedDocProb = (docFreq + mu*smoothedTempPr)/(docLength + mu);

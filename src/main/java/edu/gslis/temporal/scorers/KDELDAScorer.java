@@ -5,18 +5,22 @@ import java.util.Iterator;
 import edu.gslis.indexes.LDAIndex;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
+import edu.gslis.temporal.util.RKernelDensity;
 
 /**
  * Implements Wei and Croft topic-model-based document model
  * @author cwillis
  */
-public class LDAScorer extends RerankingScorer {
+public class KDELDAScorer extends TemporalScorer {
 
     static String MU = "mu";
     static String LAMBDA = "lambda";
+    static String ALPHA = "alpha";
     
     
     LDAIndex ldaIndex = null;
+    RKernelDensity dist = null;
+
     
     public void setIndex(LDAIndex ldaIndex) {
         this.ldaIndex = ldaIndex;
@@ -60,13 +64,19 @@ public class LDAScorer extends RerankingScorer {
             
             logLikelihood += queryWeight * Math.log(smoothedDocProb);                        
         }
-        return logLikelihood;
+        
+        
+        double alpha = paramTable.get(ALPHA);        
+        double kde = Math.log(dist.density(TemporalScorer.getTime(doc)));
+        
+        return alpha*kde + (1-alpha)*logLikelihood;
     }
     
     @Override
     public void init(SearchHits hits) {
-        // TODO Auto-generated method stub
-        
+        double[] x = TemporalScorer.getTimes(hits);
+        double[] w = KDEScorer.getUniformWeights(hits);
+        dist = new RKernelDensity(x, w);            
     }
 
     

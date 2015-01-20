@@ -2,11 +2,13 @@ package edu.gslis.temporal.scorers;
 
 import java.util.Iterator;
 
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import edu.gslis.indexes.TimeSeriesIndex;
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
+import edu.gslis.textrepresentation.FeatureVector;
 
 public abstract class TemporalScorer extends RerankingScorer 
 {
@@ -18,6 +20,9 @@ public abstract class TemporalScorer extends RerankingScorer
     String tsIndexPath;
     
     TimeSeriesIndex tsIndex = null;
+    
+    double[] kls = null;
+    DescriptiveStatistics klstats = new DescriptiveStatistics();
     
     public abstract void init(SearchHits hits);
     
@@ -33,6 +38,22 @@ public abstract class TemporalScorer extends RerankingScorer
     }
     public void setIndex(TimeSeriesIndex tsIndex) {
         this.tsIndex = tsIndex;
+    }
+    
+    public void setKLs(double[] kls) {
+        
+        double total = 0;
+        for (int i=0; i< kls.length; i++) {
+            total += kls[i];
+        }
+        
+        for (int i=0; i< kls.length; i++)
+            kls[i] /= total;
+
+        for (int i=0; i< kls.length; i++)
+            klstats.addValue(kls[i]);
+        
+        this.kls = kls;
     }
     
     public void close() {        
@@ -60,7 +81,7 @@ public abstract class TemporalScorer extends RerankingScorer
         return logLikelihood;
     }
     
-    public double[] getTimes(SearchHits hits) {
+    public static double[] getTimes(SearchHits hits) {
         
         double[] times = new double[hits.size()];
         
@@ -74,10 +95,53 @@ public abstract class TemporalScorer extends RerankingScorer
         return times;
     }
     
-    public long getTime(SearchHit hit) {
+    public static long getTime(SearchHit hit) {
         String epochStr = String.valueOf((((Double)hit.getMetadataValue(Indexer.FIELD_EPOCH)).longValue()));  
         
         long epoch = Long.parseLong(epochStr);
         return epoch;
     }
+    
+    public double kl(FeatureVector p, FeatureVector q) {
+        double kl = 0;
+        
+        Iterator<String> it = p.iterator();
+        while(it.hasNext()) {
+            String feature = it.next();
+            double pi = p.getFeatureWeight(feature)/p.getLength();
+            double qi = q.getFeatureWeight(feature)/q.getLength();
+            if (pi > 0 && qi > 0)
+                kl += pi * Math.log(pi/qi);
+        }
+        return kl;
+    }
+    
+    public double movingAverage(double[] series, double[] total, int t, int winSize) 
+    {        
+        double timePr = 0;
+        
+        double timeFreq = series[t];
+        int n = 1;
+        
+        int size = series.length;
+        if (t < size) {
+
+            for (int i=0; i < winSize; i++) {
+                if (t > i)
+                    timeFreq += series[t - i];
+                if (t < size - i)
+                    timeFreq += series[t + i];
+                n++;
+            }
+        }
+
+        // Average freq at time t
+        timeFreq = timeFreq/(double)n;
+        
+        if (series[t] > 0 && total[t] > 0)
+            timePr = timeFreq / total[t];
+        
+        return timePr;
+    }
+    
 }

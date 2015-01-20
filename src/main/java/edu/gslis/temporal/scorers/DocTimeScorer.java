@@ -10,6 +10,11 @@ import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 
 
+/**
+ * Model 1: Independent evidence
+ * @author cwillis
+ *
+ */
 public class DocTimeScorer extends TemporalScorer 
 {
 
@@ -27,7 +32,7 @@ public class DocTimeScorer extends TemporalScorer
     public void setTsIndex(String tsIndex) {
         try {
             System.out.println("Opening: " + tsIndex);
-            index.open(tsIndex, true);
+            index.open(tsIndex, true, "h2");
         } catch (Exception e) {
             e.printStackTrace();
         }               

@@ -3,6 +3,7 @@ package edu.gslis.temporal.scorers;
 import java.util.Iterator;
 
 import edu.gslis.indexes.LDAIndex;
+import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 
@@ -10,7 +11,7 @@ import edu.gslis.searchhits.SearchHits;
  * Implements Wei and Croft topic-model-based document model
  * @author cwillis
  */
-public class LDAScorer extends RerankingScorer {
+public class TimeLDA extends TemporalScorer {
 
     static String MU = "mu";
     static String LAMBDA = "lambda";
@@ -32,6 +33,10 @@ public class LDAScorer extends RerankingScorer {
         double lambda = paramTable.get(LAMBDA);
         double mu = paramTable.get(MU);
         
+        double epoch = (Double)doc.getMetadataValue(Indexer.FIELD_EPOCH);
+        long docTime = (long)epoch;
+        int t = (int)((docTime - startTime)/interval);
+        
         double logLikelihood = 0.0;
         Iterator<String> queryIterator = gQuery.getFeatureVector().iterator();
         while(queryIterator.hasNext()) 
@@ -45,7 +50,7 @@ public class LDAScorer extends RerankingScorer {
             double collectionProb = (1 + collectionStats.termCount(feature)) / collectionStats.getTokCount();
             
             // Probability of the term given the topics in the document
-            double topicsProb = ldaIndex.getTermProbability2(doc.getDocno(), feature);
+            double topicsProb = 0;// ldaIndex.getTermProbability(doc.getDocno(), feature, t);
             
             // Smooth topic LM with collection LM
             double smoothedTopicProb = 

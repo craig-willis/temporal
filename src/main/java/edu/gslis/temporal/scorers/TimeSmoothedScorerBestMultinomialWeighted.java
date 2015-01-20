@@ -13,8 +13,10 @@ import edu.gslis.textrepresentation.FeatureVector;
  * Uses a TimeSeriesIndex to calculate a temporal language model for a given
  * interval and smooth the document using the best matching temporal model to theta_D
  * based on KL divergence
+ * 
+ * Weighted by KL divergence
  */
-public class TimeSmoothedScorerBestMultinomial extends TemporalScorer 
+public class TimeSmoothedScorerBestMultinomialWeighted extends TemporalScorer 
 {
 
     String MU = "mu";
@@ -117,16 +119,8 @@ public class TimeSmoothedScorerBestMultinomial extends TemporalScorer
                 double docFreq = doc.getFeatureVector().getFeatureWeight(feature);
                 double docLength = doc.getLength();
 
-                double smoothedTempPr = pwC;
-
-                //System.out.println(kls[bestBin]);
-                //System.out.println(klstats.getMean() + klstats.getStandardDeviation());
-
-                // Only smooth if temporal bin has enough info to do so
-                //if (kls[bestBin] > (klstats.getMean() + 2*  klstats.getStandardDeviation())) {
-                    // Smooth temporal language model with collection language model
-                    smoothedTempPr = lambda*timePr + (1-lambda)*pwC;
-                //}
+                // Weight by KL divergence of bin
+                double smoothedTempPr = kls[bestBin] * lambda*timePr + (1-lambda)*pwC;
                     
                 // Smooth document language model with temporal language model
                 double smoothedDocProb = (docFreq + mu*smoothedTempPr)/(docLength + mu);
