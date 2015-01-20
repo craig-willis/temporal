@@ -21,7 +21,7 @@ import edu.gslis.queries.GQueries;
 import edu.gslis.queries.GQueriesIndriImpl;
 import edu.gslis.queries.GQueriesJsonImpl;
 import edu.gslis.queries.GQuery;
-import edu.gslis.queries.expansion.TemporalRelevanceModel;
+import edu.gslis.queries.expansion.FeedbackRelevanceModel;
 import edu.gslis.searchhits.SearchHits;
 import edu.gslis.textrepresentation.FeatureVector;
 
@@ -116,7 +116,8 @@ public class RunQuerySDM extends YAMLConfigBase
                     results.rank();
                     
                     // Feedback model
-                    TemporalRelevanceModel rm3 = new TemporalRelevanceModel();
+                    //TemporalRelevanceModel rm3 = new TemporalRelevanceModel();
+                    FeedbackRelevanceModel rm3 = new FeedbackRelevanceModel();                    
                     rm3.setDocCount(QueryRunner.NUM_FEEDBACK_DOCS);
                     rm3.setTermCount(QueryRunner.NUM_FEEDBACK_TERMS);
                     rm3.setIndex(index);
