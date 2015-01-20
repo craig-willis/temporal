@@ -24,7 +24,8 @@ import edu.gslis.textrepresentation.FeatureVector;
  *      -start <start time in secons>
  *      -end <end time in seconds>
  *      -interval <interval in seconds>
- *      -output <path to output H2 DB>
+ *      -format (h2 or csv)
+ *      -output <path to output H2 DB or csv file>
  *      -df <if true, use document freq, if false use term freq>
  * 
  * The resulting model is used by the DocTimeScorer and TimeSmoothedScorer.
@@ -104,11 +105,12 @@ public class CreateTermTimeIndex
             numBins ++;
 
         String output = cl.getOptionValue("output");
+        String format = cl.getOptionValue("format");
 
         System.err.println("Creating " + output + " with " + numBins + " bins");
 
         TimeSeriesIndex tsIndex = new TimeSeriesIndex();
-        tsIndex.open(output, false);
+        tsIndex.open(output, true, format);
         tsIndex.init(numBins);
             
 
@@ -158,6 +160,7 @@ public class CreateTermTimeIndex
         options.addOption("start", true, "Start time");
         options.addOption("end", true, "End time");
         options.addOption("interval", true, "Interval");        
+        options.addOption("format", true, "h2 or csv");        
         options.addOption("output", true, "Output time series index");        
         options.addOption("df", false, "If true, event is num docs. If false, event is num terms.");        
         return options;
