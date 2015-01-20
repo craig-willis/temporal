@@ -1,6 +1,8 @@
 package edu.gslis.temporal.scorers;
 
 import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
@@ -171,4 +173,39 @@ public abstract class TemporalScorer extends RerankingScorer
         return logLikelihood;
     }
     
+    /**
+     * Create a feature vector for each temporal bin
+     * @param dm Document model
+     * @return
+     */
+    public Map<Integer, FeatureVector> createTemporalModels(FeatureVector dm) throws Exception
+    {
+        Map<Integer, FeatureVector> tms = new TreeMap<Integer, FeatureVector>();
+        
+        // Totals for each bin
+        double[] total = tsIndex.get("_total_");
+
+        Iterator<String> dvIt = dm.iterator();
+        while(dvIt.hasNext()) {
+            String feature = dvIt.next();
+            // Time series for feature
+            double[] series = tsIndex.get(feature); 
+            if (series != null) {
+                // Populate feature vector for each bin
+                for (int i=0; i<series.length; i++) {
+                    FeatureVector tm = tms.get(i);
+                    if (tm == null)
+                        tm = new FeatureVector(null);
+                    
+                    if (total[i] != 0) 
+                        tm.addTerm(feature, series[i]/total[i]);
+                    else
+                        System.out.println("Warning: bin " + i + " is empty");
+                    
+                    tms.put(i, tm);
+                }
+            }
+        }
+        return tms;
+    }   
 }

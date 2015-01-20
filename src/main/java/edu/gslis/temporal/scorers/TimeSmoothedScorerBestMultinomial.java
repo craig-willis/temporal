@@ -2,7 +2,6 @@ package edu.gslis.temporal.scorers;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.TreeMap;
 
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.searchhits.SearchHit;
@@ -41,42 +40,17 @@ public class TimeSmoothedScorerBestMultinomial extends TemporalScorer
 
         try
         {
-            // Total number of events for each time = bin(t)
-            // The TimeSeriesIndex contains 1 row per term and 1 column per bin based on interval.
-            double[] total = tsIndex.get("_total_");
-            
             FeatureVector dv = doc.getFeatureVector();
             
             // Map of feature vectors for each bin(t)
-            Map<Integer, FeatureVector> pis = new TreeMap<Integer, FeatureVector>();
-
-            // Populate temporal language model for each bin pi_i = LM(bin(t))
-            // As a shortcut, this is just the model for features in 
-            // the document language model use the "_total_" values to get
-            // length(t).
-            Iterator<String> dvIt = dv.iterator();
-            while(dvIt.hasNext()) {
-                String feature = dvIt.next();
-                // Time series for feature
-                double[] series = tsIndex.get(feature); 
-                if (series != null) {
-                    // For each bin
-                    for (int i=0; i<series.length; i++) {
-                        FeatureVector pi = pis.get(i);
-                        if (pi == null)
-                            pi = new FeatureVector(null);
-                        pi.addTerm(feature, series[i]/total[i]);
-                        pis.put(i, pi);
-                    }
-                }
-            }
+            Map<Integer, FeatureVector> tms = createTemporalModels(dv);
             
             // Rank temporal models with respect to documents
-            FeatureVector bestTM = pis.get(t);
+            FeatureVector bestTM = tms.get(t);
             double maxScore = Double.NEGATIVE_INFINITY;
             int bestBin = t;
-            for (int bin: pis.keySet()) {
-                FeatureVector tfv = pis.get(bin);
+            for (int bin: tms.keySet()) {
+                FeatureVector tfv = tms.get(bin);
                 tfv.normalize();
                 double score = scoreTemporalModel(dv, tfv);
                 if (score > maxScore) {

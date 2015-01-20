@@ -67,13 +67,8 @@ public class TimeSmoothedScorerMultinomial extends TemporalScorer
                     double docFreq = doc.getFeatureVector().getFeatureWeight(feature);
                     double docLength = doc.getLength();
                     
-                    double smoothedTempPr = pwC;                    
-                    //if (kls[t] > (klstats.getMean() +  klstats.getStandardDeviation())) {
-                        // Smooth temporal language model with collection language model
-                        //smoothedTempPr = kls[t]* (lambda*timePr + (1-lambda)*pwC);
-                        smoothedTempPr = (lambda*timePr + (1-lambda)*pwC);
-                    //}                                        
-                                            
+                    double smoothedTempPr = (lambda*timePr + (1-lambda)*pwC);
+                    
                     // Smooth document language model with temporal language model
                     double smoothedDocProb = (docFreq + mu*smoothedTempPr)/(docLength + mu);
                     

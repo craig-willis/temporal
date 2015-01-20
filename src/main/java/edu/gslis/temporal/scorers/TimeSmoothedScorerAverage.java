@@ -36,44 +36,16 @@ public class TimeSmoothedScorerAverage extends TemporalScorer
             FeatureVector dv = doc.getFeatureVector();
             
             // Map of feature vectors for each bin(t)
-            Map<Integer, FeatureVector> pis = new TreeMap<Integer, FeatureVector>();
-            
-            // Totals for each bin
-            double[] total = tsIndex.get("_total_");
-
-            // Populate temporal language model for each bin pi_i = LM(bin(t))
-            // As a shortcut, this is just the model for features in 
-            // the document language model use the "_total_" values to get
-            // length(t).
-            Iterator<String> dvIt = dv.iterator();
-            while(dvIt.hasNext()) {
-                String feature = dvIt.next();
-                // Time series for feature
-                double[] series = tsIndex.get(feature); 
-                if (series != null) {
-                    // Populate feature vector for each bin
-                    for (int i=0; i<series.length; i++) {
-                        FeatureVector pi = pis.get(i);
-                        if (total[i] == 0) 
-                            continue;
-                        if (pi == null)
-                            pi = new FeatureVector(null);
-                        pi.addTerm(feature, series[i]/total[i]);
-                        pis.put(i, pi);
-                    }
-                }
-            }
-            
+            Map<Integer, FeatureVector> tms = createTemporalModels(dv);
+                        
             // Approximate document generation likelihood
             // Score each temporal model with respect to this document.
-            double[] scores = new double[pis.size()];
+            double[] scores = new double[tms.size()];
             double z = 0;            
-            for (int b: pis.keySet()) {
-                double score = scoreTemporalModel(dv, pis.get(b));
-                if (b < pis.size()) {
-                    scores[b] = score;
-                    z += score;
-                }
+            for (int bin: tms.keySet()) {
+                double score = scoreTemporalModel(dv, tms.get( bin));
+                scores[ bin] = score;
+                z += score;
             }
             
             // Now calculate the score for this document using 
@@ -90,11 +62,10 @@ public class TimeSmoothedScorerAverage extends TemporalScorer
 
                 // Weight the probability for each bin by the noramlized KL score
                 double timePr = 0;
-                for (int b: pis.keySet()) {
-                    FeatureVector tfv = pis.get(b);
-                    //  timePr += kls[b] * (tfv.getFeatureWeight(feature)/tfv.getLength());
-                    if (b < pis.size() && tfv.getLength() > 0)
-                        timePr += (scores[b]/z) * (tfv.getFeatureWeight(feature)/tfv.getLength());
+                for (int bin: tms.keySet()) {
+                    FeatureVector tfv = tms.get(bin);
+                    if (tfv.getLength() > 0)
+                        timePr += (scores[bin]/z) * (tfv.getFeatureWeight(feature)/tfv.getLength());
                 }
                                 
                 // Smooth temporal LM with collection LM
