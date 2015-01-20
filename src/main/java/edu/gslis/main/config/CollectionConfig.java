@@ -18,9 +18,8 @@ public class CollectionConfig {
     long endDate;
     long interval;
     String tsDB;
-    String clusterDB;
-    String clusterIndex;
-    String ldaDB;
+    String ldaDocTopicsPath;
+    String ldaTermTopicPath;
     
     public void setTsDB(String tsDB) {
         this.tsDB = tsDB;
@@ -30,23 +29,18 @@ public class CollectionConfig {
     }
     
     
-    public String getClusterIndex() {
-        return clusterIndex;
+    public String getLdaDocTopicsPath() {
+        return ldaDocTopicsPath;
     }
-    public void setClusterIndex(String clusterIndex) {
-        this.clusterIndex = clusterIndex;
+    public void setLdaDocTopicsPath(String path) {
+        this.ldaDocTopicsPath = path;
     }
-    public String getClusterDB() {
-        return clusterDB;
+    
+    public String getLdaTermTopicPath() {
+        return ldaTermTopicPath;
     }
-    public void setClusterDB(String clusterDB) {
-        this.clusterDB = clusterDB;
-    }    
-    public String getLdaDB() {
-        return ldaDB;
-    }
-    public void setLdaDB(String ldaDB) {
-        this.ldaDB = ldaDB;
+    public void setLdaTermTopicPath(String path) {
+        this.ldaTermTopicPath = path;
     }
     public String getName() {
         return name;

@@ -17,7 +17,15 @@ public class BatchConfig {
     String outputDir = "";
     QPPConfig qpp;
     String constraint;
+    int numThreads;
     
+    public int getNumThreads() {
+        return numThreads;
+    }
+    
+    public void setNumThreads(int numThreads) {
+        this.numThreads = numThreads;
+    }
     public String getStopper() {
         return stopper;
     }
