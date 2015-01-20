@@ -43,47 +43,5 @@ public class YAMLConfigBase
                   
         outputDir = new File(config.getOutputDir());
     }
-    
-    /**
-     * For each scorer in the YAML config, setup a standard scorer using the
-     * specified corpus stats and an oracle scorer that uses the test
-     * collection.
-     * @throws Exception
-     */
-    protected void setupScorers() throws Exception 
-    {
-        List<ScorerConfig> scorerConfigs = config.getScorers();
-        for (ScorerConfig scorerConfig: scorerConfigs) 
-        {               
-            // Setup the scorers
-            String scorerName = scorerConfig.getName();
-            String className = scorerConfig.getClassName();
 
-            if (!StringUtils.isEmpty(className))
-            {
-                RerankingScorer docScorer = (RerankingScorer)loader.loadClass(className).newInstance();
-        
-                Map<String, Object> params = scorerConfig.getParams();
-                for (String paramName: params.keySet()) {
-                    Object obj = params.get(paramName);
-                    if (obj instanceof Double) { 
-                        docScorer.setParameter(paramName, (Double)obj);
-                    }
-                    else if (obj instanceof Integer) { 
-                        docScorer.setParameter(paramName, (Integer)obj);
-                    }
-                    else if (obj instanceof String) {
-                        docScorer.setParameter(paramName, (String)obj);
-                    }
-                }
-                docScorer.init();
-        
-                scorers.put(scorerName, docScorer);
-            } 
-            else 
-            {
-                scorers.put(scorerName, null);
-            }
-        }
-    }
 }
