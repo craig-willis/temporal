@@ -52,7 +52,7 @@ import edu.gslis.textrepresentation.FeatureVector;
  */
 public class RunQuery extends YAMLConfigBase 
 {
-    static final String NAME_OF_TIMESTAMP_FIELD = "timestamp";
+    public static final String NAME_OF_TIMESTAMP_FIELD = "timestamp";
     //static final int NUM_RESULTS = 1000;
     //static final int NUM_FEEDBACK_TERMS = 20;
     //static final int NUM_FEEDBACK_DOCS = 20;
@@ -100,6 +100,7 @@ public class RunQuery extends YAMLConfigBase
                         IndexWrapperFactory.getIndexWrapper(indexPath);
                 index.setTimeFieldName(Indexer.FIELD_EPOCH);
                 
+                // Calculate KL(CM||TM) for each temporal model
                 TimeSeriesIndex timeSeriesIndex = new TimeSeriesIndex();
                 int numBins = 0;
                 if (interval > 0) 

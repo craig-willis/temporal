@@ -19,7 +19,7 @@ public class QueryRunner implements Runnable
 
     ClassLoader loader = ClassLoader.getSystemClassLoader();
 
-    static final int NUM_RESULTS = 1000;
+    public static final int NUM_RESULTS = 1000;
     static final int NUM_FEEDBACK_TERMS = 20;
     static final int NUM_FEEDBACK_DOCS = 20;
     static final double LAMBDA = 0.5;
