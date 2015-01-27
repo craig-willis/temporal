@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.inference.ChiSquareTest;
 
 /**
  * Interface to an underlying H2 DB containing term time series information for a collection.
@@ -28,6 +29,7 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
  */
 public class TimeSeriesIndex {
 
+    ChiSquareTest csqtest = new ChiSquareTest();
 
     Connection con = null;
     String format = null;
@@ -304,6 +306,295 @@ public class TimeSeriesIndex {
         writer.write("\n");           
 
         writer.close();
+    }
+    
+    public void shrinkChiSq(String newpath, double alpha) throws IOException {
+        FileWriter writer = new FileWriter(newpath);
+        Set<String> vocab = timeSeriesMap.keySet();
+        
+        DecimalFormat df = new DecimalFormat("###.####");
+        
+        
+        double[] totals = timeSeriesMap.get("_total_");
+        double N = 0;
+        for (double t: totals)
+            N += t;
+        
+
+        double[] newtotals = new double[totals.length];
+        for (String term: vocab) {
+            
+            if (term.equals("_total_"))
+                continue;
+
+            double[] counts = timeSeriesMap.get(term);
+            if (counts.length < totals.length)
+                continue;
+                       
+            double sum = 0;
+            for (double c: counts) 
+                sum+= c;
+            
+            writer.write(term);
+            for (int bin=0; bin<totals.length; bin++) {
+                
+                
+                if (alpha > 0)
+                {
+                    boolean sig = chiSqTest(N, (double)counts[bin], sum, (double)totals[bin], alpha);
+                    
+                    if (sig) {
+                        writer.write("," + counts[bin]);
+                        newtotals[bin] += counts[bin];
+                    } else
+                        writer.write(",0");
+                }
+                else {
+                    // Use the chisquare statistic as the term weight                    
+                    double csq = chiSq(N, (double)counts[bin], sum, (double)totals[bin]);
+                    
+                    writer.write("," + csq);
+                    newtotals[bin] += csq;
+
+                }
+            }
+            writer.write("\n");           
+        }
+        
+        writer.write("_total_");
+        for (int i=0; i<newtotals.length; i++) {
+            writer.write("," + df.format(newtotals[i]));
+        }
+        writer.write("\n");           
+
+        writer.close();
+    }
+    
+    public double[] getChiSq(String term, double alpha) throws IOException {
+        
+        double[] totals = timeSeriesMap.get("_total_");
+        double N = 0;
+        for (double t: totals)
+            N += t;
+        
+        double[] newvals = new double[totals.length];
+           
+        double[] counts = timeSeriesMap.get(term);
+        double sum = 0;
+        for (double c: counts) 
+            sum+= c;
+        
+        for (int bin=0; bin<totals.length; bin++) {                
+            
+            if (alpha > 0)
+            {
+                boolean sig = chiSqTest(N, (double)counts[bin], sum, (double)totals[bin], alpha);
+                
+                if (sig) {
+                    newvals[bin] = 1.0;
+                } else
+                    newvals[bin] = 0.0;
+            }
+            else {
+                // Use the chisquare statistic as the term weight                    
+                 double csq = chiSq(N, (double)counts[bin], sum, (double)totals[bin]);    
+//                double pval = chiSqTest(N, (double)counts[bin], sum, (double)totals[bin]);    
+//                ChiSquaredDistribution csdist = new ChiSquaredDistribution(1);
+//                double pval2 = (1 - csdist.cumulativeProbability(csq));
+                
+                newvals[bin] = csq;
+            }
+        }
+        
+        return newvals;
+    }
+    
+    private boolean chiSqTest(double N, double nX1Y1, double nX1, double nY1, double alpha) {
+
+        //       | time  | ~time  |
+        // ------|-------|--------|------
+        //  word | nX1Y1 | nX1Y0  | nX1
+        // ~word | nX0Y1 | nX0Y0  | nX0
+        // ------|-------|--------|------
+        //       |  nY1  |  nY0   | N
+        
+        long[][] table = new long[2][2];
+        
+        double nY0 = N - nY1;
+        double nX0 = N - nX1;
+        double nX1Y0 = nX1 - nX1Y1;
+        double nX0Y1 = nY1 - nX1Y1;
+        double nX0Y0 = nY0 - nX1Y0;
+ 
+        table[0][0] = (long)nX1Y1;
+        table[0][1] = (long)nX1Y0;
+        table[1][0] = (long)nX0Y1;
+        table[1][1] = (long)nX0Y0;
+        
+        return csqtest.chiSquareTest(table, alpha);
+    }
+    
+    private double chiSqTest(double N, double nX1Y1, double nX1, double nY1) {
+
+        //       | time  | ~time  |
+        // ------|-------|--------|------
+        //  word | nX1Y1 | nX1Y0  | nX1
+        // ~word | nX0Y1 | nX0Y0  | nX0
+        // ------|-------|--------|------
+        //       | nY1   |  nY0   | N
+        
+        long[][] table = new long[2][2];
+        
+        double nY0 = N - nY1;
+        double nX0 = N - nX1;
+        double nX1Y0 = nX1 - nX1Y1;
+        double nX0Y1 = nY1 - nX1Y1;
+        double nX0Y0 = nY0 - nX1Y0;
+ 
+
+        table[0][0] = (long)nX1Y1;
+        table[0][1] = (long)nX1Y0;
+        table[1][0] = (long)nX0Y1;
+        table[1][1] = (long)nX0Y0;
+        return csqtest.chiSquareTest(table);
+    }
+    
+    private double chiSq(double N, double nX1Y1, double nX1, double nY1) {
+
+        //       | time  | ~time  |
+        // ------|-------|--------|------
+        //  word | nX1Y1 | nX1Y0  | nX1
+        // ~word | nX0Y1 | nX0Y0  | nX0
+        // ------|-------|--------|------
+        //       | nY1   |  nY0   | N
+        
+        double nY0 = N - nY1;
+        double nX0 = N - nX1;
+        double nX1Y0 = nX1 - nX1Y1;
+        double nX0Y1 = nY1 - nX1Y1;
+        double nX0Y0 = nY0 - nX1Y0;
+ 
+        /*
+        double[] observed = new double[4];
+        double[] expected = new double[4];
+        
+        observed[0] = nX1Y1;
+        observed[1] = nX1Y0;
+        observed[2] = nX0Y1;
+        observed[3] = nX0Y0;
+
+        expected[0] = nY1*nX1/N;
+        expected[1] = nY0*nX1/N;
+        expected[2] = nY1*nX0/N;
+        expected[3] = nY0*nX0/N;
+
+        
+        double chisq = 0;
+        for (int i=0; i<4; i++) {
+            chisq += Math.pow((observed[i] - expected[i]), 2)/expected[i];
+        }
+        */
+        
+        long[][] table = new long[2][2];
+        table[0][0] = (long)nX1Y1;
+        table[0][1] = (long)nX1Y0;
+        table[1][0] = (long)nX0Y1;
+        table[1][1] = (long)nX0Y0;
+
+        
+        return csqtest.chiSquare(table);
+           
+    }
+    
+    
+    public void shrinkNpmi(String newpath, double threshold) throws IOException {
+        FileWriter writer = new FileWriter(newpath);
+        Set<String> vocab = timeSeriesMap.keySet();
+        
+        DecimalFormat df = new DecimalFormat("###.####");
+        
+        
+        double[] totals = timeSeriesMap.get("_total_");
+        double N = 0;
+        for (double t: totals)
+            N += t;
+        
+
+        double[] newtotals = new double[totals.length];
+        for (String term: vocab) {
+            
+            if (term.equals("_total_"))
+                continue;
+
+            double[] counts = timeSeriesMap.get(term);
+            if (counts.length < totals.length)
+                continue;
+                       
+            double sum = 0;
+            for (double c: counts) 
+                sum+= c;
+            
+            writer.write(term);
+            for (int bin=0; bin<totals.length; bin++) {
+                double npmi = calcNpmi(N, (double)counts[bin], sum, (double)totals[bin]);
+                
+                if (threshold > 0) {
+                    if (npmi > threshold) {
+                        writer.write("," + counts[bin]);
+                        newtotals[bin] += counts[bin];
+                    } else
+                        writer.write(",0");
+                }
+                else {
+                    // Treat the npmi value as the weight for this term
+                    if (npmi > 0) {
+                        writer.write("," + counts[bin]);
+                        newtotals[bin] += counts[bin];
+                    } else
+                        writer.write(",0");
+                }                
+            }
+            writer.write("\n");           
+        }
+        
+        writer.write("_total_");
+        for (int i=0; i<newtotals.length; i++) {
+            writer.write("," + df.format(newtotals[i]));
+        }
+        writer.write("\n");           
+
+        writer.close();
+    }
+    
+    private static double calcNpmi(double N, double nX1Y1, double nX1, double nY1)
+    {
+        
+        //       | time  | ~time  |
+        // ------|-------|--------|------
+        //  word | nX1Y1 | nX1Y0  | nX1
+        // ~word | nX0Y1 | nX0Y0  | nX0
+        // ------|-------|--------|------
+        //       |  nY1  |  nY0   | N
+
+        // Marginal probabilities (smoothed)
+        double pX1 = (nX1 + 0.5)/(1+N);
+        double pY1 = (nY1 + 0.5)/(1+N);
+        
+        // Joint probabilities (smoothed)
+        double pX1Y1 = (nX1Y1 + 0.25) / (1+N);
+        
+        // Ala http://www.aclweb.org/anthology/W13-0102
+        double pmi = log2(pX1Y1, pX1*pY1);
+        double npmi = pmi / -(Math.log(pX1Y1)/Math.log(2));
+        
+        return npmi;
+    }
+    
+    private static double log2(double num, double denom) {
+        if (num == 0 || denom == 0)
+            return 0;
+        else
+            return Math.log(num/denom)/Math.log(2);
     }
 
 }
