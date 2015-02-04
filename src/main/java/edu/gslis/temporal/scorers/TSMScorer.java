@@ -1,11 +1,9 @@
 package edu.gslis.temporal.scorers;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
@@ -13,7 +11,6 @@ import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 import edu.gslis.temporal.util.RUtil;
-import edu.gslis.textrepresentation.FeatureVector;
 
 /**
  * New TSM scorer. 
@@ -46,19 +43,7 @@ public class TSMScorer extends TemporalScorer
 
         try
         {
-            FeatureVector dv = doc.getFeatureVector();
             
-            Set<String> features = new HashSet<String>();
-            features.addAll(dv.getFeatures());
-            features.addAll(gQuery.getFeatureVector().getFeatures());
-            
-            // Map of feature vectors for each bin(t)
-            Map<Integer, Map<String, Double>> tms = createTemporalModels(features);
-            Map<String, Double> tm = tms.get(t);
-            if (tm == null) {
-                System.err.println("No temporal model for bin " + t + " (docno " + doc.getDocno() + ")" );
-            }
-
             // Now calculate the score for this document using 
             // a combination of the temporal and collection LM.
             queryIterator = gQuery.getFeatureVector().iterator();
@@ -73,20 +58,20 @@ public class TSMScorer extends TemporalScorer
                 double collectionProb = (1 + collectionStats.termCount(feature)) 
                         / collectionStats.getTokCount();
 
-                double tfreq = 0;
-                if (tm.get(feature) != null)
-                    tfreq = tm.get(feature);
+                // Temporal model
+                double tfreq = tsIndex.get(feature, t);
+                double tlen = tsIndex.get("_total_", t);
+
                 
                 // Use Laplace smoothing for the temporal models. This is just for the case 
                 // where lambda = 1
-                double timePr = (tfreq + 1)/(tm.get("_total_") + collectionStats.getTokCount());
-                
+                double timePr = (tfreq + 1) / (tlen + collectionStats.getTokCount());                
                                 
                 // Smooth the temporal models with the collection model
                 double smoothedTemporalProb = 
                         lambda*timePr + (1-lambda)*collectionProb;
                 
-                // Smooth document LM with topic LM            
+                // Smooth document LM with smoothed temporal LM            
                 double smoothedDocProb = 
                         (docFreq + mu*smoothedTemporalProb) / 
                         (docLength + mu);
