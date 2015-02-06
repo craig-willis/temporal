@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
@@ -44,8 +43,7 @@ public class BMNScorer extends TemporalScorer
         if (docTime < startTime) {
             return Double.NEGATIVE_INFINITY;
         }
-
-
+       
         try
         {
             FeatureVector dv = doc.getFeatureVector();
@@ -53,39 +51,26 @@ public class BMNScorer extends TemporalScorer
             Set<String> features = new HashSet<String>();
             features.addAll(dv.getFeatures());
             features.addAll(gQuery.getFeatureVector().getFeatures());
-            // Map of feature vectors for each bin(t)
-            Map<Integer, Map<String, Double>> tms = createTemporalModels(features);
-                        
-            // Get the current bin
-            Map<String, Double> dtm = tms.get(t);
-            // Remove this document from the bin
-            for (String feature: dv.getFeatures()) {
-                double w2 = dv.getFeatureWeight(feature);
-                if (dtm.get(feature) == null)
-                    continue;
-                double w1 = dtm.get(feature);
-                dtm.put(feature, w1 - w2);
-            }
-            double total = dtm.get("_total_");
-            total = total - dv.getLength();
-            dtm.put("_total_", total);
-            tms.put(t, dtm);
             
+            int numBins = tsIndex.getNumBins();
             // Approximate document generation likelihood 
             double max = Double.NEGATIVE_INFINITY;
             int maxBin = t;
-            for (int bin: tms.keySet()) {
+            for (int bin = 0; bin < numBins; bin++) {
                 // Log-likelihood of document given temporal model
-                double ll = scoreTemporalModel(dv, tms.get(bin));
+                double ll = 0;
+                if (bin == t)
+                    ll = scoreTemporalModelIgnore(dv, bin);
+                else    
+                    ll = scoreTemporalModel(dv, bin);
+                    
                 if (ll > max)  {
                     max = ll;
                     maxBin = bin;
                 }
             }
-            Map<String, Double> bmn = tms.get(maxBin);
 
-//            System.out.println(t + "," + maxBin);
-            
+            System.out.println(t + "," + maxBin);           
             
             // Now calculate the score for this document using 
             // a combination of the temporal and collection LM.
@@ -101,19 +86,19 @@ public class BMNScorer extends TemporalScorer
                 double collectionProb = (1 + collectionStats.termCount(feature)) 
                         / collectionStats.getTokCount();
                 
-                double timePr = 0;
-                if (bmn.get("_total_") != null && bmn.get("_total_") > 0)
-                    timePr =  bmn.get(feature) / bmn.get("_total_");
+                // Temporal model
+                double tfreq = tsIndex.get(feature, maxBin);
+                double tlen = tsIndex.get("_total_", maxBin);
                 
+                // Use Laplace smoothing for the temporal models. This is just for the case 
+                // where lambda = 1
+                double timePr = (tfreq + 1) / (tlen + collectionStats.getTokCount());                
+                
+                // Smooth the temporal models with the collection model
                 double smoothedTemporalProb = 
                         lambda*timePr + (1-lambda)*collectionProb;
-/*
-                System.out.println(doc.getDocID() + "," + feature + "," + 
-                        bmn.get(feature) + "," + bmn.get("_total_") + "," +
-                        + collectionStats.termCount(feature) + "," + collectionStats.getTokCount() + "," + 
-                        timePr + ","  + smoothedTemporalProb);
-                */
-                // Smooth document LM with topic LM            
+
+                // Smooth the temporal models with the collection model
                 double smoothedDocProb = 
                         (docFreq + mu*smoothedTemporalProb) / 
                         (docLength + mu);
