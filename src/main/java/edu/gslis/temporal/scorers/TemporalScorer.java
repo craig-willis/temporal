@@ -1,7 +1,9 @@
 package edu.gslis.temporal.scorers;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
@@ -118,33 +120,7 @@ public abstract class TemporalScorer extends RerankingScorer
         return kl;
     }
     
-    public double movingAverage(double[] series, double[] total, int t, int winSize) 
-    {        
-        double timePr = 0;
-        
-        double timeFreq = series[t];
-        int n = 1;
-        
-        int size = series.length;
-        if (t < size) {
-
-            for (int i=0; i < winSize; i++) {
-                if (t > i)
-                    timeFreq += series[t - i];
-                if (t < size - i)
-                    timeFreq += series[t + i];
-                n++;
-            }
-        }
-
-        // Average freq at time t
-        timeFreq = timeFreq/(double)n;
-        
-        if (series[t] > 0 && total[t] > 0)
-            timePr = timeFreq / total[t];
-        
-        return timePr;
-    }
+ 
     
     /**
      * Score the temporal model with repsect to the document model.
@@ -208,4 +184,139 @@ public abstract class TemporalScorer extends RerankingScorer
         }
         return tms;
     }   
+    
+    
+    public double scoreTemporalModel(FeatureVector dm, Map<String, Double> tm)
+    {
+        double logLikelihood = 0.0;
+
+        double tlen = tm.get("_total_");
+        for (String feature: dm.getFeatures())
+        {         
+            double tfreq = 0;
+            if (tm.get(feature) != null)
+                tfreq = tm.get(feature);
+
+            //double smoothedProb = (tfreq + 1)/(tlen + collectionStats.getTokCount());
+            double pwC = collectionStats.termCount(feature) / collectionStats.getTokCount();
+            double smoothedProb = (tfreq + 1000 * pwC ) / (tlen + 1000);
+                    
+            double docWeight = dm.getFeatureWeight(feature);
+            
+            logLikelihood += docWeight * Math.log(smoothedProb);
+        }                        
+           
+        return logLikelihood;
+    }
+ 
+    public double scoreTemporalModel(FeatureVector dm, int bin)
+    {
+        double logLikelihood = 0.0;
+
+        try
+        {
+            double tlen = tsIndex.get("_total_", bin);
+            if (tlen == 0)
+                return Double.NEGATIVE_INFINITY;
+            
+            for (String feature: dm.getFeatures())
+            {         
+                double tfreq = tsIndex.get(feature, bin);
+    
+                //double smoothedProb = (tfreq + 1)/(tlen + collectionStats.getTokCount());
+                double pwC = collectionStats.termCount(feature) / collectionStats.getTokCount();
+                double smoothedProb = (tfreq + 1000 * pwC ) / (tlen + 1000);
+                        
+                double docWeight = dm.getFeatureWeight(feature);
+                
+                logLikelihood += docWeight * Math.log(smoothedProb);
+            }                        
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return logLikelihood;
+    }
+    
+    // Remove the document vector
+    public double scoreTemporalModelIgnore(FeatureVector dm, int bin)
+    {
+        double logLikelihood = 0.0;
+
+        try
+        {
+            double tlen = tsIndex.get("_total_", bin);
+            if (tlen == 0)
+                return Double.NEGATIVE_INFINITY;
+            
+            for (String feature: dm.getFeatures()) {
+                tlen -= dm.getFeatureWeight(feature);
+            }
+
+            for (String feature: dm.getFeatures())
+            {         
+                double tfreq = tsIndex.get(feature, bin);
+                
+                tfreq -= dm.getFeatureWeight(feature);
+    
+                //double smoothedProb = (tfreq + 1)/(tlen + collectionStats.getTokCount());
+                double pwC = collectionStats.termCount(feature) / collectionStats.getTokCount();
+                double smoothedProb = (tfreq + 1000 * pwC ) / (tlen + 1000);
+                        
+                double docWeight = dm.getFeatureWeight(feature);
+                
+                logLikelihood += docWeight * Math.log(smoothedProb);
+            }                        
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return logLikelihood;
+    }
+    
+    public Map<Integer, Map<String, Double>> createTemporalModels(Set<String> features) 
+            throws Exception
+    {
+        Map<Integer, Map<String, Double>> tms = new TreeMap<Integer, Map<String, Double>>();
+        
+        // Totals for each bin
+        double[] totals = tsIndex.get("_total_");
+        for (int i=0; i<totals.length; i++) {
+            Map<String, Double> tm = new HashMap<String, Double>();
+            tm.put("_total_", totals[i]);
+            tms.put(i, tm);
+        }
+        
+        for (String feature: features) 
+        {            
+            // Time series for feature
+            double[] series = tsIndex.get(feature); 
+            if (series != null) {
+                // Populate feature vector for each bin
+                for (int i=0; i<series.length; i++) {
+                    Map<String, Double> tm = tms.get(i);
+                    
+                    tm.put(feature, series[i]);
+                    
+                    tms.put(i, tm);
+                }
+            }
+        }
+        
+        return tms;
+    }      
+    
+    public static void main(String[] args) {
+        
+        // Exponentiate and sum or sum logs then exponentiate:
+        double z1 = 1;
+        double z2 = 0;
+        for (int i=-13; i<-7; i++) {
+            double pr = Math.exp(i);
+            z1 *= pr;
+            
+            z2 += i;            
+        }        
+        
+        double z3 = Math.exp(z2);
+        System.out.println(z1  + "," + z2 + "," + z3);
+    }
 }
