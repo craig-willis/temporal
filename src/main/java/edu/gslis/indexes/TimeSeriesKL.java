@@ -37,6 +37,9 @@ public class TimeSeriesKL
 
         TimeSeriesKL tskl = new TimeSeriesKL();
         double[] kls = tskl.calculateBinKL(index, tsindex);
+        for (int i=0; i<kls.length; i++) {
+            System.out.println(i + "," + kls[i]);
+        }
         tsindex.close();
 
     }
