@@ -1,18 +1,14 @@
 package edu.gslis.temporal.scorers;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
-import edu.gslis.textrepresentation.FeatureVector;
 
 /**
  * Calculate temporal language models for all intervals
@@ -49,37 +45,22 @@ public class TSADScorer extends TemporalScorer
 
         try
         {
-            FeatureVector dv = doc.getFeatureVector();
-                        
-            Set<String> features = new HashSet<String>();
-            features.addAll(dv.getFeatures());
-            features.addAll(gQuery.getFeatureVector().getFeatures());
-            // Map of feature vectors for each bin(t)
-            Map<Integer, Map<String, Double>> tms = createTemporalModels(features);
                         
 
-            // Get the current bin
-            Map<String, Double> dtm = tms.get(t);
-            if (dtm != null) {
-                // Remove this document from the bin
-                for (String feature: dv.getFeatures()) {
-                    double w2 = dv.getFeatureWeight(feature);
-                    double w1 = dtm.get(feature);
-                    dtm.put(feature, w1 - w2);
-                }
-                double total = dtm.get("_total_");
-                total = total - dv.getLength();
-                dtm.put("_total_", total);
-                tms.put(t, dtm);
-            }
-            // Approximate document generation likelihood 
-            double[] scores = new double[tms.size()];
+            int numBins = tsIndex.getNumBins();
+
+            double[] scores = new double[numBins];
             double z = 0;     
             double max = Double.NEGATIVE_INFINITY;
             int maxBin = t;
-            for (int bin: tms.keySet()) {
+            for (int bin = 0; bin < numBins; bin++) {
                 // Log-likelihood of document given temporal model
-                double ll = scoreTemporalModel(dv, tms.get(bin));
+                double ll = 0;
+                if (bin == t)
+                    ll = this.scoreTemporalModelIgnore(doc.getFeatureVector(), bin);
+                else
+                    ll = scoreTemporalModel(doc.getFeatureVector(), bin);
+                    
                 scores[bin] = ll;
                 if (ll > max)  {
                     max = ll;
@@ -94,10 +75,9 @@ public class TSADScorer extends TemporalScorer
             }
             
             // p(theta_i given Q)
-            for (int bin: tms.keySet()) {
+            for (int bin = 0; bin < numBins; bin++) {
                 scores[bin] = scores[bin]/z;                
                 //System.out.println(gQuery.getTitle() + ", " + bin + "," + scores[bin]);
-
             }
             
             System.out.println(t + "," + maxBin);
@@ -117,15 +97,13 @@ public class TSADScorer extends TemporalScorer
                 double collectionProb = (1 + collectionStats.termCount(feature)) 
                         / collectionStats.getTokCount();
                 
+                // Sum of probabilities of this term across all bins
                 double timePr = 0;
-                for (int bin: tms.keySet()) {
-                    Map<String, Double> tm = tms.get(bin);
-                    if (tm.get(feature) == null) {
-                        System.err.println("Missing " + feature + " for " + bin);
-                        continue;
-                    }
-                    if (tm.get("_total_") > 0)
-                        timePr += (scores[bin]) * (tm.get(feature) / tm.get("_total_"));
+                for (int bin = 0; bin < numBins; bin++) {
+                    double tfreq = tsIndex.get(feature, bin);
+                    double tlen = tsIndex.get("_total_", bin);
+
+                    timePr += (scores[bin]) * (tfreq/tlen);
                 }
                            
                 double smoothedTemporalProb = 

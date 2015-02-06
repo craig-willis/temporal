@@ -1,18 +1,14 @@
 package edu.gslis.temporal.scorers;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
-import edu.gslis.textrepresentation.FeatureVector;
 
 /**
  * Calculate temporal language models for all intervals
@@ -46,28 +42,20 @@ public class TSAQScorer extends TemporalScorer
         }
 
         try
-        {
-            FeatureVector dv = doc.getFeatureVector();
-            
-            Set<String> features = new HashSet<String>();
-            features.addAll(dv.getFeatures());
-            features.addAll(gQuery.getFeatureVector().getFeatures());
-            // Map of feature vectors for each bin(t)
-            Map<Integer, Map<String, Double>> tms = createTemporalModels(features);
-                        
-            // Approximate document generation likelihood
-            // Score each temporal model with respect to this document.
-            double[] scores = new double[tms.size()];
+        {                        
+            // Approximate query generation likelihood
+            int numBins = tsIndex.getNumBins();
+            double[] scores = new double[numBins];
             double z = 0;            
-            for (int bin: tms.keySet()) {
+            for (int bin = 0; bin < numBins; bin++) {
                 // Log-likelihood of query given temporal model
-                double ll = scoreTemporalModel(gQuery.getFeatureVector(), tms.get(bin));
+                double ll = scoreTemporalModel(gQuery.getFeatureVector(), bin);
                 scores[bin] = Math.exp(ll);
                 z += scores[bin];
             }
 
             // p(theta_i given Q)
-            for (int bin: tms.keySet()) {
+            for (int bin = 0; bin < numBins; bin++) {
                 scores[bin] = scores[bin]/z;
             }
             
@@ -86,15 +74,13 @@ public class TSAQScorer extends TemporalScorer
                 double collectionProb = (1 + collectionStats.termCount(feature)) 
                         / collectionStats.getTokCount();
                 
+                // Sum of probabilities of this term across all bins
                 double timePr = 0;
-                for (int bin: tms.keySet()) {
-                    Map<String, Double> tm = tms.get(bin);
-                    if (tm.get(feature) == null) {
-                        System.err.println("Missing " + feature + " for " + bin);
-                        continue;
-                    }
-                    if (tm.get("_total_") > 0)
-                        timePr += (scores[bin]) * (tm.get(feature) / tm.get("_total_"));
+                for (int bin = 0; bin < numBins; bin++) {
+                    double tfreq = tsIndex.get(feature, bin);
+                    double tlen = tsIndex.get("_total_", bin);
+
+                    timePr += (scores[bin]) * (tfreq/tlen);
                 }
                                 
                 double smoothedTemporalProb = 
