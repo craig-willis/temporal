@@ -23,6 +23,8 @@ import java.util.zip.GZIPInputStream;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.stat.inference.ChiSquareTest;
 
+import edu.gslis.textrepresentation.FeatureVector;
+
 /**
  * Interface to an underlying H2 DB containing term time series information for a collection.
  *
@@ -33,7 +35,7 @@ public class TimeSeriesIndex {
 
     Connection con = null;
     String format = null;
-    int numBins = 0;
+    int numBins = -1;
     FileWriter writer = null;
     Map<String, double[]> timeSeriesMap = new HashMap<String, double[]>();
     boolean readOnly = false;
@@ -254,9 +256,17 @@ public class TimeSeriesIndex {
             stat.close();
         } else {
             double[] counts = timeSeriesMap.get(term);
-            freq = (int) counts[bin];
+            if (counts != null && counts.length == getNumBins())
+                freq = (int) counts[bin];
         }
         return freq;
+    }
+    
+    public int getNumBins() {
+        if (numBins == -1)
+            numBins = timeSeriesMap.get("_total_").length;
+
+        return numBins;
     }
     
     public void close() throws SQLException {
@@ -379,7 +389,15 @@ public class TimeSeriesIndex {
         
         double[] newvals = new double[totals.length];
            
+        if (timeSeriesMap.get(term) == null) {
+            System.err.println("Null entry for " + term);
+            for (int bin=0; bin<totals.length; bin++) 
+                newvals[bin] = 0;
+            return newvals;
+        }
+        
         double[] counts = timeSeriesMap.get(term);
+
         double sum = 0;
         for (double c: counts) 
             sum+= c;
@@ -396,8 +414,12 @@ public class TimeSeriesIndex {
                     newvals[bin] = 0.0;
             }
             else {
-                // Use the chisquare statistic as the term weight                    
-                 double csq = chiSq(N, (double)counts[bin], sum, (double)totals[bin]);    
+                // Use the chisquare statistic as the term weight      
+                // beatification,4.8052097E7,0.0,23.0,0.0
+                // System.out.println(term + "," + N + "," + counts[bin] + "," + sum + "," + totals[bin]);
+                double csq = 0;
+                if (counts[bin] > 0 && totals[bin] > 0)
+                    csq = chiSq(N, (double)counts[bin], sum, (double)totals[bin]);    
 //                double pval = chiSqTest(N, (double)counts[bin], sum, (double)totals[bin]);    
 //                ChiSquaredDistribution csdist = new ChiSquaredDistribution(1);
 //                double pval2 = (1 - csdist.cumulativeProbability(csq));
@@ -506,7 +528,7 @@ public class TimeSeriesIndex {
            
     }
     
-    
+        
     public void shrinkNpmi(String newpath, double threshold) throws IOException {
         FileWriter writer = new FileWriter(newpath);
         Set<String> vocab = timeSeriesMap.keySet();
@@ -566,6 +588,35 @@ public class TimeSeriesIndex {
         writer.close();
     }
     
+    public double[] getNpmi(String term) throws IOException {
+        
+        double[] totals = timeSeriesMap.get("_total_");
+        double N = 0;
+        for (double t: totals)
+            N += t;
+        
+        double[] npmi = new double[totals.length];
+           
+        double[] counts = timeSeriesMap.get(term);
+        if (timeSeriesMap.get(term) != null) {
+            double sum = 0;
+            for (double c: counts) 
+                sum+= c;
+            
+            for (int bin=0; bin<totals.length; bin++) {                            
+                npmi[bin] = calcNpmi(N, (double)counts[bin], sum, (double)totals[bin]);
+                
+                if (totals[bin] == 0)
+                    npmi[bin] = 0;
+            }
+        }
+        else {
+            for (int bin=0; bin<totals.length; bin++)
+                npmi[bin] = 0;
+        }
+        return npmi;
+    }
+    
     private static double calcNpmi(double N, double nX1Y1, double nX1, double nY1)
     {
         
@@ -596,5 +647,64 @@ public class TimeSeriesIndex {
         else
             return Math.log(num/denom)/Math.log(2);
     }
+    
+    public void smoothMovingAverage(String newpath, int win) throws IOException {
+        FileWriter writer = new FileWriter(newpath);
+        Set<String> vocab = timeSeriesMap.keySet();
+        
+        DecimalFormat df = new DecimalFormat("###.####");
+        double[] totals = timeSeriesMap.get("_total_");
+        totals = new double[totals.length];
+        for (String term: vocab) {
+            
+            if (term.equals("_total_"))
+                continue;
+            
+            double[] series = timeSeriesMap.get(term);
+            if (series.length < series.length)
+                continue;
+            
+            series = average(series, win);
+            
+            writer.write(term);
+            for (int i=0; i<series.length; i++) {
+                writer.write("," + df.format(series[i]));
+                
+                totals[i] += series[i];
+            }
+            writer.write("\n");           
+        }
+        
+        writer.write("_total_");
+        for (int i=0; i<totals.length; i++) {
+            writer.write("," + df.format(totals[i]));
+        }
+        writer.write("\n");           
 
+        writer.close();
+    }
+    
+    public double[] average(double[] series, int winSize) 
+    {        
+        double[] smoothed = new double[series.length];
+        
+        for (int t=0; t<series.length; t++) {
+            double timeFreq = series[t];
+            int n = 1;
+            
+            int size = series.length;
+            if (t < size) {
+
+                for (int i=0; i < winSize; i++) {
+                    if (t > i)
+                        timeFreq += series[t - i];
+                    if (t < size - i)
+                        timeFreq += series[t + i];
+                    n++;
+                }
+            }
+            smoothed[t] = timeFreq/(double)n;
+        }
+        return smoothed;
+    }
 }
