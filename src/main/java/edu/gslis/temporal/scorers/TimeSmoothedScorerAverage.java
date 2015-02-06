@@ -1,8 +1,11 @@
 package edu.gslis.temporal.scorers;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
@@ -47,9 +50,11 @@ public class TimeSmoothedScorerAverage extends TemporalScorer
                 scores[bin] = score;
                 z += score;
             }
+
             
             // Now calculate the score for this document using 
             // a combination of the temporal and collection LM.
+            queryIterator = gQuery.getFeatureVector().iterator();
             while(queryIterator.hasNext()) 
             {
                 String feature = queryIterator.next();
@@ -58,7 +63,8 @@ public class TimeSmoothedScorerAverage extends TemporalScorer
                 double docLength = doc.getLength();
 
                 //p(w | C): +1 is necessary when working with partial collections (i.e., latimes)
-                double collectionProb = (1 + collectionStats.termCount(feature)) / collectionStats.getTokCount();
+                double collectionProb = (1 + collectionStats.termCount(feature)) 
+                        / collectionStats.getTokCount();
 
                 // Weight the probability for each temporal model by the normalized score
                 double timePr = 0;
@@ -68,7 +74,6 @@ public class TimeSmoothedScorerAverage extends TemporalScorer
                         timePr += (scores[bin]/z) * (tfv.getFeatureWeight(feature)/tfv.getLength());
                 }
                                 
-                // Smooth temporal LM with collection LM
                 double smoothedTemporalProb = 
                         lambda*timePr + (1-lambda)*collectionProb;
                 
@@ -101,8 +106,61 @@ public class TimeSmoothedScorerAverage extends TemporalScorer
     }
     @Override
     public void init(SearchHits hits) {
-        // TODO Auto-generated method stub
         
+
+        double lambda = paramTable.get(LAMBDA);
+
+        if (lambda == -1) {
+            
+            if (gQuery.getFeatureVector().getFeatureCount() > 1)
+            {
+                // Dynamic smoothing, calculate correlation between NPMI values for all query terms
+                Iterator<String> queryIterator = gQuery.getFeatureVector().iterator();            
+                List<double[]> npmis = new ArrayList<double[]>();
+                List<String> terms = new ArrayList<String>();
+                while(queryIterator.hasNext()) 
+                {
+                    String feature = queryIterator.next();
+                    try {
+                        double[] npmi = tsIndex.getNpmi(feature);
+                        npmis.add(npmi);
+                        terms.add(feature);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                PearsonsCorrelation cor = new PearsonsCorrelation();
+                double avgCor = 0;
+                int k = 0;
+                for (int i=0; i<npmis.size(); i++) {
+                    for (int j=i; j<npmis.size(); j++) {
+                        if (i==j) continue;
+//                        double[] npmii = npmis.get(i);
+//                        double[] npmij = npmis.get(j);
+
+                        double c = cor.correlation(npmis.get(i), npmis.get(j));
+/*                        System.out.println("\t cor: " + terms.get(i) + ", " + terms.get(j) + "=" + c);
+                        for (int l=0; l<npmii.length; l++) {
+                            System.out.println(terms.get(i) + ", " + terms.get(j) 
+                                    + "," + npmii[l]  + ", " + npmij[l] + "\n");
+                        }
+                        */
+                        avgCor += c;
+                        k++;
+                    }
+                }
+                avgCor /= k;
+                
+                if (avgCor > 0)     
+                    paramTable.put(LAMBDA, avgCor);
+                else 
+                    paramTable.put(LAMBDA, 0D);                 
+            }
+            else
+                paramTable.put(LAMBDA, 0D);
+            
+            System.err.println(gQuery.getTitle() + " lambda=" + paramTable.get(LAMBDA));
+        }
     }   
     
 }
