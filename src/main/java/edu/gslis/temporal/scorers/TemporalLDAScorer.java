@@ -2,7 +2,7 @@ package edu.gslis.temporal.scorers;
 
 import java.util.Iterator;
 
-import edu.gslis.indexes.LDAIndex;
+import edu.gslis.indexes.TemporalLDAIndex;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 
@@ -10,16 +10,16 @@ import edu.gslis.searchhits.SearchHits;
  * Implements Wei and Croft topic-model-based document model
  * @author cwillis
  */
-public class LDAScorer extends RerankingScorer {
+public class TemporalLDAScorer extends TemporalScorer {
 
     static String MU = "mu";
     static String LAMBDA = "lambda";
     static String SMOOTH = "smooth";
+
     
+    TemporalLDAIndex ldaIndex = null;
     
-    LDAIndex ldaIndex = null;
-    
-    public void setIndex(LDAIndex ldaIndex) {
+    public void setIndex(TemporalLDAIndex ldaIndex) {
         this.ldaIndex = ldaIndex;
     }
 
@@ -34,6 +34,9 @@ public class LDAScorer extends RerankingScorer {
         double mu = paramTable.get(MU);
         double smooth = paramTable.get(SMOOTH);
         
+        long docTime = getDocTime(doc);
+        int bin = getBin(docTime);
+        
         double logLikelihood = 0.0;
         Iterator<String> queryIterator = gQuery.getFeatureVector().iterator();
         while(queryIterator.hasNext()) 
@@ -47,7 +50,7 @@ public class LDAScorer extends RerankingScorer {
             double collectionProb = (1 + collectionStats.termCount(feature)) / collectionStats.getTokCount();
             
             // Probability of the term given the topics in the document
-            double topicsProb = ldaIndex.getTermProbability2(doc.getDocno(), feature);
+            double topicsProb = ldaIndex.getTermProbability(doc.getDocno(), feature, bin);
             
             double queryWeight = gQuery.getFeatureVector().getFeatureWeight(feature);
 
@@ -86,12 +89,10 @@ public class LDAScorer extends RerankingScorer {
                                 
                 logLikelihood += queryWeight * Math.log(smoothedDocProb);                        
 
-            }  
+            }            
             else {
                 System.err.println("Invalid smoothing model specified.");
-            }     
-            
-            
+            }                       
         }
         return logLikelihood;
     }
