@@ -42,20 +42,91 @@ public class TrecToMallet
         
         String inputPath = cl.getOptionValue("input");
         String outputPath = cl.getOptionValue("output");
+        long interval = Long.valueOf(cl.getOptionValue("interval", "0"));
+        long startDate = Long.valueOf(cl.getOptionValue("startDate", "0"));
         boolean stem = cl.hasOption("stem");
+
         Stopper stopper = new Stopper();
         if (cl.hasOption("stoplist")) {
             String stopPath = cl.getOptionValue("stoplist");
             stopper = new Stopper(stopPath);
         }
         File inputFile = new File(inputPath);
-        FileWriter outputWriter = new FileWriter(outputPath);
-        process(inputFile, outputWriter, stem, stopper);
-        outputWriter.close();
+        if (interval > 0) {
+            process(inputFile, new File(outputPath), stem, stopper, startDate, interval);
+        } else {            
+            FileWriter outputWriter = new FileWriter(outputPath);
+            process(inputFile, outputWriter, stem, stopper);
+            outputWriter.close();
+        }
     }
     
+    static Pattern epochPattern = Pattern.compile("[^<]*<EPOCH>([^<]*)</EPOCH>");
     static Pattern docnoPattern = Pattern.compile("[^<]*<DOCNO>([^<]*)</DOCNO>");
     static Pattern tagPattern = Pattern.compile("<[^>]*>");
+    
+    /**
+     * Binned LDA. Create one mallet file per temporal bin
+     * @throws IOException
+     */
+    public static void process(File inputFile, File outputDir, boolean stem, Stopper stopper,
+            long startDate, long interval) 
+            throws IOException {
+       if (inputFile.isDirectory()) {
+           File[] files = inputFile.listFiles();
+           for (File file: files)
+               process(file, outputDir, stem, stopper, startDate, interval);
+       } else {
+           
+           BufferedReader br = new BufferedReader(new FileReader(inputFile));
+           String line;
+           String text = "";
+           String docno = "";
+           long epoch = 0;
+           int bin = 0;
+           while ((line = br.readLine()) != null) {
+               Matcher m = docnoPattern.matcher(line);
+               Matcher mepoch = epochPattern.matcher(line);
+               if (m.matches()) {
+                  docno = m.group(1);
+                  docno= docno.replaceAll(" ", "");
+               }
+               else if (mepoch.matches()) {
+                   epoch = Long.parseLong(mepoch.group(1));
+                   bin = (int) ((epoch - startDate)/interval);
+               }
+               else if (line.contains("</DOC>")) {
+                   
+                   text = text.toLowerCase();
+                   text = text.replaceAll("<[^>]*>", "");
+                   text = text.replaceAll("[^a-zA-Z0-9 ]", " ");
+                   text = stopper.apply(text);
+                   String[] tokens = text.split("\\s+");
+                   Stemmer stemmer = new KrovetzStemmer(); 
+
+                   String stemmed = "";
+                   for (String token: tokens) {
+                       String s = stemmer.stem(token);
+                       stemmed += " " + s;
+                   }
+                   
+                   if (bin >= 0) {
+                       System.out.println(docno + "," + bin);
+                       FileWriter output = new FileWriter(outputDir + File.separator + bin + ".mallet", true);
+                       output.write(docno + "," + stemmed + "\n");
+                       output.close();
+                   }
+                   text = "";
+                   docno = "";
+
+               }
+               else 
+                  text += " " + line;
+           }
+           br.close();
+       }           
+    }
+    
     public static void process(File inputFile, FileWriter output, boolean stem, Stopper stopper) 
             throws IOException {
        if (inputFile.isDirectory()) {
@@ -136,9 +207,11 @@ public class TrecToMallet
     {
         Options options = new Options();
         options.addOption("input", true, "Path directory containing TREC text");
-        options.addOption("output", true, "Path to Mallet output file");
+        options.addOption("output", true, "Path to Mallet output file or directory for binned models");
         options.addOption("stoplist", true, "Path to stop list");
         options.addOption("stem", false, "Stem (Krovetz");
+        options.addOption("startDate", true, "Start date for collection for binned LDA");
+        options.addOption("interval", true, "Interval for binned LDA. Zero for no binning");
 
         return options;
     }
