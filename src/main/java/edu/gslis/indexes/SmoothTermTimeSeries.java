@@ -1,17 +1,10 @@
 package edu.gslis.indexes;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
-
-import edu.gslis.lucene.indexer.Indexer;
-import edu.gslis.textrepresentation.FeatureVector;
 
 /**
  * 
