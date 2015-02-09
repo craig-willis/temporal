@@ -20,6 +20,7 @@ public class CollectionConfig {
     String tsDB;
     String ldaDocTopicsPath;
     String ldaTermTopicPath;
+    String ldaPath;
     
     public void setTsDB(String tsDB) {
         this.tsDB = tsDB;
@@ -29,6 +30,13 @@ public class CollectionConfig {
     }
     
     
+    public String getLdaPath() {
+        return ldaPath;
+    }
+    
+    public void setLdaPath(String path) {
+        this.ldaPath = path;
+    }
     public String getLdaDocTopicsPath() {
         return ldaDocTopicsPath;
     }

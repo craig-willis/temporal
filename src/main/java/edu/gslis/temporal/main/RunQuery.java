@@ -20,8 +20,8 @@ import edu.gslis.docscoring.support.CollectionStats;
 import edu.gslis.indexes.IndexWrapper;
 import edu.gslis.indexes.IndexWrapperFactory;
 import edu.gslis.indexes.LDAIndex;
+import edu.gslis.indexes.TemporalLDAIndex;
 import edu.gslis.indexes.TimeSeriesIndex;
-import edu.gslis.indexes.TimeSeriesKL;
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.main.config.BatchConfig;
 import edu.gslis.main.config.CollectionConfig;
@@ -33,6 +33,7 @@ import edu.gslis.queries.GQuery;
 import edu.gslis.temporal.scorers.KDELDAScorer;
 import edu.gslis.temporal.scorers.LDAScorer;
 import edu.gslis.temporal.scorers.RerankingScorer;
+import edu.gslis.temporal.scorers.TemporalLDAScorer;
 import edu.gslis.temporal.scorers.TemporalScorer;
 import edu.gslis.textrepresentation.FeatureVector;
 
@@ -76,7 +77,8 @@ public class RunQuery extends YAMLConfigBase
             String timeSeriesDBPath = collection.getTsDB();
             String ldaTermTopicPath = collection.getLdaTermTopicPath();
             String ldaDocTopicsPath = collection.getLdaDocTopicsPath();
-        
+            String ldaDataPath = collection.getLdaPath();
+            
             long startTime = collection.getStartDate();
             long endTime = collection.getEndDate();
             long interval = collection.getInterval();
@@ -109,12 +111,14 @@ public class RunQuery extends YAMLConfigBase
                 if (StringUtil.notEmpty(timeSeriesDBPath)) {
                     timeSeriesIndex.open(timeSeriesDBPath, true, "csv");
                     
+                    /*
                     System.out.println("Calculating KL divergence");
                     // Calculate KL divergence
                     TimeSeriesKL tskl = new TimeSeriesKL();
                     klweights = tskl.calculateBinKL(index, timeSeriesIndex);
                                        
                     System.out.println("done");
+                    */
                 }
                 
                 LDAIndex ldaIndex = new LDAIndex();
@@ -124,6 +128,13 @@ public class RunQuery extends YAMLConfigBase
                     //ldaIndex.open(ldaDBPath, true);
                     System.out.println("Loading LDA data");
                     ldaIndex.load(ldaDocTopicsPath, ldaTermTopicPath);
+                    System.out.println("done");
+                }
+                
+                TemporalLDAIndex tempLdaIndex = new TemporalLDAIndex();
+                if (StringUtil.notEmpty(ldaDataPath)) {
+                    System.out.println("Loading temporal LDA data");
+                    tempLdaIndex.load(ldaDataPath);
                     System.out.println("done");
                 }
                                     
@@ -198,7 +209,9 @@ public class RunQuery extends YAMLConfigBase
                             ((LDAScorer)docScorer).setIndex(ldaIndex);
                         if (docScorer instanceof KDELDAScorer)
                             ((KDELDAScorer)docScorer).setIndex(ldaIndex);
-
+                        if (docScorer instanceof TemporalLDAScorer)
+                            ((TemporalLDAScorer)docScorer).setIndex(tempLdaIndex);
+                        
                         QueryRunner worker = new QueryRunner();
                         worker.setDocScorer(docScorer);
                         worker.setIndex(index);

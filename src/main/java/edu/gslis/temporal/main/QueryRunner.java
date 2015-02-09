@@ -1,13 +1,14 @@
 package edu.gslis.temporal.main;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.lemurproject.kstem.Stemmer;
 
 import edu.gslis.indexes.IndexWrapper;
 import edu.gslis.queries.GQuery;
 import edu.gslis.queries.expansion.FeedbackRelevanceModel;
-import edu.gslis.queries.expansion.TemporalRelevanceModel;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 import edu.gslis.temporal.scorers.RerankingScorer;
@@ -120,12 +121,18 @@ public class QueryRunner implements Runnable
 //        System.out.println(query.getTitle() + ": score basic");
 
         Iterator<SearchHit> it = results.iterator();
+        SearchHits rescored = new SearchHits();
         while (it.hasNext()) {
             SearchHit hit = it.next();
             double score = docScorer.score(hit);
             hit.setScore(score);
+            if (score == Double.NaN) {
+                System.err.println("Problem with score for " + query.getText() + "," + hit.getDocno() + "," + score);
+            } else if (score != Double.NEGATIVE_INFINITY) {
+                rescored.add(hit);
+            }
         }
-        results.rank();
+        rescored.rank();
         
         // Feedback model
         FeedbackRelevanceModel rm3 = new FeedbackRelevanceModel();
@@ -151,11 +158,15 @@ public class QueryRunner implements Runnable
 
         //System.out.println(getQueryString(feedbackQuery));
         SearchHits rm3results = new SearchHits();
+        SearchHits rm3rescored = new SearchHits();
+
         try
         {
             rm3results = index.runQuery(feedbackQuery, NUM_RESULTS);
             docScorer.setQuery(feedbackQuery);
             docScorer.init(rm3results);
+            System.out.println(query.getTitle() + " RM3 " + feedbackQuery);
+            
                  
 //            System.out.println(query.getTitle() + ": score RM3");
 
@@ -164,9 +175,15 @@ public class QueryRunner implements Runnable
                 SearchHit hit = it.next();
                 double score = docScorer.score(hit);
                 hit.setScore(score);
+                if (score == Double.NaN) {
+                    System.err.println("Problem with score for " + query.getText() + "," + hit.getDocno() + "," + score);
+                } else if (score != Double.NEGATIVE_INFINITY) {
+                    rm3rescored.add(hit);
+                }
+
             }
             
-            rm3results.rank();
+            rm3rescored.rank();
         } catch (Exception e) {
             System.out.println("Error in query " + query.getTitle());
             e.printStackTrace();
@@ -175,8 +192,8 @@ public class QueryRunner implements Runnable
 
 //       System.out.println( query.getTitle() + ": writing results");
         synchronized (this) {
-            trecFormattedWriter.write(results, query.getTitle());
-            trecFormattedWriterRm3.write(rm3results, query.getTitle());
+            trecFormattedWriter.write(rescored, query.getTitle());
+            trecFormattedWriterRm3.write(rm3rescored, query.getTitle());
         }
         System.out.println(query.getTitle() + ": complete");
     }

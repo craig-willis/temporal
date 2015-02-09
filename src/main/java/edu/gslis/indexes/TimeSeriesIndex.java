@@ -707,4 +707,8 @@ public class TimeSeriesIndex {
         }
         return smoothed;
     }
+    
+    public int getLength(int bin) throws Exception {
+        return get("_total_", bin);
+    }
 }
