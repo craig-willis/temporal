@@ -31,6 +31,16 @@ public abstract class TemporalScorer extends RerankingScorer
     public abstract void init(SearchHits hits);
     
  
+    public long getDocTime(SearchHit doc) {
+        double epoch = (Double)doc.getMetadataValue(Indexer.FIELD_EPOCH);
+        long docTime = (long)epoch;
+        return docTime;
+    }
+    public int getBin(long time) {
+        // Get the bin for this document       
+        int t = (int)((time - startTime)/interval);
+        return t;
+    }
     public void setStartTime(long startTime) {
         this.startTime = startTime;
     }
