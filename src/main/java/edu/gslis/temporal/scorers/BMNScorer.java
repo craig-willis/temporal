@@ -23,7 +23,8 @@ public class BMNScorer extends TemporalScorer
 
     String MU = "mu";
     String LAMBDA = "lambda";
-    
+    String SMOOTH = "smooth";
+
     
     
     public double score(SearchHit doc)
@@ -35,10 +36,11 @@ public class BMNScorer extends TemporalScorer
         double mu = paramTable.get(MU);
         // Parameter controlling linear combination of temporal and collection language models.
         double lambda = paramTable.get(LAMBDA);
+        double smooth = paramTable.get(SMOOTH);
         
-        double epoch = (Double)doc.getMetadataValue(Indexer.FIELD_EPOCH);
-        long docTime = (long)epoch;
-        int t = (int)((docTime - startTime)/interval);
+        // Get the bin for this document 
+        long docTime = getDocTime(doc);
+        int t = getBin(docTime);
 
         if (docTime < startTime) {
             return Double.NEGATIVE_INFINITY;
@@ -55,7 +57,7 @@ public class BMNScorer extends TemporalScorer
             int numBins = tsIndex.getNumBins();
             // Approximate document generation likelihood 
             double max = Double.NEGATIVE_INFINITY;
-            int maxBin = t;
+            int bestBin = t;
             for (int bin = 0; bin < numBins; bin++) {
                 // Log-likelihood of document given temporal model
                 double ll = 0;
@@ -66,11 +68,11 @@ public class BMNScorer extends TemporalScorer
                     
                 if (ll > max)  {
                     max = ll;
-                    maxBin = bin;
+                    bestBin = bin;
                 }
             }
 
-            System.out.println(t + "," + maxBin);           
+            //System.out.println(t + "," + bestBin);           
             
             // Now calculate the score for this document using 
             // a combination of the temporal and collection LM.
@@ -87,25 +89,53 @@ public class BMNScorer extends TemporalScorer
                         / collectionStats.getTokCount();
                 
                 // Temporal model
-                double tfreq = tsIndex.get(feature, maxBin);
-                double tlen = tsIndex.get("_total_", maxBin);
+                double tfreq = tsIndex.get(feature, bestBin);
+                double tlen = tsIndex.getLength(bestBin);
                 
-                // Use Laplace smoothing for the temporal models. This is just for the case 
-                // where lambda = 1
-                double timePr = (tfreq + 1) / (tlen + collectionStats.getTokCount());                
-                
-                // Smooth the temporal models with the collection model
-                double smoothedTemporalProb = 
-                        lambda*timePr + (1-lambda)*collectionProb;
+                double temporalPr = tfreq / tlen; 
 
-                // Smooth the temporal models with the collection model
-                double smoothedDocProb = 
-                        (docFreq + mu*smoothedTemporalProb) / 
-                        (docLength + mu);
-                
                 double queryWeight = gQuery.getFeatureVector().getFeatureWeight(feature);
+
                 
-                logLikelihood += queryWeight * Math.log(smoothedDocProb);                  
+                if (smooth == 1) {
+                    // 2-stage                
+                    double smoothedTopicProb = 
+                            (docFreq + mu*temporalPr) / 
+                            (docLength + mu);
+                    
+                    double smoothedDocProb = 
+                            lambda*smoothedTopicProb + (1-lambda)*collectionProb;
+                    
+                    logLikelihood += queryWeight * Math.log(smoothedDocProb);                        
+                }
+                else if (smooth == 2) { 
+                    // Wei & Croft
+                    double smoothedTopicProb = 
+                            (docFreq + mu*collectionProb) / 
+                            (docLength + mu);
+                    
+                    double smoothedDocProb = 
+                            lambda*smoothedTopicProb + (1-lambda)*temporalPr;
+                    
+                    logLikelihood += queryWeight * Math.log(smoothedDocProb);                        
+
+                }
+                else if (smooth == 3) { 
+                    // J-M Smoothed dirichlet
+
+                    double smoothedTempProb = 
+                            lambda*temporalPr + (1-lambda)*collectionProb;
+
+                    double smoothedDocProb = 
+                            (docFreq + mu*smoothedTempProb) / 
+                            (docLength + mu);
+                                    
+                    logLikelihood += queryWeight * Math.log(smoothedDocProb);                        
+
+                }  
+                else {
+                    System.err.println("Invalid smoothing model specified.");
+                }                           
             }
         } catch (Exception e) {
             e.printStackTrace(); 
