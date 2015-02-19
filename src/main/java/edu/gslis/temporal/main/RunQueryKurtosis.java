@@ -176,7 +176,7 @@ public class RunQueryKurtosis extends YAMLConfigBase
                         worker.setStopper(stopper);
                         worker.setTrecFormattedWriter(trecFormattedWriter);
                         worker.setTrecFormattedWriterRm3(trecFormattedWriterRm3);
-                        worker.setRescoreRm3(rescoreRm3);
+                       // worker.setRescoreRm3(rescoreRm3);
                         executor.execute(worker);
                     }
                     

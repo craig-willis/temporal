@@ -118,18 +118,18 @@ public class RunQuerySDM extends YAMLConfigBase
                     // Feedback model
                     //TemporalRelevanceModel rm3 = new TemporalRelevanceModel();
                     FeedbackRelevanceModel rm3 = new FeedbackRelevanceModel();                    
-                    rm3.setDocCount(QueryRunner.NUM_FEEDBACK_DOCS);
-                    rm3.setTermCount(QueryRunner.NUM_FEEDBACK_TERMS);
+                    rm3.setDocCount(20);
+                    rm3.setTermCount(20);
                     rm3.setIndex(index);
                     rm3.setStopper(stopper);
                     rm3.setRes(results);
                     rm3.build();
                     FeatureVector rmVector = rm3.asFeatureVector();
                     rmVector = cleanModel(rmVector);
-                    rmVector.clip(QueryRunner.NUM_FEEDBACK_TERMS);
+                    rmVector.clip(20);
                     rmVector.normalize();
                     FeatureVector feedbackVector =
-                            FeatureVector.interpolate(query.getFeatureVector(), rmVector, QueryRunner.LAMBDA);
+                    FeatureVector.interpolate(query.getFeatureVector(), rmVector, .5);
                     
                     GQuery feedbackQuery = new GQuery();
                     feedbackQuery.setTitle(query.getTitle());

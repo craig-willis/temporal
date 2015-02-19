@@ -1,8 +1,6 @@
 package edu.gslis.temporal.main;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import org.lemurproject.kstem.Stemmer;
 
@@ -21,9 +19,6 @@ public class QueryRunner implements Runnable
     ClassLoader loader = ClassLoader.getSystemClassLoader();
 
     public static final int NUM_RESULTS = 1000;
-    static final int NUM_FEEDBACK_TERMS = 20;
-    static final int NUM_FEEDBACK_DOCS = 20;
-    static final double LAMBDA = 0.5;
     static final int NUM_THREADS = 10;
     
     Stopper stopper;
@@ -35,7 +30,19 @@ public class QueryRunner implements Runnable
     FormattedOutputTrecEval trecFormattedWriter;
     FormattedOutputTrecEval trecFormattedWriterRm3;
     
+    int numFeedbackTerms = 20;
+    int numFeedbackDocs = 20;
+    double rmLambda = 0.5;
     
+    public void setNumFeedbackTerms(int numFeedbackTerms) {
+        this.numFeedbackTerms = numFeedbackTerms;
+    }
+    public void setNumFeedbackDocs(int numFeedbackDocs) {
+        this.numFeedbackDocs = numFeedbackDocs;
+    }
+    public void setRmLambda(double lambda) {
+        this.rmLambda = lambda;
+    }
     public Stopper getStopper() {
         return stopper;
     }
@@ -136,18 +143,18 @@ public class QueryRunner implements Runnable
         
         // Feedback model
         FeedbackRelevanceModel rm3 = new FeedbackRelevanceModel();
-        rm3.setDocCount(NUM_FEEDBACK_DOCS);
-        rm3.setTermCount(NUM_FEEDBACK_TERMS);
+        rm3.setDocCount(numFeedbackDocs);
+        rm3.setTermCount(numFeedbackTerms);
         rm3.setIndex(index);
         rm3.setStopper(stopper);
         rm3.setRes(results);
         rm3.build();
         FeatureVector rmVector = rm3.asFeatureVector();
         rmVector = cleanModel(rmVector);
-        rmVector.clip(NUM_FEEDBACK_TERMS);
+        rmVector.clip(numFeedbackTerms);
         rmVector.normalize();
         FeatureVector feedbackVector =
-                FeatureVector.interpolate(query.getFeatureVector(), rmVector, LAMBDA);
+                FeatureVector.interpolate(query.getFeatureVector(), rmVector, rmLambda);
         
         GQuery feedbackQuery = new GQuery();
         feedbackQuery.setTitle(query.getTitle());

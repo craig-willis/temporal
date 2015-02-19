@@ -54,17 +54,13 @@ import edu.gslis.textrepresentation.FeatureVector;
 public class RunQuery extends YAMLConfigBase 
 {
     public static final String NAME_OF_TIMESTAMP_FIELD = "timestamp";
-    //static final int NUM_RESULTS = 1000;
-    //static final int NUM_FEEDBACK_TERMS = 20;
-    //static final int NUM_FEEDBACK_DOCS = 20;
-    //static final double LAMBDA = 0.5;
     static final int NUM_THREADS = 10;
     
     public RunQuery(BatchConfig config) {
         super(config);
     }
 
-    public void runBatch() throws Exception 
+    public void runBatch(boolean rescoreRm3) throws Exception 
     {
         initGlobals();
         
@@ -219,73 +215,12 @@ public class RunQuery extends YAMLConfigBase
                         worker.setStopper(stopper);
                         worker.setTrecFormattedWriter(trecFormattedWriter);
                         worker.setTrecFormattedWriterRm3(trecFormattedWriterRm3);
+                        
+                        worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocs());
+                        worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTerms());
+                        worker.setRmLambda(scorerConfig.getLambda());
+                        //worker.setRescoreRm3(rescoreRm3);
                         executor.execute(worker);
-                                                /*
-                        System.err.println(query.getTitle() + ":" + query.getText());
-                        String queryText = query.getText().trim();
-                        String[] terms = queryText.split("\\s+");
-                        String stemmedQuery = "";
-                        for (String term: terms) {
-                            if (!stopper.isStopWord(term))
-                                stemmedQuery += stemmer.stem(term) + " ";
-                        }
-                        stemmedQuery = stemmedQuery.trim();
-                        query.setText(stemmedQuery);
-                        FeatureVector fv = new FeatureVector(stemmedQuery, stopper);
-                        query.setFeatureVector(fv);
-                        System.err.println("\t stemmed: " + query.getText());
-
-                                    
-                        docScorer.setQuery(query);
-                        
-                        SearchHits results = index.runQuery(query, NUM_RESULTS);
-                        docScorer.init(results);
-                             
-                        Iterator<SearchHit> it = results.iterator();
-                        while (it.hasNext()) {
-                            SearchHit hit = it.next();
-                            double score = docScorer.score(hit);
-                            hit.setScore(score);
-                        }
-                        results.rank();
-                        
-                        // Feedback model
-                        FeedbackRelevanceModel rm3 = new FeedbackRelevanceModel();
-                        rm3.setDocCount(NUM_FEEDBACK_DOCS);
-                        rm3.setTermCount(NUM_FEEDBACK_TERMS);
-                        rm3.setIndex(index);
-                        rm3.setStopper(stopper);
-                        rm3.setRes(results);
-                        rm3.build();
-                        FeatureVector rmVector = rm3.asFeatureVector();
-                        rmVector = cleanModel(rmVector);
-                        rmVector.clip(NUM_FEEDBACK_TERMS);
-                        rmVector.normalize();
-                        FeatureVector feedbackVector =
-                                FeatureVector.interpolate(query.getFeatureVector(), rmVector, LAMBDA);
-                        
-                        GQuery feedbackQuery = new GQuery();
-                        feedbackQuery.setTitle(query.getTitle());
-                        feedbackQuery.setText(query.getText());
-                        feedbackQuery.setFeatureVector(feedbackVector);
-                                                
-                        SearchHits rm3results = index.runQuery(feedbackQuery, NUM_RESULTS);
-                        
-                        docScorer.setQuery(feedbackQuery);
-                        docScorer.init(rm3results);
-                             
-                        it = rm3results.iterator();
-                        while (it.hasNext()) {
-                            SearchHit hit = it.next();
-                            double score = docScorer.score(hit);
-                            hit.setScore(score);
-                        }
-                        
-                        rm3results.rank();
-
-                        trecFormattedWriter.write(results, query.getTitle());
-                        trecFormattedWriterRm3.write(rm3results, query.getTitle());
-                        */
                     }
                     
                     executor.shutdown();
@@ -311,13 +246,18 @@ public class RunQuery extends YAMLConfigBase
             System.err.println("you must specify a parameter file to run against.");
             System.exit(-1);
         }
+        
+        boolean rescoreRm3 = true;
+        if (args.length == 2) {
+            rescoreRm3 = Boolean.parseBoolean(args[1]);
+        }
 
         // Read the yaml config
         Yaml yaml = new Yaml(new Constructor(BatchConfig.class));
         BatchConfig config = (BatchConfig)yaml.load(new FileInputStream(yamlFile));
 
         RunQuery runner = new RunQuery(config);
-        runner.runBatch();
+        runner.runBatch(rescoreRm3);
     }
     
     public static FeatureVector cleanModel(FeatureVector model) {
