@@ -225,7 +225,7 @@ public abstract class TemporalScorer extends RerankingScorer
 
         try
         {
-            double tlen = tsIndex.get("_total_", bin);
+            double tlen = tsIndex.getLength(bin);
             if (tlen == 0)
                 return Double.NEGATIVE_INFINITY;
             
@@ -233,9 +233,9 @@ public abstract class TemporalScorer extends RerankingScorer
             {         
                 double tfreq = tsIndex.get(feature, bin);
     
-                //double smoothedProb = (tfreq + 1)/(tlen + collectionStats.getTokCount());
-                double pwC = collectionStats.termCount(feature) / collectionStats.getTokCount();
-                double smoothedProb = (tfreq + 1000 * pwC ) / (tlen + 1000);
+                double smoothedProb = (tfreq + 1)/(tlen + collectionStats.getTokCount());
+                //double pwC = collectionStats.termCount(feature) / collectionStats.getTokCount();
+                //double smoothedProb = (tfreq + 1000 * pwC ) / (tlen + 1000);
                         
                 double docWeight = dm.getFeatureWeight(feature);
                 
@@ -268,9 +268,9 @@ public abstract class TemporalScorer extends RerankingScorer
                 
                 tfreq -= dm.getFeatureWeight(feature);
     
-                //double smoothedProb = (tfreq + 1)/(tlen + collectionStats.getTokCount());
-                double pwC = collectionStats.termCount(feature) / collectionStats.getTokCount();
-                double smoothedProb = (tfreq + 1000 * pwC ) / (tlen + 1000);
+                double smoothedProb = (tfreq + 1)/(tlen + collectionStats.getTokCount());
+                //double pwC = collectionStats.termCount(feature) / collectionStats.getTokCount();
+                //double smoothedProb = (tfreq + 1000 * pwC ) / (tlen + 1000);
                         
                 double docWeight = dm.getFeatureWeight(feature);
                 
