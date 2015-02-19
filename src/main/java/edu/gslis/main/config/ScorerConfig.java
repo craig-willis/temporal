@@ -7,6 +7,10 @@ public class ScorerConfig {
     public String className;
     public String expander;
     public Map<String, Object> params;
+    
+    public double lambda = 0.5;
+    public int numFeedbackTerms = 20;    
+    public int numFeedbackDocs = 20;
     public String getName() {
         return name;
     }
@@ -30,6 +34,25 @@ public class ScorerConfig {
     }
     public void setParams(Map<String, Object> params) {
         this.params = params;
+    }
+
+    public double getLambda() {
+        return lambda;
+    }
+    public void setLambda(double lambda) {
+        this.lambda = lambda;
+    }
+    public int getNumFeedbackTerms() {
+        return numFeedbackTerms;
+    }
+    public void setNumFeedbackTerms(int numFeedbackTerms) {
+        this.numFeedbackTerms = numFeedbackTerms;
+    }
+    public int getNumFeedbackDocs() {
+        return numFeedbackDocs;
+    }
+    public void setNumFeedbackDocs(int numFeedbackDocs) {
+        this.numFeedbackDocs = numFeedbackDocs;
     }
     
 }
