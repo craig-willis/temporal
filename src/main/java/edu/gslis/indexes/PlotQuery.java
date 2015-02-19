@@ -1,7 +1,9 @@
 package edu.gslis.indexes;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
@@ -9,6 +11,8 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+import org.apache.commons.collections.Bag;
+import org.apache.commons.collections.bag.TreeBag;
 import org.rosuda.REngine.Rserve.RConnection;
 
 import edu.gslis.docscoring.support.IndexBackedCollectionStats;
@@ -71,56 +75,22 @@ public class PlotQuery
             GQuery query = it.next();
                         
             Set<String> relDocs = qrels.getRelDocs(query.getTitle());
-            int[] relDocBins = new int[relDocs.size()];
+            List<Integer> relDocBins = new ArrayList<Integer>();
+            Bag relDocBag = new TreeBag();
             int i = 0;
             for (String relDoc: relDocs) {
-                double epoch = Double.parseDouble(index.getMetadataValue(relDoc, Indexer.FIELD_EPOCH));
-                relDocBins[i] = (int) ((epoch - startTime) / interval);
-                i++;
+                if (index.getMetadataValue(relDoc, Indexer.FIELD_EPOCH) != null)
+                {
+                    double epoch = Double.parseDouble(index.getMetadataValue(relDoc, Indexer.FIELD_EPOCH));
+                    int bin = (int) ((epoch - startTime) / interval);
+                    relDocBins.add(bin);
+                    relDocBag.add(bin);
+                    //System.out.println(relDoc + "," + bin);
+                    i++;
+                }
             }
             Iterator<String> queryIterator = query.getFeatureVector().iterator();   
             
-            /*
-            List<double[]> npmis = new ArrayList<double[]>();
-            List<String> terms = new ArrayList<String>();
-            while(queryIterator.hasNext()) 
-            {
-                String feature = queryIterator.next();
-                try {
-                    double[] npmi = tsIndex.getNpmi(feature);
-                    npmis.add(npmi);
-                    terms.add(feature);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            PearsonsCorrelation cor = new PearsonsCorrelation();
-            double avgCor = 0;
-            int k = 0;
-            for (int i=0; i<npmis.size(); i++) {
-                for (int j=i; j<npmis.size(); j++) {
-                    if (i==j) continue;
-                    double c = cor.correlation(npmis.get(i), npmis.get(j));                    
-                    avgCor += c;
-                    k++;
-                }
-            }
-            if (k>0)
-                avgCor /= k;
-
-            String[] qterms = query.getText().split(" ");
-            DescriptiveStatistics idfstats = new DescriptiveStatistics();
-            DescriptiveStatistics scqstats = new DescriptiveStatistics();
-            for (String qterm: qterms) {
-                double idf = Math.log(N / (1 + index.docFreq(qterm)));
-                idfstats.addValue(idf);
-                
-                double scq = (1 + Math.log(index.docFreq(qterm))) * idf;
-                scqstats.addValue(scq);
-            }
-            double scs = Math.log(1/(double)qterms.length) + idfstats.getMean();
-
-*/
             // Approximate query generation likelihood
             int numBins = tsIndex.getNumBins();
             double[] scores = new double[numBins];
@@ -138,7 +108,7 @@ public class PlotQuery
             for (int bin=0; bin<numBins; bin++) {
                 scores[bin] = scores[bin]/z;
                 bins[bin] = bin;
-                total += tsIndex.get("_total_", bin);                
+                total += tsIndex.getLength(bin);                
                 //System.out.println(query.getTitle() + "," + scores[bin]);
             }
             System.out.println("<h2>" + query.getTitle() + ": " + query.getText() + "</h2></br>");
@@ -149,38 +119,52 @@ public class PlotQuery
             
             c.voidEval("setwd(\"" + outputPath + "\")");
 
+            // Plot p(time | Q)
             c.assign("x", bins);
             c.assign("y", scores);
-            c.assign("reldocs", relDocBins);
-
             c.voidEval("png(\"" + query.getTitle() + ".png" + "\")");
             c.voidEval("plot(y ~ x, type=\"h\", lwd=2, main=\"p(time | " + query.getText() + ")\", ylim=c(0,0.3))");
-            c.voidEval("rug(reldocs, col=\"red\")");
+
+            int[] reldocs = new int[relDocBins.size()];
+            for (int j=0; j<relDocBins.size(); j++) 
+                reldocs[j] = relDocBins.get(j);
+
+            if (relDocBins.size() > 0) {
+                c.assign("reldocs", reldocs);
+                if (relDocBins.size() > 1) {
+                    c.voidEval("lines(density(reldocs), col=\"red\")");
+                }
+                c.voidEval("rug(reldocs, col=\"red\")");
+            }            
             c.eval("dev.off()");
             
             
-            c.voidEval("png(\"" + query.getTitle() + "-terms.png" + "\")");
             int qterms = query.getText().split(" ").length;
+            String par="par(mfrow=c(1,1))";
             switch (qterms) {
             case 1:
-                c.voidEval("par(mfrow=c(1,1))");
+                par="par(mfrow=c(1,1))";
                 break;
             case 2:
-                c.voidEval("par(mfrow=c(2,1))");                
+                par="par(mfrow=c(2,1))";                
                 break;
             case 3:
             case 4:
-                c.voidEval("par(mfrow=c(2,2))");          
+                par="par(mfrow=c(2,2))";          
                 break;
             case 5:
             case 6:
-                c.voidEval("par(mfrow=c(3,2))");     
+                par="par(mfrow=c(3,2))";     
                 break;
             case 7:
             case 8:
-                c.voidEval("par(mfrow=c(3,3))");   
+                par="par(mfrow=c(3,3))";   
                 break;
             }
+            
+            // Plot p(term|Time)
+            c.voidEval("png(\"" + query.getTitle() + "-terms.png" + "\")");
+            c.voidEval(par);
             for (String feature: query.getFeatureVector().getFeatures()) 
             {
                 double collectionProb = (1 + collectionStats.termCount(feature)) 
@@ -201,10 +185,56 @@ public class PlotQuery
                 if (max > ylim)
                     ylim = max;
                 c.voidEval("plot(y ~ x, type=\"h\", lwd=2, main=\"p(" + feature + " | T)\")");
-                c.voidEval("rug(reldocs, col=\"red\")");
+                
+                if (relDocBins.size() > 0) {
+                    c.voidEval("rug(reldocs, col=\"red\")");
+                }
                 c.voidEval("abline(h=z, col=\"red\")");
             }
             c.eval("dev.off()");             
+            
+            // Plot npmi & chisq
+            c.voidEval("png(\"" + query.getTitle() + "-npmi.png" + "\")");
+            c.voidEval(par);
+
+            for (String feature: query.getFeatureVector().getFeatures()) 
+            {
+                double[] npmi = tsIndex.getNpmi(feature);
+                c.assign("z", npmi);
+                c.voidEval("plot(z ~ x, type=\"h\", lwd=2, main=\"" + feature + "\")");
+                
+                if (relDocBins.size() > 0) {
+                    c.voidEval("rug(reldocs, col=\"red\")");
+                }
+                
+                for (int bin=0; bin<npmi.length; bin++) {
+                    System.out.println(feature + "," + bin + "," + tsIndex.get(feature, bin) + "," + df.format(npmi[bin]) + "," + relDocBag.getCount(bin));
+                }
+
+            }
+            c.eval("dev.off()");
+
+
+            c.voidEval("png(\"" + query.getTitle() + "-chisq.png" + "\")");
+            c.voidEval(par);
+
+            for (String feature: query.getFeatureVector().getFeatures()) 
+            {
+                double[] chisq = tsIndex.getChiSq(feature, -1);
+                c.assign("z", chisq);
+                c.voidEval("plot(z ~ x, type=\"h\", lwd=2, main=\"" + feature + "\")");
+                
+                if (relDocBins.size() > 0) {
+                    c.voidEval("rug(reldocs, col=\"red\")");
+                }
+                
+                for (int bin=0; bin<chisq.length; bin++) {
+                    System.out.println(feature + "," + bin + "," + tsIndex.get(feature, bin) + "," + df.format(chisq[bin]) + "," + relDocBag.getCount(bin));
+                }
+            }
+            c.eval("dev.off()");
+
+
             
             /*
             // Diaz and Jones: temporal KL
