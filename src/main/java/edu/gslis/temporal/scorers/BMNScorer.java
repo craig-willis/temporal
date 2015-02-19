@@ -8,7 +8,6 @@ import java.util.Set;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
-import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 import edu.gslis.textrepresentation.FeatureVector;
@@ -66,13 +65,14 @@ public class BMNScorer extends TemporalScorer
                 else    
                     ll = scoreTemporalModel(dv, bin);
                     
+                //System.out.println("\t" + bin + "," + ll); 
                 if (ll > max)  {
                     max = ll;
                     bestBin = bin;
                 }
             }
 
-            //System.out.println(t + "," + bestBin);           
+            //System.out.println(doc.getDocno() + "," + t + "," + bestBin + "," + max);           
             
             // Now calculate the score for this document using 
             // a combination of the temporal and collection LM.
@@ -157,61 +157,6 @@ public class BMNScorer extends TemporalScorer
     }
     @Override
     public void init(SearchHits hits) {
-        
-
-        double lambda = paramTable.get(LAMBDA);
-
-        if (lambda == -1) {
-            
-            if (gQuery.getFeatureVector().getFeatureCount() > 1)
-            {
-                // Dynamic smoothing, calculate correlation between NPMI values for all query terms
-                Iterator<String> queryIterator = gQuery.getFeatureVector().iterator();            
-                List<double[]> npmis = new ArrayList<double[]>();
-                List<String> terms = new ArrayList<String>();
-                while(queryIterator.hasNext()) 
-                {
-                    String feature = queryIterator.next();
-                    try {
-                        double[] npmi = tsIndex.getNpmi(feature);
-                        npmis.add(npmi);
-                        terms.add(feature);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                PearsonsCorrelation cor = new PearsonsCorrelation();
-                double avgCor = 0;
-                int k = 0;
-                for (int i=0; i<npmis.size(); i++) {
-                    for (int j=i; j<npmis.size(); j++) {
-                        if (i==j) continue;
-//                        double[] npmii = npmis.get(i);
-//                        double[] npmij = npmis.get(j);
-
-                        double c = cor.correlation(npmis.get(i), npmis.get(j));
-/*                        System.out.println("\t cor: " + terms.get(i) + ", " + terms.get(j) + "=" + c);
-                        for (int l=0; l<npmii.length; l++) {
-                            System.out.println(terms.get(i) + ", " + terms.get(j) 
-                                    + "," + npmii[l]  + ", " + npmij[l] + "\n");
-                        }
-                        */
-                        avgCor += c;
-                        k++;
-                    }
-                }
-                avgCor /= k;
-                
-                if (avgCor > 0)     
-                    paramTable.put(LAMBDA, avgCor);
-                else 
-                    paramTable.put(LAMBDA, 0D);                 
-            }
-            else
-                paramTable.put(LAMBDA, 0D);
-            
-            System.err.println(gQuery.getTitle() + " lambda=" + paramTable.get(LAMBDA));
-        }
     }   
     
 }
