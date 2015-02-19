@@ -38,6 +38,15 @@ public class RUtil {
         return c.eval("k").asDouble();	    
 	}
 
+   public double skewness(double[] data) throws Exception {
+        c.assign("x", data);
+        c.voidEval("library(moments)");
+
+        c.voidEval("s <- skewness(x)");
+
+        return c.eval("s").asDouble();      
+    }
+
 	public void close() {
 		try {
 			c.close();
