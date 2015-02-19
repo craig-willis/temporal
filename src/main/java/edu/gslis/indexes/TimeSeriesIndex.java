@@ -66,13 +66,13 @@ public class TimeSeriesIndex {
                 new InputStreamReader(new GZIPInputStream(new FileInputStream(path)), "UTF-8"));
         String line;
         int j=0;
-        System.out.println("Loading " + path);
+        System.err.println("Loading " + path);
 
         while ((line = br.readLine()) != null) {
             if (j%10000 == 0) 
-                System.out.print(".");
+                System.err.print(".");
             if (j%100000 == 0) 
-                System.out.print(j + "\n");
+                System.err.print(j + "\n");
 
             String[] fields = line.split(",");
             String term = fields[0];
@@ -83,7 +83,7 @@ public class TimeSeriesIndex {
             timeSeriesMap.put(term, counts);
             j++;
         }
-        System.out.println("Done");
+        System.err.println("Done");
                 
         br.close();
     }
@@ -408,12 +408,12 @@ public class TimeSeriesIndex {
             {
                 boolean sig = chiSqTest(N, (double)counts[bin], sum, (double)totals[bin], alpha);
                 
-                if (sig) {
+                if (sig)
                     newvals[bin] = 1.0;
-                } else
+                else
                     newvals[bin] = 0.0;
             }
-            else {
+            else if (alpha == 0) {
                 // Use the chisquare statistic as the term weight      
                 // beatification,4.8052097E7,0.0,23.0,0.0
                 // System.out.println(term + "," + N + "," + counts[bin] + "," + sum + "," + totals[bin]);
@@ -425,6 +425,17 @@ public class TimeSeriesIndex {
 //                double pval2 = (1 - csdist.cumulativeProbability(csq));
                 
                 newvals[bin] = csq;
+            }
+            else {
+                // Return the pvalue
+                double pval = 0;
+                if (counts[bin] > 0 && totals[bin] > 0)
+                    pval = chiSqTest(N, (double)counts[bin], sum, (double)totals[bin]);    
+//                double pval = chiSqTest(N, (double)counts[bin], sum, (double)totals[bin]);    
+//                ChiSquaredDistribution csdist = new ChiSquaredDistribution(1);
+//                double pval2 = (1 - csdist.cumulativeProbability(csq));
+                
+                newvals[bin] = pval;
             }
         }
         
