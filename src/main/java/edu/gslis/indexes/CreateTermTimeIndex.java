@@ -110,7 +110,7 @@ public class CreateTermTimeIndex
         System.err.println("Creating " + output + " with " + numBins + " bins");
 
         TimeSeriesIndex tsIndex = new TimeSeriesIndex();
-        tsIndex.open(output, true, format);
+        tsIndex.open(output, false, format);
         tsIndex.init(numBins);
             
 
