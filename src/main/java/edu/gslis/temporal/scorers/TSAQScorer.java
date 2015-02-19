@@ -1,12 +1,7 @@
 package edu.gslis.temporal.scorers;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
-import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
-
-import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 
