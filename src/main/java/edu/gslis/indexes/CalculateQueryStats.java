@@ -8,6 +8,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import edu.gslis.queries.GQueries;
@@ -36,7 +37,7 @@ public class CalculateQueryStats
         String indexPath = cl.getOptionValue("index");
 
         String queryFilePath = cl.getOptionValue("topics");
-        double alpha = Double.parseDouble(cl.getOptionValue("alpha", "0.05"));
+        double alpha = Double.parseDouble(cl.getOptionValue("alpha", "0.005"));
         
         IndexWrapper index = IndexWrapperFactory.getIndexWrapper(indexPath);
 
@@ -52,7 +53,6 @@ public class CalculateQueryStats
         tsIndex.open(tsIndexPath, true, "csv");
         
         Iterator<GQuery> it = queries.iterator();
-        DecimalFormat df = new DecimalFormat("#0.0000");
         RUtil rutil = new RUtil();
         System.out.println("title,numterms,scoremean,scoresd,scoremin,scoremax," +
                 "scorekmean,scoreksd,scorekmin,scorekmax," +
@@ -61,9 +61,11 @@ public class CalculateQueryStats
                 "csmean,cssd,csmin,csmax," + 
                 "ac2mean,ac2sd,ac2min,ac2max," + 
                 "ac3mean,ac3sd,ac3min,ac3max," + 
-                "kmean,ksd,kmin,kmax." + 
+                "kmean,ksd,kmin,kmax," + 
                 "smean,ssd,smin,smax," + 
-                "cpmean,cpsd,cpmin,cpmax"); 
+                "cpmean,cpsd,cpmin,cpmax," +
+                "corrmean,corrsd,corrmin,corrmax," + 
+                "cscorrmean,cscorrsd,cscorrmin,cscorrmax"); 
               
         
         //title,numterms,scoremean,scoresd,scoremin,scoremax,scorekmean,scoreksd,scorekmin,scorekmax,scoresmean,scoressd,scoresmin,scoresmax,npmimean,npmisd,npmimin,npmimax,csmean,cssd,csmin,csmax,ac2mean,ac2sd,ac2min,ac2max,ac3mean,ac3sd,ac3min,ac3max,kmean,ksd,kmin,kmax,smean,ssd,smin,smax,cpmean,cpsd,cpmin,cpmax"
@@ -80,6 +82,9 @@ public class CalculateQueryStats
             DescriptiveStatistics scorestats = new DescriptiveStatistics();  
             DescriptiveStatistics scorekstats = new DescriptiveStatistics();  
             DescriptiveStatistics scoreskewstats = new DescriptiveStatistics();  
+            DescriptiveStatistics corrstats = new DescriptiveStatistics();
+            DescriptiveStatistics cscorrstats = new DescriptiveStatistics();
+            PearsonsCorrelation corr = new PearsonsCorrelation();
 
             GQuery query = it.next();
             SearchHits hits = index.runQuery(query, 1000);
@@ -121,9 +126,25 @@ public class CalculateQueryStats
                 skewstats.addValue(s);                    
 
                 double cp = index.termFreq(feature)/index.termCount();                
-                cpstats.addValue(cp);                                        
-
+                cpstats.addValue(cp);
+                
+                // Pairwise pearson's correlation between features
+                for (String feature2: fv.getFeatures()) 
+                {
+                    if (feature.equals(feature2)) 
+                        continue;
+                    
+                    double[] freq1 = tsIndex.get(feature);
+                    double[] freq2 = tsIndex.get(feature2);
+                    double rho = corr.correlation(freq1, freq2);
+                    corrstats.addValue(rho);
+                    
+                    double[] cs2 = tsIndex.getChiSq(feature2, alpha);
+                    double csrho = corr.correlation(chisq, cs2);
+                    cscorrstats.addValue(csrho);
+                }
             }
+            
 
             System.out.println(query.getTitle() + "," + fv.getFeatureCount() + "," + 
                scorestats.getMean() + ", " + scorestats.getStandardDeviation()  + "," + scorestats.getMin() + "," + scorestats.getMax() + "," +
@@ -135,8 +156,9 @@ public class CalculateQueryStats
                acf3stats.getMean() + ", " + acf3stats.getStandardDeviation()  + "," + acf3stats.getMin() + "," + acf3stats.getMax() + "," +
                kstats.getMean() + ", " + kstats.getStandardDeviation()  + "," + kstats.getMin() + "," + kstats.getMax() + "," +
                skewstats.getMean() + ", " + skewstats.getStandardDeviation()  + "," + skewstats.getMin() + "," + skewstats.getMax() + "," +
-               cpstats.getMean() + ", " + cpstats.getStandardDeviation()  + "," + cpstats.getMin() + "," + cpstats.getMax());
-
+               cpstats.getMean() + ", " + cpstats.getStandardDeviation()  + "," + cpstats.getMin() + "," + cpstats.getMax() + ","  +
+               corrstats.getMean() + ", " + corrstats.getStandardDeviation() + "," + corrstats.getMin() + "," + corrstats.getMax() + "," +
+               cscorrstats.getMean() + ", " + cscorrstats.getStandardDeviation() + "," + cscorrstats.getMin() + "," + cscorrstats.getMax());
          } 
     }
         
