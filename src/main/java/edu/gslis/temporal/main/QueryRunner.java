@@ -1,15 +1,20 @@
 package edu.gslis.temporal.main;
 
 import java.util.Iterator;
+import java.util.Set;
 
 import org.lemurproject.kstem.Stemmer;
 
+import edu.gslis.docscoring.support.CollectionStats;
+import edu.gslis.eval.Qrels;
 import edu.gslis.indexes.IndexWrapper;
 import edu.gslis.queries.GQuery;
 import edu.gslis.queries.expansion.FeedbackRelevanceModel;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
+import edu.gslis.temporal.scorers.OracleKDEScorer;
 import edu.gslis.temporal.scorers.RerankingScorer;
+import edu.gslis.temporal.scorers.ScorerDirichlet;
 import edu.gslis.textrepresentation.FeatureVector;
 import edu.gslis.utils.Stopper;
 
@@ -26,6 +31,8 @@ public class QueryRunner implements Runnable
     GQuery query;
     RerankingScorer docScorer;
     IndexWrapper index;
+    Qrels qrels;
+    CollectionStats corpusStats;
     
     FormattedOutputTrecEval trecFormattedWriter;
     FormattedOutputTrecEval trecFormattedWriterRm3;
@@ -45,6 +52,10 @@ public class QueryRunner implements Runnable
     }
     public Stopper getStopper() {
         return stopper;
+    }
+    
+    public void setCollectionStats(CollectionStats corpusStats) {
+        this.corpusStats = corpusStats;
     }
 
     public void setStopper(Stopper stopper) {
@@ -99,6 +110,9 @@ public class QueryRunner implements Runnable
             FormattedOutputTrecEval trecFormattedWriterRm3) {
         this.trecFormattedWriterRm3 = trecFormattedWriterRm3;
     }
+    public void setQrels(Qrels qrels) {
+        this.qrels = qrels;
+    }
     
     // Problem: Need a scorer per thread...
 
@@ -119,11 +133,27 @@ public class QueryRunner implements Runnable
         query.setFeatureVector(fv);
         
         docScorer.setQuery(query);
-        
-//        System.out.println(query.getTitle() + ": run basic");
 
         SearchHits results = index.runQuery(query, NUM_RESULTS);
-        docScorer.init(results);
+
+        if (docScorer instanceof OracleKDEScorer) {
+            Set<String> relDocs = qrels.getRelDocs(query.getTitle());
+            SearchHits relHits = new SearchHits();
+            RerankingScorer dirScorer = new ScorerDirichlet();
+            dirScorer.setCollectionStats(corpusStats);
+            dirScorer.setQuery(query);
+            dirScorer.setParameter("mu", 1000);
+            for (String docno: relDocs) {
+                SearchHit hit = index.getSearchHit(docno, null);
+                double score = dirScorer.score(hit);
+                hit.setScore(score);
+                relHits.add(hit);
+            }
+            docScorer.init(relHits);
+        }
+        else {
+            docScorer.init(results);
+        }
              
 //        System.out.println(query.getTitle() + ": score basic");
 
@@ -147,14 +177,14 @@ public class QueryRunner implements Runnable
         rm3.setTermCount(numFeedbackTerms);
         rm3.setIndex(index);
         rm3.setStopper(stopper);
-        rm3.setRes(results);
+        rm3.setRes(rescored);
         rm3.build();
         FeatureVector rmVector = rm3.asFeatureVector();
         rmVector = cleanModel(rmVector);
         rmVector.clip(numFeedbackTerms);
         rmVector.normalize();
         FeatureVector feedbackVector =
-                FeatureVector.interpolate(query.getFeatureVector(), rmVector, rmLambda);
+        FeatureVector.interpolate(query.getFeatureVector(), rmVector, rmLambda);
         
         GQuery feedbackQuery = new GQuery();
         feedbackQuery.setTitle(query.getTitle());
@@ -187,7 +217,6 @@ public class QueryRunner implements Runnable
                 } else if (score != Double.NEGATIVE_INFINITY) {
                     rm3rescored.add(hit);
                 }
-
             }
             
             rm3rescored.rank();
