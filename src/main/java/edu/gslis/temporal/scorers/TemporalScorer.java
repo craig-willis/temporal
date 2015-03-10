@@ -30,7 +30,6 @@ public abstract class TemporalScorer extends RerankingScorer
     
     public abstract void init(SearchHits hits);
     
- 
     public long getDocTime(SearchHit doc) {
         double epoch = (Double)doc.getMetadataValue(Indexer.FIELD_EPOCH);
         long docTime = (long)epoch;
@@ -96,14 +95,15 @@ public abstract class TemporalScorer extends RerankingScorer
     }
     
     public static double[] getTimes(SearchHits hits) {
+        return getTimes(hits, hits.size());
+    }
+    public static double[] getTimes(SearchHits hits, int k) {
         
-        double[] times = new double[hits.size()];
+        double[] times = new double[k];
         
-        Iterator<SearchHit> it = hits.iterator();
-        int i=0;
-        while (it.hasNext()) {
-            SearchHit hit = it.next();            
-            times[i++] = getTime(hit);
+        for (int i=0; i<k; i++) {
+            SearchHit hit = hits.getHit(i);
+            times[i] = getTime(hit);
         }
         
         return times;

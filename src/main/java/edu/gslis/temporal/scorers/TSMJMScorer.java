@@ -31,7 +31,7 @@ public class TSMJMScorer extends TemporalScorer
         int t = getBin(docTime);
 
         // Ignore documents outside of the temporal bounds
-        if (docTime < startTime)
+        if (docTime < startTime || docTime > endTime)
             return Double.NEGATIVE_INFINITY;
 
         try
