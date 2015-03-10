@@ -17,6 +17,7 @@ import org.yaml.snakeyaml.constructor.Constructor;
 
 import ucar.unidata.util.StringUtil;
 import edu.gslis.docscoring.support.CollectionStats;
+import edu.gslis.eval.Qrels;
 import edu.gslis.indexes.IndexWrapper;
 import edu.gslis.indexes.IndexWrapperFactory;
 import edu.gslis.indexes.LDAIndex;
@@ -74,6 +75,9 @@ public class RunQuery extends YAMLConfigBase
             String ldaTermTopicPath = collection.getLdaTermTopicPath();
             String ldaDocTopicsPath = collection.getLdaDocTopicsPath();
             String ldaDataPath = collection.getLdaPath();
+            
+            String qrelPath = collection.getTrainQrels();
+            Qrels qrels = new Qrels(qrelPath, true, collection.getRelLevel());
             
             long startTime = collection.getStartDate();
             long endTime = collection.getEndDate();
@@ -208,14 +212,16 @@ public class RunQuery extends YAMLConfigBase
                         if (docScorer instanceof TemporalLDAScorer)
                             ((TemporalLDAScorer)docScorer).setIndex(tempLdaIndex);
                         
+                        
                         QueryRunner worker = new QueryRunner();
                         worker.setDocScorer(docScorer);
                         worker.setIndex(index);
+                        worker.setQrels(qrels);
                         worker.setQuery(query);
                         worker.setStopper(stopper);
                         worker.setTrecFormattedWriter(trecFormattedWriter);
                         worker.setTrecFormattedWriterRm3(trecFormattedWriterRm3);
-                        
+                        worker.setCollectionStats(corpusStats);
                         worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocs());
                         worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTerms());
                         worker.setRmLambda(scorerConfig.getLambda());

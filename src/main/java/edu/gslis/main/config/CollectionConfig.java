@@ -11,7 +11,7 @@ public class CollectionConfig {
     String testQrels;
     String trainQrels;
     String bgSourcePath;
-    Integer relLevel;
+    Integer relLevel = 1;
     String trainDocs;
     String dateFormat;
     long startDate;
