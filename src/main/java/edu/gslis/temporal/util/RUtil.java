@@ -1,5 +1,6 @@
 package edu.gslis.temporal.util;
 
+import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.Rserve.RConnection;
 
 
@@ -28,22 +29,54 @@ public class RUtil {
         }
     }
 	
-   public int[] minima(int[] x, double[] y) throws Exception {
+   
+   public double[] maxima(int[] x, double[] y) throws Exception {
+       
+       c.assign("x", x);
+       c.assign("weights", y);
+       c.voidEval("weights = weights / sum(weights)");
+       
+       c.voidEval("dens <- density(x, weights=weights, bw=\"sj\")");
+       c.voidEval("second_deriv <- diff(sign(diff(dens$y)))");
+       c.voidEval("max <- which(second_deriv == -2) + 1");       
+       c.voidEval("mp <- dens$x[min] / (max(dens$x) - min(dens$x))");
+       return c.eval("dens$y[max]/sum(dens$y[max])").asDoubles();       
+   }
+   
+   public int[] minima(int[] x, double[] y, String query) throws Exception {
        
        c.assign("x", x);
 //       c.assign("y", y);
        c.assign("weights", y);
-       c.voidEval("weights = weights / sum(weights)");
+       voidEval("weights = weights / sum(weights)");
        
 //       c.voidEval("y <- as.vector(y)");
 //       c.voidEval("dens <- density(y, bw=\"sj\")");
-       c.voidEval("dens <- density(x, weights=weights, bw=\"sj\")");
-       c.voidEval("second_deriv <- diff(sign(diff(dens$y)))");
-       c.voidEval("min <- which(second_deriv == 2) + 1");
+       voidEval("dens <- density(x, weights=weights, bw=\"sj\")");
+       voidEval("second_deriv <- diff(sign(diff(dens$y)))");
+       voidEval("min <- which(second_deriv == 2) + 1");
        
        //c.voidEval("max <- which(second_deriv == -2) + 1");
-       c.voidEval("mp <- dens$x[min] / (max(dens$x) - min(dens$x))");
+       voidEval("mp <- dens$x[min] / (max(dens$x) - min(dens$x))");
+       
+       // Plot
+       /*
+       voidEval("setwd(\"/tmp/minima/\")");
+       voidEval("png(\"" + query + ".png\")");
+       voidEval("plot(dens, main=\"" + query + "\")");
+       voidEval("points(dens$x[min],dens$y[min],col=\"red\")");
+       voidEval("dev.off()");
+       */
+       
        return c.eval("x[length(x)*mp]").asIntegers();
+   }
+   
+   
+   private void voidEval(String cmd) throws Exception {
+       c.assign(".tmp.", cmd);
+       REXP r = c.parseAndEval("try( eval (parse (text=.tmp.)),silent=TRUE)");
+       if (r.inherits("try-error")) 
+           System.err.println("Error: "+ r.asString());
    }
    
    
