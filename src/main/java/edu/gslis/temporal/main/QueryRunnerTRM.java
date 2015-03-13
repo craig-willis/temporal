@@ -120,9 +120,13 @@ public class QueryRunnerTRM implements Runnable
     }
         
     public long getDocTime(SearchHit doc) {
-        double epoch = (Double)doc.getMetadataValue(Indexer.FIELD_EPOCH);
-        long docTime = (long)epoch;
-        return docTime;
+        if (doc != null && doc.getDocno() != null) {
+            double epoch = (Double)doc.getMetadataValue(Indexer.FIELD_EPOCH);
+            return  (long)epoch;
+        } else {
+            System.err.println("Null " + doc + "," + doc.getDocID() + "," + doc.getDocno());
+            return 0;
+        }
     }
     // Problem: Need a scorer per thread...
 
@@ -144,8 +148,8 @@ public class QueryRunnerTRM implements Runnable
         
         docScorer.setQuery(query);
 
-        /*
-        SearchHits results = index.runQuery(query, 20);
+        // Initial retrieval
+        SearchHits results = index.runQuery(query, NUM_RESULTS);
 
         // Count the number of documents in each interval
         int k = (int) ((endTime - startTime) / interval)+1;
@@ -160,10 +164,9 @@ public class QueryRunnerTRM implements Runnable
         
         RUtil rutil = new RUtil();
 
-        Iterator<SearchHit> it = results.iterator();
-        while (it.hasNext()) {
-            SearchHit hit = it.next();
-            double epoch = (Double)hit.getMetadataValue(Indexer.FIELD_EPOCH);
+        for (int i=0; i<20; i++) {
+            SearchHit hit = results.getHit(i);
+            double epoch = getDocTime(hit);
             double score = docScorer.score(hit);            
             int bin = (int) ((epoch - startTime) / interval);
             if (bin >=0 && bin < k) {
@@ -188,37 +191,42 @@ public class QueryRunnerTRM implements Runnable
 
         int[] minima = new int[0];
         try {
-            minima = rutil.minima(bins, numdocs);
+            minima = rutil.minima(bins, numdocs, query.getTitle());
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        long[] bounds = new long[minima.length +2];
-        bounds[0] = startTime;
-        for (int i=0; i<minima.length; i++) {
-            bounds[i+1] = startTime + minima[i]*interval;
-        }
-        bounds[bounds.length-1]= endTime; 
-        int numBins = minima.length+1;
-        */
         
         int numBins = 1;
+        long[] bounds = new long[2];
+        bounds[0] = startTime;
+        bounds[1] = endTime;
+
+        if (minima.length < 5) {
+    
+            bounds = new long[minima.length +2];
+            bounds[0] = startTime;
+            for (int i=0; i<minima.length; i++) {
+                bounds[i+1] = startTime + minima[i]*interval;
+            }
+            bounds[bounds.length-1]= endTime; 
+            numBins = minima.length+1;
+        }
+
+        /*
+        int numBins = 2;
+        long[] bounds = new long[3];
+        bounds[0] = startTime;
+        bounds[1] = startTime + (endTime - startTime)/2;
+        bounds[2] = endTime;
+        */
 
         System.out.println(query.getTitle() + " numBins=" + numBins);
-        
-        long diff = (endTime - startTime)/numBins;
-        long[][] bounds = new long[numBins][2];
-        for (int i=0; i<numBins; i++) {
-            bounds[i][0] = startTime + i*diff;
-            bounds[i][1] = bounds[i][0] + diff;
-        }
 
         SearchHits[] binnedResults = new SearchHits[numBins];
-        for (int i=0; i<numBins; i++) {
+        for (int i=0; i<numBins; i++)
             binnedResults[i] = new SearchHits();
-        }
 
-        SearchHits results = index.runQuery(query, NUM_RESULTS);
+        SearchHits allHits = new SearchHits();
         Iterator<SearchHit> it = results.iterator();
         while (it.hasNext()) {
             SearchHit hit = it.next();
@@ -228,8 +236,7 @@ public class QueryRunnerTRM implements Runnable
             // Which bin?
             int bin = -1;
             for (int i=0; i<bounds.length; i++) {
-                //if ((i+1 < bounds.length) && epoch >= bounds[i] && epoch < bounds[i+1]) {
-                if (epoch >= bounds[i][0] && epoch < bounds[i][1]) {
+                if ((i+1 < bounds.length) && epoch >= bounds[i] && epoch < bounds[i+1]) {
                     bin = i;
                     break;
                 }
@@ -239,43 +246,72 @@ public class QueryRunnerTRM implements Runnable
             } else if (score != Double.NEGATIVE_INFINITY) {
                 SearchHits hits = binnedResults[bin];
                 hits.add(hit);
+                allHits.add(hit);
             }
         }
         
         FeatureVector[] binnedRM = new FeatureVector[numBins];
+        
+        FeedbackRelevanceModel rm3 = new FeedbackRelevanceModel();
+        rm3.setDocCount(numFeedbackDocs);
+        rm3.setTermCount(numFeedbackTerms);
+        rm3.setIndex(index);
+        rm3.setStopper(stopper);
+        rm3.setRes(allHits);
+        rm3.build();
+        
+        FeatureVector rmVector = rm3.asFeatureVector();
+        rmVector = cleanModel(rmVector);
+        rmVector.clip(numFeedbackTerms);
+        rmVector.normalize();
+        FeatureVector feedbackVector =
+                FeatureVector.interpolate(query.getFeatureVector(), rmVector, rmLambda);
+        feedbackVector.normalize();
 
-        // Now, build numBins different Rm3 models
-        for (int i=0; i<numBins; i++) {
+        if (numBins > 1) 
+        {
             
-            SearchHits hits = binnedResults[i];
-            
-            FeedbackRelevanceModel rm3 = new FeedbackRelevanceModel();
-            rm3.setDocCount(numFeedbackDocs);
-            rm3.setTermCount(numFeedbackTerms);
-            rm3.setIndex(index);
-            rm3.setStopper(stopper);
-            rm3.setRes(hits);
-            rm3.build();
-            
-            FeatureVector rmVector = rm3.asFeatureVector();
-            rmVector = cleanModel(rmVector);
-            rmVector.clip(numFeedbackTerms);
-            rmVector.normalize();
-            FeatureVector feedbackVector =
-            FeatureVector.interpolate(query.getFeatureVector(), rmVector, rmLambda);
-            
-           // System.out.println("FeedbackVector " + i + "\n" + rmVector.toString());
-            
-            binnedRM[i] = feedbackVector;
+            // Now, build numBins different Rm3 models
+            for (int i=0; i<numBins; i++) {
+                
+                SearchHits hits = binnedResults[i];
+                
+                FeedbackRelevanceModel binRm3 = new FeedbackRelevanceModel();
+                binRm3.setDocCount(numFeedbackDocs);
+                binRm3.setTermCount(numFeedbackTerms);
+                binRm3.setIndex(index);
+                binRm3.setStopper(stopper);
+                binRm3.setRes(hits);
+                binRm3.build();
+                
+                FeatureVector rmv = rm3.asFeatureVector();
+                rmv = cleanModel(rmVector);
+                rmv.clip(numFeedbackTerms);
+                rmv.normalize();
+                FeatureVector fbv =
+                        FeatureVector.interpolate(rmv, feedbackVector, rmLambda);
+                fbv.normalize();
+                System.out.println("FeedbackVector " + i + "\n" + fbv.toString());
+                
+                binnedRM[i] = fbv;
+            }
         }
+        else
+            binnedRM[0] = feedbackVector;
+        /*
+        if (binnedRM.length == 2) {
+            binnedRM[0] = FeatureVector.interpolate(binnedRM[0], binnedRM[1], 0.75);
+            binnedRM[0].normalize();
+            binnedRM[1] = FeatureVector.interpolate(binnedRM[1], binnedRM[0], 0.75);
+            binnedRM[1].normalize();
+        }
+        */
 
         SearchHits rescored = new SearchHits();
-        // Rescore each document based on the feedback model
         for (int i=0; i<numBins; i++) {
-            SearchHits hits = binnedResults[i];
             FeatureVector qv = binnedRM[i];
             
-            /*
+            // Execute expanded query
             GQuery newQuery = new GQuery();
             newQuery.setTitle(query.getTitle());
             newQuery.setText(query.getText());
@@ -289,14 +325,17 @@ public class QueryRunnerTRM implements Runnable
             while (hiterator.hasNext()) {
                 SearchHit hit = hiterator.next();
                 long epoch = getDocTime(hit);
-                double score = docScorer.score(hit);
-                hit.setScore(score);
-                if (epoch >= minBound && epoch < maxBound)
+                if (epoch >= minBound && epoch < maxBound) {
+                    double score = docScorer.score(hit);
+                    hit.setScore(score);
+
                     rescored.add(hit);
+                }
                 
             } 
-            */           
             
+            /*
+            SearchHits hits = binnedResults[i];
             Iterator<SearchHit> hiterator = hits.iterator();
             while (hiterator.hasNext()) {
                 SearchHit hit = hiterator.next();
@@ -316,6 +355,7 @@ public class QueryRunnerTRM implements Runnable
                 hit.setScore(logLikelihood);
                 rescored.add(hit);
             }
+            */
         }
 
         rescored.rank();
