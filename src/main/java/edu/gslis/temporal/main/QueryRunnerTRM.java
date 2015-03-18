@@ -41,7 +41,12 @@ public class QueryRunnerTRM implements Runnable
     int numFeedbackTerms = 20;
     int numFeedbackDocs = 20;
     double rmLambda = 0.5;
+    double trmBeta = 0.5;
     
+    
+    public void setBeta(double beta) {
+        this.trmBeta = beta;
+    }
     
     public void setInterval(long interval) {
         this.interval = interval;
@@ -152,6 +157,7 @@ public class QueryRunnerTRM implements Runnable
         SearchHits results = index.runQuery(query, NUM_RESULTS);
 
         // Count the number of documents in each interval
+/*
         int k = (int) ((endTime - startTime) / interval)+1;
         double[] numdocs = new double[k];
         double[] avgscore = new double[k];
@@ -161,9 +167,7 @@ public class QueryRunnerTRM implements Runnable
             numdocs[i] = 0;
             avgscore[i] = 0;
         }
-        
-        RUtil rutil = new RUtil();
-
+                
         for (int i=0; i<20; i++) {
             SearchHit hit = results.getHit(i);
             double epoch = getDocTime(hit);
@@ -189,6 +193,8 @@ public class QueryRunnerTRM implements Runnable
             avgscore[i] /= total;
         }
 
+        RUtil rutil = new RUtil();
+
         int[] minima = new int[0];
         try {
             minima = rutil.minima(bins, numdocs, query.getTitle());
@@ -211,15 +217,15 @@ public class QueryRunnerTRM implements Runnable
             bounds[bounds.length-1]= endTime; 
             numBins = minima.length+1;
         }
+        
+        */
 
-        /*
         int numBins = 2;
         long[] bounds = new long[3];
         bounds[0] = startTime;
         bounds[1] = startTime + (endTime - startTime)/2;
         bounds[2] = endTime;
-        */
-
+        
         System.out.println(query.getTitle() + " numBins=" + numBins);
 
         SearchHits[] binnedResults = new SearchHits[numBins];
@@ -249,55 +255,68 @@ public class QueryRunnerTRM implements Runnable
                 allHits.add(hit);
             }
         }
+        allHits.rank();
         
-        FeatureVector[] binnedRM = new FeatureVector[numBins];
         
-        FeedbackRelevanceModel rm3 = new FeedbackRelevanceModel();
-        rm3.setDocCount(numFeedbackDocs);
-        rm3.setTermCount(numFeedbackTerms);
-        rm3.setIndex(index);
-        rm3.setStopper(stopper);
-        rm3.setRes(allHits);
-        rm3.build();
+        // Build relevance model for all hits
+        FeedbackRelevanceModel rm = new FeedbackRelevanceModel();
+        rm.setDocCount(numFeedbackDocs);
+        rm.setTermCount(numFeedbackTerms);
+        rm.setIndex(index);
+        rm.setStopper(stopper);
+        rm.setRes(allHits);
+        rm.build();
         
-        FeatureVector rmVector = rm3.asFeatureVector();
+        FeatureVector rmVector = rm.asFeatureVector();
         rmVector = cleanModel(rmVector);
         rmVector.clip(numFeedbackTerms);
         rmVector.normalize();
-        FeatureVector feedbackVector =
-                FeatureVector.interpolate(query.getFeatureVector(), rmVector, rmLambda);
-        feedbackVector.normalize();
-
+        
+        FeatureVector rm3Vector =
+                FeatureVector.interpolate(query.getFeatureVector(), rmVector, rmLambda);        
+                
+        // Build relevance models for each of the temporal bins
+        FeatureVector[] binnedRM = new FeatureVector[numBins];
         if (numBins > 1) 
         {
             
-            // Now, build numBins different Rm3 models
             for (int i=0; i<numBins; i++) {
                 
+                // Get the hits for the current bin
                 SearchHits hits = binnedResults[i];
+
+                // Build relevance model
+                FeedbackRelevanceModel binRm = new FeedbackRelevanceModel();
+                binRm.setDocCount(numFeedbackDocs);
+                binRm.setTermCount(numFeedbackTerms);
+                binRm.setIndex(index);
+                binRm.setStopper(stopper);
+                binRm.setRes(hits);
+                binRm.build();
                 
-                FeedbackRelevanceModel binRm3 = new FeedbackRelevanceModel();
-                binRm3.setDocCount(numFeedbackDocs);
-                binRm3.setTermCount(numFeedbackTerms);
-                binRm3.setIndex(index);
-                binRm3.setStopper(stopper);
-                binRm3.setRes(hits);
-                binRm3.build();
+                FeatureVector binRmVector = binRm.asFeatureVector();
+                binRmVector = cleanModel(binRmVector);
+                binRmVector.clip(numFeedbackTerms);
+                binRmVector.normalize();
                 
-                FeatureVector rmv = rm3.asFeatureVector();
-                rmv = cleanModel(rmVector);
-                rmv.clip(numFeedbackTerms);
-                rmv.normalize();
-                FeatureVector fbv =
-                        FeatureVector.interpolate(rmv, feedbackVector, rmLambda);
-                fbv.normalize();
-                System.out.println("FeedbackVector " + i + "\n" + fbv.toString());
+                            
+                // Interpolate with original RM3 model
+                //FeatureVector trmVector =
+                //        FeatureVector.interpolate(binRmVector, rm3Vector, trmBeta);
+
+                // TRM8: Interpolate with query only
+                FeatureVector trmVector =
+                        FeatureVector.interpolate(query.getFeatureVector(), binRmVector, rmLambda);
+                trmVector.clip(numFeedbackTerms);
+                trmVector.normalize();
                 
-                binnedRM[i] = fbv;
+                binnedRM[i] = trmVector;
             }
         }
         else
-            binnedRM[0] = feedbackVector;
+            binnedRM[0] = rm3Vector;
+        
+        
         /*
         if (binnedRM.length == 2) {
             binnedRM[0] = FeatureVector.interpolate(binnedRM[0], binnedRM[1], 0.75);
@@ -306,6 +325,7 @@ public class QueryRunnerTRM implements Runnable
             binnedRM[1].normalize();
         }
         */
+
 
         SearchHits rescored = new SearchHits();
         for (int i=0; i<numBins; i++) {
@@ -330,32 +350,8 @@ public class QueryRunnerTRM implements Runnable
                     hit.setScore(score);
 
                     rescored.add(hit);
-                }
-                
+                }                
             } 
-            
-            /*
-            SearchHits hits = binnedResults[i];
-            Iterator<SearchHit> hiterator = hits.iterator();
-            while (hiterator.hasNext()) {
-                SearchHit hit = hiterator.next();
-                
-                double logLikelihood = 0.0;
-                Iterator<String> queryIterator = qv.iterator();
-                while(queryIterator.hasNext()) {
-                    String feature = queryIterator.next();
-                    double docFreq = hit.getFeatureVector().getFeatureWeight(feature);
-                    double docLength = hit.getLength();
-                    double collectionProb = (1 + corpusStats.termCount(feature)) / corpusStats.getTokCount();
-                    double pr = (docFreq + 1000*collectionProb) / (docLength + 1000);
-                    double queryWeight = qv.getFeatureWeight(feature);
-                    logLikelihood += queryWeight * Math.log(pr);
-                }
-
-                hit.setScore(logLikelihood);
-                rescored.add(hit);
-            }
-            */
         }
 
         rescored.rank();
@@ -389,4 +385,25 @@ public class QueryRunnerTRM implements Runnable
         return queryString.toString();
     }
     
+    
+    // "The K-L divergence is only defined if P and Q both sum to 1 and if Q(i) > 0
+    // for any i such that P(i) > 0."
+    public static double kl(FeatureVector p, FeatureVector q)
+    {
+        double kl = 0;
+
+        double add = (1/(double)p.getFeatureCount());
+
+        double total = 0;
+        Iterator<String> it = p.iterator();
+        while(it.hasNext()) {
+            String feature = it.next();
+            double pi = p.getFeatureWeight(feature)/p.getLength();
+            double qi = (q.getFeatureWeight(feature) + add)/(q.getLength() + 1);
+            kl += pi * Math.log(pi/qi);
+            total += qi;
+        }
+        //System.out.println(total);
+        return kl;
+    }
 }

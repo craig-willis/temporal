@@ -155,7 +155,8 @@ public class RunQuery extends YAMLConfigBase
                     String runId = prefix + "-" + scorerName + "_" + collectionName + "_" + queryFileName;
                     String trecResultsFile = outputDir + File.separator + runId + ".out";
                     
-                    String runIdRm3 = prefix + "-rm3-" + scorerName + "_" + collectionName + "_" + queryFileName;
+                    String rm3Config = scorerConfig.getLambda() + ":" + scorerConfig.getNumFeedbackDocs() + ":" + scorerConfig.getNumFeedbackTerms();
+                    String runIdRm3 = prefix + "-rm3:" + rm3Config + "-"+ scorerName + "_" + collectionName + "_" + queryFileName;
                     String trecResultsFileRm3 = outputDir + File.separator + runIdRm3 + ".out";
                     
                     outputDir.mkdirs();                        
