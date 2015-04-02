@@ -226,7 +226,7 @@ public class RunQuery extends YAMLConfigBase
                         worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocs());
                         worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTerms());
                         worker.setRmLambda(scorerConfig.getLambda());
-                        //worker.setRescoreRm3(rescoreRm3);
+                        worker.setRescoreRm3(rescoreRm3);
                         executor.execute(worker);
                     }
                     
@@ -240,7 +240,6 @@ public class RunQuery extends YAMLConfigBase
 
                 }
                 
-                timeSeriesIndex.close();
                 ldaIndex.close();
             }
         }    

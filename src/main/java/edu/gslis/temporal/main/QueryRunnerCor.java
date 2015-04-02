@@ -1,13 +1,16 @@
 package edu.gslis.temporal.main;
 
+import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.lemurproject.kstem.Stemmer;
 
 import edu.gslis.docscoring.support.CollectionStats;
 import edu.gslis.eval.Qrels;
 import edu.gslis.indexes.IndexWrapper;
+import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.queries.GQuery;
 import edu.gslis.queries.expansion.FeedbackRelevanceModel;
 import edu.gslis.searchhits.SearchHit;
@@ -18,7 +21,8 @@ import edu.gslis.temporal.scorers.ScorerDirichlet;
 import edu.gslis.textrepresentation.FeatureVector;
 import edu.gslis.utils.Stopper;
 
-public class QueryRunner implements Runnable
+// Calculate correlation between query score and time for both QL and RM
+public class QueryRunnerCor implements Runnable
 {
 
     ClassLoader loader = ClassLoader.getSystemClassLoader();
@@ -33,18 +37,27 @@ public class QueryRunner implements Runnable
     IndexWrapper index;
     Qrels qrels;
     CollectionStats corpusStats;
-    boolean rescoreRm3 = true;
+    long startTime;
+    long endTime;
+    long interval;
     
-    FormattedOutputTrecEval trecFormattedWriter;
     FormattedOutputTrecEval trecFormattedWriterRm3;
     
     int numFeedbackTerms = 20;
     int numFeedbackDocs = 20;
     double rmLambda = 0.5;
     
-    public void setRescoreRm3(boolean rescoreRm3) {
-        this.rescoreRm3 = rescoreRm3;
+    public void setInterval(long interval) {
+        this.interval = interval;
     }
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+    
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
+    }
+
     public void setNumFeedbackTerms(int numFeedbackTerms) {
         this.numFeedbackTerms = numFeedbackTerms;
     }
@@ -98,13 +111,6 @@ public class QueryRunner implements Runnable
         this.index = index;
     }
 
-    public FormattedOutputTrecEval getTrecFormattedWriter() {
-        return trecFormattedWriter;
-    }
-
-    public void setTrecFormattedWriter(FormattedOutputTrecEval trecFormattedWriter) {
-        this.trecFormattedWriter = trecFormattedWriter;
-    }
 
     public FormattedOutputTrecEval getTrecFormattedWriterRm3() {
         return trecFormattedWriterRm3;
@@ -123,7 +129,7 @@ public class QueryRunner implements Runnable
     public void run()
     {
         
-        System.err.println(query.getTitle() + ":" + query.getText());
+        //System.err.println(query.getTitle() + ":" + query.getText());
         String queryText = query.getText().trim();
         String[] terms = queryText.split("\\s+");
         String stoppedQuery = "";
@@ -161,21 +167,22 @@ public class QueryRunner implements Runnable
              
 //        System.out.println(query.getTitle() + ": score basic");
 
-        Iterator<SearchHit> it = results.iterator();
         SearchHits rescored = new SearchHits();
-        while (it.hasNext()) {
-            SearchHit hit = it.next();
+        for (int i=0; i<results.size(); i++) {
+            SearchHit hit = results.getHit(i);
             double score = docScorer.score(hit);
             hit.setScore(score);
-            if (score == Double.NaN || score == Double.NEGATIVE_INFINITY) {
-                System.err.println("Problem with score for " + query.getText() + "," + hit.getDocno() + "," + score);
+            if (score == Double.NaN) {
+                //System.err.println("Problem with score for " + query.getText() + "," + hit.getDocno() + "," + score);
             } else if (score != Double.NEGATIVE_INFINITY) {
                 rescored.add(hit);
             }
+            
+;
         }
         rescored.rank();
         
-        // Feedback model
+        // Full relevance model
         FeedbackRelevanceModel rm3 = new FeedbackRelevanceModel();
         rm3.setDocCount(numFeedbackDocs);
         rm3.setTermCount(numFeedbackTerms);
@@ -194,38 +201,29 @@ public class QueryRunner implements Runnable
         feedbackQuery.setTitle(query.getTitle());
         feedbackQuery.setText(query.getText());
         feedbackQuery.setFeatureVector(feedbackVector);
-                                
-//        System.out.println(query.getTitle() + ": run RM3");
 
-        //System.out.println(getQueryString(feedbackQuery));
         SearchHits rm3results = new SearchHits();
         SearchHits rm3rescored = new SearchHits();
 
         try
         {
             rm3results = index.runQuery(feedbackQuery, NUM_RESULTS);
-            docScorer.setQuery(feedbackQuery);
             docScorer.init(rm3results);
-            System.out.println(query.getTitle() + " RM3 " + feedbackQuery);
+            docScorer.setQuery(feedbackQuery);
+            //System.out.println(query.getTitle() + " RM3 " + feedbackQuery);
             
-                 
-//            System.out.println(query.getTitle() + ": score RM3");
-
-            if (rescoreRm3) {
-                it = rm3results.iterator();
-                while (it.hasNext()) {            
-                    SearchHit hit = it.next();
-                    double score = docScorer.score(hit);
-                    hit.setScore(score);
-                    if (score == Double.NaN) {
-                        System.err.println("Problem with score for " + query.getText() + "," + hit.getDocno() + "," + score);
-                    } else if (score != Double.NEGATIVE_INFINITY) {
-                        rm3rescored.add(hit);
-                    }
-                }
+            for (int i=0; i<rm3results.size(); i++) {
+                SearchHit hit = rm3results.getHit(i);
                 
-            } else
-                rm3rescored = rm3results;
+                double score = docScorer.score(hit);
+                hit.setScore(score);
+                if (score == Double.NaN) {
+                   // System.err.println("Problem with score for " + query.getText() + "," + hit.getDocno() + "," + score);
+                } else if (score != Double.NEGATIVE_INFINITY) {
+                    rm3rescored.add(hit);
+                }
+            }
+
             
             rm3rescored.rank();
 
@@ -234,13 +232,32 @@ public class QueryRunner implements Runnable
             e.printStackTrace();
         }
         
+        double[] scores = new double[rescored.size()];
+        double[] times = new double[rescored.size()];
+        for (int i=0; i<rescored.size(); i++) {
+            SearchHit hit = rescored.getHit(i);
+            scores[i] = hit.getScore();
+            times[i] = (Double)hit.getMetadataValue(Indexer.FIELD_EPOCH);
+        }
+       
+        double[] scoresrm3 = new double[rm3rescored.size()];
+        double[] timesrm3 = new double[rm3rescored.size()];
+        for (int i=0; i<rm3rescored.size(); i++) {
+            SearchHit hit = rm3rescored.getHit(i);
+            scoresrm3[i] = hit.getScore();
+            timesrm3[i] = (Double)hit.getMetadataValue(Indexer.FIELD_EPOCH);
+        }
+        PearsonsCorrelation pcor = new PearsonsCorrelation();
+        double cor = pcor.correlation(scores,times);
+        double corrm3 = pcor.correlation(scoresrm3, timesrm3);
+        DecimalFormat df = new DecimalFormat("#.####");
+        System.out.println(query.getTitle() + "," + df.format(cor) + "," + df.format(corrm3));
 
 //       System.out.println( query.getTitle() + ": writing results");
         synchronized (this) {
-            trecFormattedWriter.write(rescored, query.getTitle());
             trecFormattedWriterRm3.write(rm3rescored, query.getTitle());
         }
-        System.out.println(query.getTitle() + ": complete");
+        //System.out.println(query.getTitle() + ": complete");
     }
     
     public static FeatureVector cleanModel(FeatureVector model) {
@@ -266,5 +283,7 @@ public class QueryRunner implements Runnable
         queryString.append(")");
         return queryString.toString();
     }
+    
+    
     
 }

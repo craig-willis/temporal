@@ -17,7 +17,7 @@ import edu.gslis.temporal.util.RUtil;
 import edu.gslis.textrepresentation.FeatureVector;
 import edu.gslis.utils.Stopper;
 
-public class QueryRunnerTRM implements Runnable
+public class QueryRunnerTRMQ implements Runnable
 {
 
     ClassLoader loader = ClassLoader.getSystemClassLoader();
@@ -156,12 +156,15 @@ public class QueryRunnerTRM implements Runnable
         // Initial retrieval
         SearchHits results = index.runQuery(query, NUM_RESULTS);
 
+
         int numBins = 2;
         long[] bounds = new long[3];
         bounds[0] = startTime;
         bounds[1] = startTime + (endTime - startTime)/2;
         bounds[2] = endTime;
         
+        System.out.println(query.getTitle() + " numBins=" + numBins);
+
         SearchHits[] binnedResults = new SearchHits[numBins];
         for (int i=0; i<numBins; i++)
             binnedResults[i] = new SearchHits();
@@ -234,10 +237,8 @@ public class QueryRunnerTRM implements Runnable
                 binRmVector.normalize();
                 
                             
-                // Interpolate with original RM3 model
                 FeatureVector trmVector =
-                        FeatureVector.interpolate(binRmVector, rm3Vector, trmBeta);
-
+                        FeatureVector.interpolate(query.getFeatureVector(), binRmVector, rmLambda);
                 trmVector.clip(numFeedbackTerms);
                 trmVector.normalize();
                 
@@ -246,7 +247,8 @@ public class QueryRunnerTRM implements Runnable
         }
         else
             binnedRM[0] = rm3Vector;
-                
+        
+
 
         SearchHits rescored = new SearchHits();
         for (int i=0; i<numBins; i++) {

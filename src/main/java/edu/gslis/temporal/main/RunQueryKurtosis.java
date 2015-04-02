@@ -191,7 +191,6 @@ public class RunQueryKurtosis extends YAMLConfigBase
                     rutil.close();
                 }
                 
-                timeSeriesIndex.close();
             }
         }    
     }

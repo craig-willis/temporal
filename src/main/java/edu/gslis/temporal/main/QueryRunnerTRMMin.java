@@ -17,7 +17,7 @@ import edu.gslis.temporal.util.RUtil;
 import edu.gslis.textrepresentation.FeatureVector;
 import edu.gslis.utils.Stopper;
 
-public class QueryRunnerTRM implements Runnable
+public class QueryRunnerTRMMin implements Runnable
 {
 
     ClassLoader loader = ClassLoader.getSystemClassLoader();
@@ -156,12 +156,70 @@ public class QueryRunnerTRM implements Runnable
         // Initial retrieval
         SearchHits results = index.runQuery(query, NUM_RESULTS);
 
-        int numBins = 2;
-        long[] bounds = new long[3];
-        bounds[0] = startTime;
-        bounds[1] = startTime + (endTime - startTime)/2;
-        bounds[2] = endTime;
+        // Count the number of documents in each interval
+        int k = (int) ((endTime - startTime) / interval)+1;
+        double[] numdocs = new double[k];
+        double[] avgscore = new double[k];
+        int[] bins = new int[k];
+        for (int i=0; i<k; i++) {
+            bins[i] = i;
+            numdocs[i] = 0;
+            avgscore[i] = 0;
+        }
+                
+        for (int i=0; i<20; i++) {
+            SearchHit hit = results.getHit(i);
+            double epoch = getDocTime(hit);
+            double score = docScorer.score(hit);            
+            int bin = (int) ((epoch - startTime) / interval);
+            if (bin >=0 && bin < k) {
+                numdocs[bin]++;
+                avgscore[bin]+= Math.exp(score);
+            }
+            else {
+                System.err.println("Warning: epoch out of collection time bounds: " +hit.getDocno() + "," + epoch);
+            }
+        }
         
+        double total = 0;
+        for (int i=0; i<k; i++) {
+            if (numdocs[i] > 0)
+                avgscore[i] /= numdocs[i];
+            total += avgscore[i];
+        }
+        
+        for (int i=0; i<k; i++) {
+            avgscore[i] /= total;
+        }
+
+        RUtil rutil = new RUtil();
+
+        int[] minima = new int[0];
+        try {
+            minima = rutil.minima(bins, numdocs, query.getTitle());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        int numBins = 1;
+        long[] bounds = new long[2];
+        bounds[0] = startTime;
+        bounds[1] = endTime;
+
+        if (minima.length < 5) {
+    
+            bounds = new long[minima.length +2];
+            bounds[0] = startTime;
+            for (int i=0; i<minima.length; i++) {
+                bounds[i+1] = startTime + minima[i]*interval;
+            }
+            bounds[bounds.length-1]= endTime; 
+            numBins = minima.length+1;
+        }
+        
+        
+        System.out.println(query.getTitle() + " numBins=" + numBins);
+
         SearchHits[] binnedResults = new SearchHits[numBins];
         for (int i=0; i<numBins; i++)
             binnedResults[i] = new SearchHits();
@@ -246,7 +304,17 @@ public class QueryRunnerTRM implements Runnable
         }
         else
             binnedRM[0] = rm3Vector;
-                
+        
+        
+        /*
+        if (binnedRM.length == 2) {
+            binnedRM[0] = FeatureVector.interpolate(binnedRM[0], binnedRM[1], 0.75);
+            binnedRM[0].normalize();
+            binnedRM[1] = FeatureVector.interpolate(binnedRM[1], binnedRM[0], 0.75);
+            binnedRM[1].normalize();
+        }
+        */
+
 
         SearchHits rescored = new SearchHits();
         for (int i=0; i<numBins; i++) {

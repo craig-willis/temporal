@@ -43,7 +43,7 @@ public class RunQueryTRM extends YAMLConfigBase
         super(config);
     }
 
-    public void runBatch(boolean rescoreRm3) throws Exception 
+    public void runBatch(String model) throws Exception 
     {
         initGlobals();
         
@@ -90,12 +90,18 @@ public class RunQueryTRM extends YAMLConfigBase
                     // Setup the scorers
                     String scorerName = scorerConfig.getName();
                     String className = scorerConfig.getClassName();
-                    System.out.println("Running scorer " + scorerName);
 
                     
-                    String runId = prefix + "-" + scorerName + "_" + collectionName + "_" + queryFileName;                    
-                    String runIdRm3 = prefix + "-rm3-" + scorerName + "_" + collectionName + "_" + queryFileName;
+                    String rm3Config = scorerConfig.getLambda() + ":" + scorerConfig.getNumFeedbackDocs() + ":" + scorerConfig.getNumFeedbackTerms();
+                    if (model.startsWith("trm")) 
+                        rm3Config += ":" + scorerConfig.getBeta();
+                    
+                    if (model.equals("term"))
+                        rm3Config += ":" + scorerConfig.getStdDev();
+                    
+                    String runIdRm3 = prefix + "-rm3:" + rm3Config + "-"+ scorerName + "_" + collectionName + "_" + queryFileName;
                     String trecResultsFileRm3 = outputDir + File.separator + runIdRm3 + ".out";
+                    System.out.println("Running scorer " + scorerName + " " + rm3Config);
                     
                     outputDir.mkdirs();                        
 
@@ -132,22 +138,119 @@ public class RunQueryTRM extends YAMLConfigBase
                         }
                         docScorer.init();
                 
-                        QueryRunnerTRM worker = new QueryRunnerTRM();
-                        worker.setDocScorer(docScorer);
-                        worker.setIndex(index);
-                        worker.setStartTime(startTime);
-                        worker.setEndTime(endTime);
-                        worker.setInterval(interval);
-                        worker.setQrels(qrels);
-                        worker.setQuery(query);
-                        worker.setStopper(stopper);
-                        worker.setTrecFormattedWriterRm3(trecFormattedWriterRm3);
-                        worker.setCollectionStats(corpusStats);
-                        worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocs());
-                        worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTerms());
-                        worker.setRmLambda(scorerConfig.getLambda());
-                        //worker.setRescoreRm3(rescoreRm3);
-                        executor.execute(worker);
+                        if (model.equals("trm")) {
+                            QueryRunnerTRM worker = new QueryRunnerTRM();
+                            worker.setDocScorer(docScorer);
+                            worker.setIndex(index);
+                            worker.setStartTime(startTime);
+                            worker.setEndTime(endTime);
+                            worker.setInterval(interval);
+                            worker.setQrels(qrels);
+                            worker.setQuery(query);
+                            worker.setStopper(stopper);
+                            worker.setTrecFormattedWriterRm3(trecFormattedWriterRm3);
+                            worker.setCollectionStats(corpusStats);
+                            worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocs());
+                            worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTerms());
+                            worker.setRmLambda(scorerConfig.getLambda());
+                            worker.setBeta(scorerConfig.getBeta());
+                            //worker.setRescoreRm3(rescoreRm3);
+                            executor.execute(worker);
+                        }
+                        if (model.equals("trmmin")) {
+                            QueryRunnerTRMMin worker = new QueryRunnerTRMMin();
+                            worker.setDocScorer(docScorer);
+                            worker.setIndex(index);
+                            worker.setStartTime(startTime);
+                            worker.setEndTime(endTime);
+                            worker.setInterval(interval);
+                            worker.setQrels(qrels);
+                            worker.setQuery(query);
+                            worker.setStopper(stopper);
+                            worker.setTrecFormattedWriterRm3(trecFormattedWriterRm3);
+                            worker.setCollectionStats(corpusStats);
+                            worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocs());
+                            worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTerms());
+                            worker.setRmLambda(scorerConfig.getLambda());
+                            worker.setBeta(scorerConfig.getBeta());
+                            //worker.setRescoreRm3(rescoreRm3);
+                            executor.execute(worker);
+                        }
+                        if (model.equals("trmq")) {
+                            QueryRunnerTRMQ worker = new QueryRunnerTRMQ();
+                            worker.setDocScorer(docScorer);
+                            worker.setIndex(index);
+                            worker.setStartTime(startTime);
+                            worker.setEndTime(endTime);
+                            worker.setInterval(interval);
+                            worker.setQrels(qrels);
+                            worker.setQuery(query);
+                            worker.setStopper(stopper);
+                            worker.setTrecFormattedWriterRm3(trecFormattedWriterRm3);
+                            worker.setCollectionStats(corpusStats);
+                            worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocs());
+                            worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTerms());
+                            worker.setRmLambda(scorerConfig.getLambda());
+                            worker.setBeta(scorerConfig.getBeta());
+                            //worker.setRescoreRm3(rescoreRm3);
+                            executor.execute(worker);
+                        }
+                        if (model.equals("trmqmin")) {
+                            QueryRunnerTRMQMin worker = new QueryRunnerTRMQMin();
+                            worker.setDocScorer(docScorer);
+                            worker.setIndex(index);
+                            worker.setStartTime(startTime);
+                            worker.setEndTime(endTime);
+                            worker.setInterval(interval);
+                            worker.setQrels(qrels);
+                            worker.setQuery(query);
+                            worker.setStopper(stopper);
+                            worker.setTrecFormattedWriterRm3(trecFormattedWriterRm3);
+                            worker.setCollectionStats(corpusStats);
+                            worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocs());
+                            worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTerms());
+                            worker.setRmLambda(scorerConfig.getLambda());
+                            worker.setBeta(scorerConfig.getBeta());
+                            //worker.setRescoreRm3(rescoreRm3);
+                            executor.execute(worker);
+                        }    
+                        if (model.equals("term")) {
+                            QueryRunnerTERM worker = new QueryRunnerTERM();
+                            worker.setDocScorer(docScorer);
+                            worker.setIndex(index);
+                            worker.setStartTime(startTime);
+                            worker.setEndTime(endTime);
+                            worker.setInterval(interval);
+                            worker.setQrels(qrels);
+                            worker.setQuery(query);
+                            worker.setStopper(stopper);
+                            worker.setTrecFormattedWriterRm3(trecFormattedWriterRm3);
+                            worker.setCollectionStats(corpusStats);
+                            worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocs());
+                            worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTerms());
+                            worker.setStdDev(scorerConfig.getStdDev());
+                            worker.setRmLambda(scorerConfig.getLambda());
+                            //worker.setRescoreRm3(rescoreRm3);
+                            executor.execute(worker);
+                        }     
+                        if (model.equals("cor")) {
+                            QueryRunnerCor worker = new QueryRunnerCor();
+                            worker.setDocScorer(docScorer);
+                            worker.setIndex(index);
+                            worker.setStartTime(startTime);
+                            worker.setEndTime(endTime);
+                            worker.setInterval(interval);
+                            worker.setQrels(qrels);
+                            worker.setQuery(query);
+                            worker.setStopper(stopper);
+                            worker.setTrecFormattedWriterRm3(trecFormattedWriterRm3);
+                            worker.setCollectionStats(corpusStats);
+                            worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocs());
+                            worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTerms());
+                            worker.setRmLambda(scorerConfig.getLambda());
+                            //worker.setRescoreRm3(rescoreRm3);
+                            executor.execute(worker);
+                        }      
                     }
                     
                     executor.shutdown();
@@ -170,9 +273,10 @@ public class RunQueryTRM extends YAMLConfigBase
             System.exit(-1);
         }
         
-        boolean rescoreRm3 = true;
+        
+        String model = "trm";
         if (args.length == 2) {
-            rescoreRm3 = Boolean.parseBoolean(args[1]);
+            model = args[1];
         }
 
         // Read the yaml config
@@ -180,7 +284,7 @@ public class RunQueryTRM extends YAMLConfigBase
         BatchConfig config = (BatchConfig)yaml.load(new FileInputStream(yamlFile));
 
         RunQueryTRM runner = new RunQueryTRM(config);
-        runner.runBatch(rescoreRm3);
+        runner.runBatch(model);
     }
     
     public static FeatureVector cleanModel(FeatureVector model) {
