@@ -131,11 +131,6 @@ public class TSMQScorer extends TemporalScorer
       
     @Override
     public void close() {
-        try {
-            tsIndex.close();            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
     
     @Override

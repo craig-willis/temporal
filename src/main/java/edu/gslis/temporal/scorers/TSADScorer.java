@@ -1,4 +1,4 @@
-package edu.gslis.temporal.scorers;
+    package edu.gslis.temporal.scorers;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -130,11 +130,6 @@ public class TSADScorer extends TemporalScorer
       
     @Override
     public void close() {
-        try {
-            tsIndex.close();            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
     @Override
     public void init(SearchHits hits) {

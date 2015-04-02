@@ -30,10 +30,14 @@ public class KDEScorer extends TemporalScorer {
     /**
      * Estimate temporal density of hits
      */
+    @Override
     public void init(SearchHits hits) {        
         // Estimate density for hits based on document timestamp
         
-        int k = paramTable.get(K).intValue();
+        int k = 0; 
+        if (paramTable.get(K) != null ) 
+            k = paramTable.get(K).intValue();
+        
         if (k <= 0)
             k = hits.size();
 

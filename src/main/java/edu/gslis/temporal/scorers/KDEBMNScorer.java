@@ -148,11 +148,6 @@ public class KDEBMNScorer extends TemporalScorer
     
     @Override
     public void close() {
-        try {
-            tsIndex.close();            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
     
 }

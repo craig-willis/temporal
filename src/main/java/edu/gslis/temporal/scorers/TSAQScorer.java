@@ -134,11 +134,6 @@ public class TSAQScorer extends TemporalScorer
       
     @Override
     public void close() {
-        try {
-            tsIndex.close();            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
     @Override
     public void init(SearchHits hits) {

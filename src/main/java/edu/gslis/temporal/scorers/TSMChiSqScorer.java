@@ -6,14 +6,14 @@ import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 
 /**
- * Simple linear combination temporal smoothing
+ * New TSM scorer. 
  */
-public class TSMJMScorer extends TemporalScorer 
+public class TSMChiSqScorer extends TemporalScorer 
 {
 
-    String BETA = "beta";
-    String LAMBDA = "lambda";
-
+    String MU = "mu"; // Used by Dirichlet
+    String BETA = "beta"; // NPMI value
+    
     
     
     public double score(SearchHit doc)
@@ -21,8 +21,8 @@ public class TSMJMScorer extends TemporalScorer
         double logLikelihood = 0.0;
         Iterator<String> queryIterator = gQuery.getFeatureVector().iterator();
                 
-        // Parameter controlling linear combination of smoothed document and collection language models.
-        double lambda = paramTable.get(LAMBDA);
+        // Dirichlet parameter controlling amount of smoothing using temporal model
+        double mu = paramTable.get(MU);
         double beta = paramTable.get(BETA);
 
         
@@ -31,7 +31,7 @@ public class TSMJMScorer extends TemporalScorer
         int t = getBin(docTime);
 
         // Ignore documents outside of the temporal bounds
-        if (docTime < startTime || docTime > endTime)
+        if (docTime < startTime)
             return Double.NEGATIVE_INFINITY;
 
         try
@@ -43,33 +43,37 @@ public class TSMJMScorer extends TemporalScorer
             while(queryIterator.hasNext()) 
             {
                 String feature = queryIterator.next();
-
-                // Document model
+                
                 double docFreq = doc.getFeatureVector().getFeatureWeight(feature);
-                double docLength = doc.getLength();                
-                double docProb = docFreq/docLength;
+                double docLength = doc.getLength();
 
-                // Temporal model
-                double tfreq = tsIndex.get(feature, t);
-                double tlen = tsIndex.getLength(t);
-                double temporalProb = tfreq / tlen; 
-
-                // Collection model
                 //p(w | C): +1 is necessary when working with partial collections (i.e., latimes)
                 double collectionProb = (1 + collectionStats.termCount(feature)) 
                         / collectionStats.getTokCount();
 
+                // Temporal model
+                double tfreq = tsIndex.get(feature, t);
+                double tlen = tsIndex.getLength(t);
                 
+                double pval = tsIndex.getChiSq(feature, beta)[t];
                 
-                // Simple linear combination of document, temporal, and collection models
-                double smoothedDocProb = (1-lambda)*docProb + 
-                        lambda*( (1-beta)*temporalProb + beta*collectionProb);
+                // if pval is low (0.05) then lambda = 0.95 -- use the temporal model
+                // if pval is high (0.95) then lambda = 0.05 -- use the collection model
+                double lambda = 1 - pval;
+                
+                double temporalPr = tfreq / tlen; 
                 
                 double queryWeight = gQuery.getFeatureVector().getFeatureWeight(feature);
 
+                
+                double smoothedTempProb = 
+                        lambda*temporalPr + (1-lambda)*collectionProb;
 
-                logLikelihood += queryWeight * Math.log(smoothedDocProb);                        
-
+                
+                double smoothedDocProb = 
+                        (docFreq + mu*smoothedTempProb) / 
+                        (docLength + mu);                    
+                logLikelihood += queryWeight * Math.log(smoothedDocProb);                     
             }
                 
         } catch (Exception e) {
@@ -84,7 +88,6 @@ public class TSMJMScorer extends TemporalScorer
       
     @Override
     public void close() {
-
     }
     
     @Override

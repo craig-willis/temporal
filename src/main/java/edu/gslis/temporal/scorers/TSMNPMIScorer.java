@@ -8,13 +8,13 @@ import edu.gslis.searchhits.SearchHits;
 /**
  * New TSM scorer. 
  */
-public class TSMScorer extends TemporalScorer 
+public class TSMNPMIScorer extends TemporalScorer 
 {
 
-    String MU = "mu";
-    String LAMBDA = "lambda";
-    String SMOOTH = "smooth";
-
+    String MU = "mu"; // Used by Dirichlet
+    String BETA = "beta"; // NPMI value
+    String LAMBDA = "lambda"; // Used for linear combo of temporal+collection model
+    
     
     
     public double score(SearchHit doc)
@@ -24,9 +24,9 @@ public class TSMScorer extends TemporalScorer
                 
         // Dirichlet parameter controlling amount of smoothing using temporal model
         double mu = paramTable.get(MU);
-        // Parameter controlling linear combination of smoothed document and collection language models.
+        // J-M lambda
         double lambda = paramTable.get(LAMBDA);
-        double smooth = paramTable.get(SMOOTH);
+        double beta = paramTable.get(BETA);
 
         
         // Get the bin for this document 
@@ -57,54 +57,34 @@ public class TSMScorer extends TemporalScorer
                 // Temporal model
                 double tfreq = tsIndex.get(feature, t);
                 double tlen = tsIndex.getLength(t);
+                double npmi = tsIndex.getNpmi(feature)[t];
                 
-                double temporalPr = 0;
-                if (tlen > 0)
-                    temporalPr = tfreq / tlen; 
-                
+                double temporalPr = tfreq / tlen; 
                 
                 double queryWeight = gQuery.getFeatureVector().getFeatureWeight(feature);
-                                
-                if (smooth == 1) {
-                    // 2-stage                
-                    double smoothedTopicProb = 
-                            (docFreq + mu*temporalPr) / 
-                            (docLength + mu);
-                    
-                    double smoothedDocProb = 
-                            lambda*smoothedTopicProb + (1-lambda)*collectionProb;
-                    
-                    logLikelihood += queryWeight * Math.log(smoothedDocProb); 
-                    
-                }
-                else if (smooth == 2) { 
-                    // Wei & Croft
-                    double smoothedTopicProb = 
-                            (docFreq + mu*collectionProb) / 
-                            (docLength + mu);
-                    
-                    double smoothedDocProb = 
-                            lambda*smoothedTopicProb + (1-lambda)*temporalPr;
-                    
-                    logLikelihood += queryWeight * Math.log(smoothedDocProb);                        
 
-                }
-                else if (smooth == 3) { 
-                    // J-M Smoothed dirichlet
+                
+                // First, smooth the temporal probability with the collection probability
+                double smoothedTempProb = 
+                        lambda*temporalPr + (1-lambda)*collectionProb;
 
-                    double smoothedTempProb = 
-                            lambda*temporalPr + (1-lambda)*collectionProb;
-
+                
+                // Second, if the npmi value is high enough, smooth the document
+                // with the temporal model
+                if (npmi > beta) {
                     double smoothedDocProb = 
                             (docFreq + mu*smoothedTempProb) / 
-                            (docLength + mu);
-                                    
-                    logLikelihood += queryWeight * Math.log(smoothedDocProb);                        
-
-                }  
+                            (docLength + mu);                    
+                    logLikelihood += queryWeight * Math.log(smoothedDocProb);                     
+                }
                 else {
-                    System.err.println("Invalid smoothing model specified.");
-                }     
+                    // Otherwise, just use the collection 
+                    double smoothedDocProb = 
+                            (docFreq + mu*collectionProb) / 
+                            (docLength + mu);                    
+                    logLikelihood += queryWeight * Math.log(smoothedDocProb);                    
+
+                }                                
             }
                 
         } catch (Exception e) {
@@ -119,6 +99,7 @@ public class TSMScorer extends TemporalScorer
       
     @Override
     public void close() {
+
     }
     
     @Override

@@ -14,7 +14,7 @@ import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 import edu.gslis.textrepresentation.FeatureVector;
 
-public abstract class TemporalScorer extends RerankingScorer 
+public class TemporalScorer extends RerankingScorer 
 {
     String MU = "mu";
     
@@ -28,7 +28,8 @@ public abstract class TemporalScorer extends RerankingScorer
     double[] kls = null;
     DescriptiveStatistics klstats = new DescriptiveStatistics();
     
-    public abstract void init(SearchHits hits);
+    public void init(SearchHits hits) {
+    }
     
     public long getDocTime(SearchHit doc) {
         double epoch = (Double)doc.getMetadataValue(Indexer.FIELD_EPOCH);
@@ -74,6 +75,13 @@ public abstract class TemporalScorer extends RerankingScorer
 
     public double score(SearchHit doc) 
     {
+        // Get the bin for this document 
+        long docTime = getDocTime(doc);
+
+        // Ignore documents outside of the temporal bounds
+        if (docTime < startTime || docTime > endTime)
+            return Double.NEGATIVE_INFINITY;
+        
         double logLikelihood = 0.0;
         Iterator<String> queryIterator = gQuery.getFeatureVector().iterator();
         while(queryIterator.hasNext()) 
@@ -219,6 +227,7 @@ public abstract class TemporalScorer extends RerankingScorer
         return logLikelihood;
     }
  
+    // KL divergence of temporal model (bin) 
     public double scoreTemporalModel(FeatureVector dm, int bin)
     {
         double logLikelihood = 0.0;
