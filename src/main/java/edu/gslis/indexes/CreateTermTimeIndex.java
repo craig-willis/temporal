@@ -65,6 +65,7 @@ public class CreateTermTimeIndex
             try {
                 docTime = Long.parseLong(epochStr);
             } catch (NumberFormatException e) {
+                System.err.println("Problem parsing epoch for " + docid);
                 continue;
             }
             long t = (docTime - startTime)/interval;
@@ -111,7 +112,6 @@ public class CreateTermTimeIndex
 
         TimeSeriesIndex tsIndex = new TimeSeriesIndex();
         tsIndex.open(output, false, format);
-        tsIndex.init(numBins);
             
 
         System.err.println("Calculating bin totals");
@@ -148,8 +148,6 @@ public class CreateTermTimeIndex
             tsIndex.add(term, freqs);
             j++;
         }
-        tsIndex.index();
-        tsIndex.close();
     }
         
         

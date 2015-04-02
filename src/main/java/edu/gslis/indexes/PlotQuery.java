@@ -22,6 +22,8 @@ import edu.gslis.queries.GQueries;
 import edu.gslis.queries.GQueriesIndriImpl;
 import edu.gslis.queries.GQueriesJsonImpl;
 import edu.gslis.queries.GQuery;
+import edu.gslis.searchhits.SearchHit;
+import edu.gslis.searchhits.SearchHits;
 import edu.gslis.temporal.scorers.TSMScorer;
 import edu.gslis.temporal.scorers.TemporalScorer;
 
@@ -74,6 +76,7 @@ public class PlotQuery
         {
             GQuery query = it.next();
                         
+            // Get the relevant documents
             Set<String> relDocs = qrels.getRelDocs(query.getTitle());
             List<Integer> relDocBins = new ArrayList<Integer>();
             Bag relDocBag = new TreeBag();
@@ -89,8 +92,8 @@ public class PlotQuery
                     i++;
                 }
             }
-            Iterator<String> queryIterator = query.getFeatureVector().iterator();   
-            
+
+            // Score the bin with respect to the query
             // Approximate query generation likelihood
             int numBins = tsIndex.getNumBins();
             double[] scores = new double[numBins];
@@ -111,6 +114,10 @@ public class PlotQuery
                 total += tsIndex.getLength(bin);                
                 //System.out.println(query.getTitle() + "," + scores[bin]);
             }
+            
+            
+
+
             System.out.println("<h2>" + query.getTitle() + ": " + query.getText() + "</h2></br>");
             System.out.println("<img src=\"" + query.getTitle() + ".png\">" + query.getTitle() + "</img><br>");
             
@@ -119,15 +126,16 @@ public class PlotQuery
             
             c.voidEval("setwd(\"" + outputPath + "\")");
 
-            // Plot p(time | Q)
-            c.assign("x", bins);
-            c.assign("y", scores);
-            c.voidEval("png(\"" + query.getTitle() + ".png" + "\")");
-            c.voidEval("plot(y ~ x, type=\"h\", lwd=2, main=\"p(time | " + query.getText() + ")\", ylim=c(0,0.3))");
-
             int[] reldocs = new int[relDocBins.size()];
             for (int j=0; j<relDocBins.size(); j++) 
                 reldocs[j] = relDocBins.get(j);
+
+            // Plot p(time | Q)
+            c.assign("x", bins);
+            
+            c.assign("y", scores);
+            c.voidEval("png(\"" + query.getTitle() + ".png" + "\")");
+            c.voidEval("plot(y ~ x, type=\"h\", lwd=2, main=\"p(time | " + query.getText() + ")\", ylim=c(0,0.3))");
 
             if (relDocBins.size() > 0) {
                 c.assign("reldocs", reldocs);
@@ -138,7 +146,9 @@ public class PlotQuery
             }            
             c.eval("dev.off()");
             
+         
             
+            // Individual term plots
             int qterms = query.getText().split(" ").length;
             String par="par(mfrow=c(1,1))";
             switch (qterms) {

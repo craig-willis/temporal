@@ -40,7 +40,6 @@ public class BuildBinKL
 
         BuildBinKL tskl = new BuildBinKL();
         tskl.createNewIndex(index, tsindex, interval, outputPath);
-        tsindex.close();
 
     }
     
@@ -109,7 +108,6 @@ public class BuildBinKL
             outputIndex.add(feature, counts);
         }
 
-        outputIndex.close();
 
     }
     

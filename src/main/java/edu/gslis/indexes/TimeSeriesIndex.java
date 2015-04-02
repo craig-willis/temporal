@@ -1,17 +1,11 @@
     package edu.gslis.indexes;
 
 import java.io.BufferedReader;
+
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +27,6 @@ public class TimeSeriesIndex {
 
     ChiSquareTest csqtest = new ChiSquareTest();
 
-    Connection con = null;
     String format = null;
     int numBins = -1;
     FileWriter writer = null;
@@ -41,23 +34,13 @@ public class TimeSeriesIndex {
     boolean readOnly = false;
 
     public void open(String path, boolean readOnly, String format) 
-            throws SQLException, ClassNotFoundException, IOException
+            throws IOException
     {
-        this.format = format;
-        this.readOnly = readOnly;
         
-        if (format.equals("h2")) {
-            Class.forName("org.h2.Driver");
-            if (readOnly)
-                path += ";ACCESS_MODE_DATA=r";
-            con = DriverManager.getConnection("jdbc:h2:" + path);
+        if (readOnly) {
+            load(path);
         } else {
-            
-            if (readOnly) {
-                load(path);
-            } else {
-                writer = new FileWriter(path);
-            }
+            writer = new FileWriter(path);
         }
     }
     
@@ -88,177 +71,39 @@ public class TimeSeriesIndex {
         br.close();
     }
     
-    public void init(int numBins) throws SQLException
-    {
-        this.numBins = numBins;
-        if (format.equals("h2")) {
-            Statement stat = con.createStatement();
     
-            String sql = "create table series (term varchar(255) ";
-            for (int i=0; i<numBins; i++) {
-                sql += ",bin"+ i + " int";
-            }
-            sql += ")";
-            
-            stat.execute(sql);
-    
-            stat.close();
-        }
-    }
-    
-    public void initNorm(String type) throws SQLException
-    {
-        if (format.equals("h2")) {
-            Statement stat = con.createStatement();
-            
-            String sql = "drop table norm_" + type;
-            stat.execute(sql);
-    
-            sql = "create table norm_" + type + " (bin int, const double)";
-            stat.execute(sql);   
-           
-            
-            stat.close();
-        }
-    }
-    
-    public void index() throws SQLException
-    {
-        if (format.equals("h2")) {
 
-            Statement stat = con.createStatement();
-            stat.execute("create index idx1 on series(term)");
-            stat.close();
-        }
-    }
-    
-    public void indexNorm(String type) throws SQLException
-    {
-        if (format.equals("h2")) {
-    
-            Statement stat = con.createStatement();
-            stat.execute("create index idx2 on norm_" + type + "(term)");
-            stat.close();
-        }
-    }
-    
-    
-    public void addNorm(String type, int bin, double cnst) throws SQLException {
-        if (format.equals("h2")) {
-    
-            String sql = "insert into norm_" + type + " values (?, ?)";
-            PreparedStatement stat = con.prepareStatement(sql);
-            stat.setInt(1, bin);
-            stat.setDouble(2, cnst);
-            
-            stat.execute();
-    
-            stat.close();
-        }
-    }
-    
-    public double getNorm(String type, int bin) throws SQLException {
-        double val = 0;
-        if (format.equals("h2")) {    
-            String sql = "select const from norm_" + type + " where bin = ?";
-            PreparedStatement stat = con.prepareStatement(sql);
-            stat.setInt(1, bin);
-            ResultSet rs = stat.executeQuery();
-            
-            if (rs.next())
-                val = rs.getDouble(1);
-            stat.close();
-        }
-        return val;        
-    }
-    public void add(String term, long[] counts) throws SQLException, IOException {
-        if (format.equals("h2")) {
-            String sql = "insert into series values ('" + term + "'";
-            for (long c: counts) {
-                sql += "," + c;
+    public void add(String term, long[] counts) throws IOException {
+        if (!readOnly) {
+            writer.write(term);
+            for (long count: counts) {
+                writer.write("," + count);
             }
-            sql += ")";
-            Statement stat = con.createStatement();
-            stat.execute(sql);
-            stat.close();
-        } else {
-            if (!readOnly) {
-                writer.write(term);
-                for (long count: counts) {
-                    writer.write("," + count);
-                }
-                writer.write("\n");
-            }
+            writer.write("\n");
         }
     }
     
     
-    public List<String> terms() throws SQLException
+    public List<String> terms()
     {
         List<String> terms = new ArrayList<String>();
 
-        if (format.equals("h2")) {
-            String sql = "select term from series";
-            Statement stat = con.createStatement();
-            
-            ResultSet rs = stat.executeQuery(sql);
-            
-            while (rs.next()) {
-                String term = rs.getString(1);
-                terms.add(term);
-            }
-            stat.close();
-        } else {
-            terms.addAll(timeSeriesMap.keySet());
-        }
+        terms.addAll(timeSeriesMap.keySet());
         
         return terms;
     }
-    public double[] get(String term) throws SQLException
+    public double[] get(String term) 
     {
-        if (format.equals("h2")) {
-            String sql = "select * from series where term = ?";
-            PreparedStatement stat = con.prepareStatement(sql);
-            
-            stat.setString(1, term);
-                    
-            ResultSet rs = stat.executeQuery();
-            
-            ResultSetMetaData rsmd = rs.getMetaData();
-            int numCols = rsmd.getColumnCount();
-            
-            double[] series = new double[numCols-1];
-            
-            if (rs.next()) {
-                for (int i=0; i<numCols-1; i++) {
-                    series[i] = rs.getInt(i+2);
-                }
-            }
-            stat.close();
-            return series;
-        } else {
-            return timeSeriesMap.get(term);
-        }
-        
+        return timeSeriesMap.get(term);
     }
-    public int get(String term, int bin) throws SQLException 
+    
+    public double get(String term, int bin)
     {
-        int freq = 0;
-        if (format.equals("h2")) {
-            String sql = "select bin" + bin + " from series where term = ?";
-            PreparedStatement stat = con.prepareStatement(sql);
-            
-            stat.setString(1, term);
-                    
-            ResultSet rs = stat.executeQuery();
-            if (rs.next())
-                freq = rs.getInt(1);
-            stat.close();
-        } else {
-            double[] counts = timeSeriesMap.get(term);
-            if (counts != null && counts.length == getNumBins())
-                freq = (int) counts[bin];
-        }
+        double freq = 0;
+
+        double[] counts = timeSeriesMap.get(term);
+        if (counts != null && counts.length == getNumBins())
+            freq = counts[bin];
         return freq;
     }
     
@@ -269,10 +114,6 @@ public class TimeSeriesIndex {
         return numBins;
     }
     
-    public void close() throws SQLException {
-        if (con!= null)
-            con.close();
-    }
     
     /**
      *    n(w, bin) - mean(w)  / sd(w)
@@ -719,7 +560,7 @@ public class TimeSeriesIndex {
         return smoothed;
     }
     
-    public int getLength(int bin) throws Exception {
+    public double getLength(int bin) throws Exception {
         return get("_total_", bin);
     }
 }

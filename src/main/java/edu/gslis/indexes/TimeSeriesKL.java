@@ -40,7 +40,6 @@ public class TimeSeriesKL
         for (int i=0; i<kls.length; i++) {
             System.out.println(i + "," + kls[i]);
         }
-        tsindex.close();
 
     }
     
