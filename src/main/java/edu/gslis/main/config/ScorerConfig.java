@@ -7,10 +7,30 @@ public class ScorerConfig {
     public String className;
     public String expander;
     public Map<String, Object> params;
+    public String priorPath;
     
+    public double beta = 0.5;
     public double lambda = 0.5;
     public int numFeedbackTerms = 20;    
     public int numFeedbackDocs = 20;
+    public double sd = 1;
+    
+    
+    public void setPriorPath(String priorPath) {
+        this.priorPath = priorPath;
+    }
+    
+    public String getPriorPath() {
+        return priorPath;
+    }
+    
+    public double getStdDev() {
+        return sd;
+    }
+    
+    public void setStdDev(double sd) {
+        this.sd = sd;
+    }
     public String getName() {
         return name;
     }
@@ -36,6 +56,13 @@ public class ScorerConfig {
         this.params = params;
     }
 
+    public double getBeta() {
+        return beta;
+    }
+    
+    public void setBeta(double beta) {
+        this.beta = beta;
+    }
     public double getLambda() {
         return lambda;
     }

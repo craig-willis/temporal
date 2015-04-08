@@ -27,8 +27,6 @@ public class TIMQScorer extends TemporalScorer
             {
                 String feature = queryIterator.next();
                 
-                // The 1 here is because some query terms in TREC don't appear in all collections when we 
-                // separate out sources.
                 double queryWeight = gQuery.getFeatureVector().getFeatureWeight(feature);
     
                 double tfreq = tsIndex.get(feature, bin);
