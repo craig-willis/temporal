@@ -2,6 +2,7 @@ package edu.gslis.indexes;
 
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,10 @@ import org.apache.commons.cli.Options;
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.textrepresentation.FeatureVector;
 
-
+/**
+ * Calculate the p(D \vert \theta_T)
+ *
+ */
 public class CreateDocBinPrior 
 {
     public static void main(String[] args) throws Exception 
@@ -38,6 +42,8 @@ public class CreateDocBinPrior
         Map<Integer, List<Integer>> binDocMap = new TreeMap<Integer, List<Integer>>();
         IndexWrapper index =  IndexWrapperFactory.getIndexWrapper(indexPath);
         
+        Map<Integer ,Double> docLengthMap = new HashMap<Integer, Double>();
+        Map<Integer, String> docnoMap = new HashMap<Integer, String>();
         int numDocs = (int)index.docCount();
         for (int docid=1; docid<numDocs; docid++) 
         {
@@ -46,6 +52,9 @@ public class CreateDocBinPrior
             
             long docTime = 0;
             String docno = index.getDocNo(docid);
+            docnoMap.put(docid, docno);
+            double docLen = index.getDocLength(docid);
+            docLengthMap.put(docid, docLen);
             String epochStr = index.getMetadataValue(docno, Indexer.FIELD_EPOCH);
 
             try {
@@ -69,39 +78,30 @@ public class CreateDocBinPrior
         
         String outputPath = cl.getOptionValue("output");
         FileWriter output = new FileWriter(outputPath);
-
-        Map<Integer, Double> priors = new TreeMap<Integer, Double>();
+        
         for(int bin: binDocMap.keySet()) {
             List<Integer> docids = binDocMap.get(bin);
-            double z= 0;
             for (int docid: docids) {
+                
                 FeatureVector dv = index.getDocVector(docid, null);
+                
                 // Score document w.r.t. bin
                 double ll = score(tsIndex, dv, bin, index);
-                priors.put(docid, ll);
-                z+= ll;
+                //double doclen = docLengthMap.get(docid);
+                //ll /= doclen;   
+
+                output.write(bin + "," + docnoMap.get(docid) + "," + ll + "\n");
             }          
-            for (int docid: docids) {
-                double prior = priors.get(docid);
-                priors.put(docid, prior/z);
-            }            
         }        
         
-        for (int docid: priors.keySet()) {
-            double prior = priors.get(docid);
-            String docno = index.getDocNo(docid);
-
-            output.write(docno + "," + prior + "\n");
-        }
         output.close();
     }
     
 
     public static double score(TimeSeriesIndex tsIndex, FeatureVector fv, int bin, IndexWrapper index) 
-    {
-        
-        double score = 0.0;
-
+    {        
+        double binScore = 0.0;
+        double collectionScore = 0.0;
 
         try {
 
@@ -115,16 +115,21 @@ public class CreateDocBinPrior
                 double tfreq = tsIndex.get(feature, bin);
                 double tlen = tsIndex.getLength(bin);
                 
-                double pr = (1 + tfreq) / (tlen + index.termCount());
+                double cp = index.termFreq(feature) / index.termCount();
+                double pr = cp;
+                if (tfreq > 0 && tlen > 0) 
+                    pr = tfreq / tlen;
                 
-                score += weight * Math.log(pr);
+                binScore += weight * Math.log(pr);
+
+                collectionScore += weight * Math.log(cp);
                 
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         
-        return score;
+        return binScore/collectionScore;
     }
         
         

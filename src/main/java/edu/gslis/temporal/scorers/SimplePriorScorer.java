@@ -9,6 +9,8 @@ import edu.gslis.searchhits.SearchHit;
 
 public class SimplePriorScorer extends TemporalScorer {
 
+    static String ALPHA = "alpha";
+
     Map<String, Double> priors = null;
     
     public void readPriors() throws Exception {
@@ -34,10 +36,17 @@ public class SimplePriorScorer extends TemporalScorer {
 	            e.printStackTrace();
 	        }
 	    }
-	    double prior = Math.log(priors.get(doc.getDocno()));
+	    double prior = priors.get(doc.getDocno());
+	    	    
+            
+        if (paramTable.get(ALPHA) != null) {
+            double alpha = paramTable.get(ALPHA);
+            return alpha*score + (1-alpha)*prior;
+        }
+        else
+            return score + prior;
+
 	    
-	    System.out.println(score + "," + prior + "," + (score + prior));
-	    return score + prior;
 	}
 
 }

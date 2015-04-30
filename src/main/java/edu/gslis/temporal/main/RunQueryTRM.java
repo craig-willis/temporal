@@ -233,6 +233,25 @@ public class RunQueryTRM extends YAMLConfigBase
                             //worker.setRescoreRm3(rescoreRm3);
                             executor.execute(worker);
                         }     
+                        if (model.equals("rm")) {
+                            QueryRunnerRM worker = new QueryRunnerRM();
+                            worker.setDocScorer(docScorer);
+                            worker.setIndex(index);
+                            worker.setStartTime(startTime);
+                            worker.setEndTime(endTime);
+                            worker.setInterval(interval);
+                            worker.setQrels(qrels);
+                            worker.setQuery(query);
+                            worker.setStopper(stopper);
+                            worker.setTrecFormattedWriterRm3(trecFormattedWriterRm3);
+                            worker.setCollectionStats(corpusStats);
+                            worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocs());
+                            worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTerms());
+                            worker.setStdDev(scorerConfig.getStdDev());
+                            worker.setRmLambda(scorerConfig.getLambda());
+                            //worker.setRescoreRm3(rescoreRm3);
+                            executor.execute(worker);
+                        }                            
                         if (model.equals("cor")) {
                             QueryRunnerCor worker = new QueryRunnerCor();
                             worker.setDocScorer(docScorer);

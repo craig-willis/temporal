@@ -96,6 +96,10 @@ public class LDAScorer extends RerankingScorer {
         return logLikelihood;
     }
     
+    public double[] scoreMultiple(SearchHit hit) {
+        return new double[0];
+    }
+    
     @Override
     public void init(SearchHits hits) {
         // TODO Auto-generated method stub

@@ -14,7 +14,7 @@ public class ScorerCER extends RerankingScorer {
 	public String PARAMETER_NAME = "mu";
 	public double EPSILON = 1.0;
 	
-	public ScorerCER() {
+	public ScorerCER() {   
 		setParameter(PARAMETER_NAME, 2500);
 	}
 	public void setQuery(GQuery query) {
@@ -42,6 +42,7 @@ public class ScorerCER extends RerankingScorer {
 			double qp = qf/ql;
 			
 			logLikelihood += qp * Math.log(dp/cp);
+//			logLikelihood += qp * Math.log(cp/dp);
 		}
 		return logLikelihood;
 	}

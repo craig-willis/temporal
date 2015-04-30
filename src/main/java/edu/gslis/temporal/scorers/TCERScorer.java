@@ -55,7 +55,9 @@ public class TCERScorer extends TemporalScorer {
     			double ql = gQuery.getFeatureVector().getLength();
     			double qp = qf/ql;
     			
-    			logLikelihood += qp * Math.log((dp*tp)/cp);
+//                double cer = qp * Math.log(dp/cp);
+              	double tcer = qp * Math.log(dp*tp/cp);
+    			logLikelihood += tcer;
 
     		}
         } catch (Exception e) {

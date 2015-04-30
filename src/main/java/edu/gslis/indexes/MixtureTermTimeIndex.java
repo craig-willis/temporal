@@ -52,9 +52,9 @@ public class MixtureTermTimeIndex
         vocab.remove("_total_");
         
         for (int i=0; i<numBins; i++) {
-            FeatureVector theta_t = new FeatureVector(null);    // distQuery
-            FeatureVector theta_est = new FeatureVector(null);  // distQueryEst
-            FeatureVector theta = new FeatureVector(null);      // dCounter?
+            FeatureVector theta_t = new FeatureVector(null);    // Empirical distribution of terms for bin t (dCounter)
+            FeatureVector theta_est = new FeatureVector(null);  // Mixture-model estimated distribution (distQueryEst)
+            FeatureVector theta = new FeatureVector(null);      // Working unigram model (distQuery)
             double meanLL = 1e-40;
 
 
@@ -70,22 +70,27 @@ public class MixtureTermTimeIndex
             double total = tsIndex.getLength(i);
             if (total > 0) 
             {
-                // 381 SimpleKLRetrieval.cpp
+                // Start iterations for this bin
                 for (int j=0; j < numIterations; j++) {
                     
                     double ll = 0;
                     
+                    // Initialize working model
                     for (String term: vocab)
                         theta.addTerm(term, theta_est.getFeatureWeight(term));
                     theta.normalize();
 
+                    // Re-initialize estimate
                     theta_est = new FeatureVector(null);
                     for (String term: vocab)
                         theta_est.setTerm(term, 0);
 
                     // compute likelihood
                     for (String term: theta_t.getFeatures()) {
-                        double collectionPr = index.docFreq(term) / index.termCount();
+                        double collectionPr =
+                                (index.termFreq(term) - tsIndex.get(term, i)) /
+                                    (index.termCount() - tsIndex.getLength(i));
+
                         
                         double weight = theta_t.getFeatureWeight(term);
                         ll += weight * Math.log(lambda*collectionPr  
@@ -103,7 +108,11 @@ public class MixtureTermTimeIndex
                     
                     // update counts
                     for (String term: theta_t.getFeatures()) {
-                        double collectionPr = index.docFreq(term) / index.termCount();                    
+                        
+                        double collectionPr =
+                                (index.termFreq(term) - tsIndex.get(term, i)) /
+                                    (index.termCount() - tsIndex.getLength(i));
+
                         double weight = theta_t.getFeatureWeight(term);
                         double pr = theta.getFeatureWeight(term);
     
@@ -121,7 +130,10 @@ public class MixtureTermTimeIndex
                 theta = theta_t;
 
             theta.normalize();
-            System.out.println(theta.toString(20));
+            
+           
+            System.out.println("\nEmpirical:\n" + theta_t.toString(50));
+            System.out.println("\nEstimated:\n" + theta.toString(50));
             thetas.put(i, theta);
         }
 

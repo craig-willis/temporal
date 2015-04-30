@@ -1,6 +1,7 @@
 package edu.gslis.temporal.scorers;
 
 import java.util.Iterator;
+import java.util.List;
 
 import edu.gslis.queries.GQuery;
 import edu.gslis.searchhits.SearchHit;
@@ -49,7 +50,42 @@ public class ScorerJelinekMercer extends RerankingScorer {
 		return logLikelihood;
 	}
 	
+	
+    public double[] scoreMultiple(SearchHit doc) {
+        
+        List<Double> lambdas = paramMap.get(LAMBDA);
+        double[] scores = new double[lambdas.size()];
+        for (int i=0; i<lambdas.size(); i++) {
+            double logLikelihood = 0.0;
+            double lambda = lambdas.get(i);
+    
+            Iterator<String> queryIterator = gQuery.getFeatureVector().iterator();
+            while(queryIterator.hasNext()) {
+                String feature = queryIterator.next();
+                double docFreq = doc.getFeatureVector().getFeatureWeight(feature);
+                double docLength = doc.getLength();
+                
+                // EPSILON is required here when working with TREC subcollections (i.e., LATimes) that do no
+                // necessarily contain all query terms.
+                double collectionProb = (EPSILON + collectionStats.termCount(feature)) / collectionStats.getTokCount();
+                double docProb = docFreq/docLength;
+                
+                double pr = (1-lambda)*docProb + lambda*collectionProb;
+                double queryWeight = gQuery.getFeatureVector().getFeatureWeight(feature);
+                logLikelihood += queryWeight * Math.log(pr);
+    
+            }
+            scores[i] = logLikelihood;
+        }
+        return scores;
+     }
+    
+	
     @Override
     public void init(SearchHits hits) {
+    }
+    
+    public List<Double> getParameter() {
+        return paramMap.get(LAMBDA);
     }
 }
