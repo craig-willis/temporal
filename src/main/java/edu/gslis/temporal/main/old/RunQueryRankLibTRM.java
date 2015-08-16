@@ -1,6 +1,7 @@
-package edu.gslis.temporal.main;
+package edu.gslis.temporal.main.old;
 
 import java.io.BufferedWriter;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -26,6 +27,7 @@ import edu.gslis.queries.GQueries;
 import edu.gslis.queries.GQueriesIndriImpl;
 import edu.gslis.queries.GQueriesJsonImpl;
 import edu.gslis.queries.GQuery;
+import edu.gslis.temporal.main.old.YAMLConfigBase;
 import edu.gslis.temporal.scorers.RerankingScorer;
 import edu.gslis.textrepresentation.FeatureVector;
 
@@ -143,7 +145,7 @@ public class RunQueryRankLibTRM extends YAMLConfigBase
                                          worker.setCollectionStats(corpusStats);
                                          worker.setNumFeedbackDocs(fbDocs);
                                          worker.setNumFeedbackTerms(fbTerms);
-                                         worker.setStdDev(scorerConfig.getStdDev());
+                                         worker.setStdDev(scorerConfig.getStdDev()[0]);
                                          worker.setRmLambda(lambda);
                                          executor.execute(worker);
                                      }     
@@ -161,7 +163,7 @@ public class RunQueryRankLibTRM extends YAMLConfigBase
                                          worker.setCollectionStats(corpusStats);
                                          worker.setNumFeedbackDocs(fbDocs);
                                          worker.setNumFeedbackTerms(fbTerms);
-                                         worker.setStdDev(scorerConfig.getStdDev());
+                                         worker.setStdDev(scorerConfig.getStdDev()[0]);
                                          worker.setRmLambda(lambda);
                                          executor.execute(worker);
                                      }                            

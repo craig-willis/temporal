@@ -8,6 +8,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+import org.apache.commons.lang.ArrayUtils;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.Rserve.RConnection;
 
@@ -150,6 +151,8 @@ public class GeneratePlots
             System.out.println("Running query");
 //
             // Query results
+            //String uw = "#uw" + (int)query.getFeatureVector().getLength() + "(" + query.getText().trim() + ")";
+            //System.out.println("uw: " + uw);
             SearchHits hits = index.runQuery(query, 1000);
             Iterator<SearchHit> hiterator = hits.iterator();
             double[] avgscore = new double[numBins];
@@ -184,6 +187,10 @@ public class GeneratePlots
                 j++;
             }
             
+            double[] ranks = new double[hits.size()];
+            for (int i=0; i<hits.size(); i++) 
+                ranks[i] = i;
+            
             double[] hitTimes = TemporalScorer.getTimes(hits, hits.size());
             double[] hitWeights = getProportionalWeights(hits, hits.size());
 
@@ -207,7 +214,6 @@ public class GeneratePlots
 
             System.out.println("Generating plots");
             
-
             // Plot search results over time
             c.assign("bins", bins);
             c.assign("docbins", sumscore);
@@ -218,116 +224,135 @@ public class GeneratePlots
             c.assign("rug", rug);
             c.assign("rugw", rugw);
             c.assign("scores", scoredist);
+            c.assign("ranks", ArrayUtils.subarray(ranks, 0, 100));
+            c.assign("times", ArrayUtils.subarray(hitTimes, 0, 100));
             
+            try
+            {
+                c.voidEval("library(zoo)");
+                c.voidEval("ma <- rollmean(docbins, 3, fill=list(NA, NULL, NA))");
+                
+                System.out.println("num bins: " + numBins);
+                System.out.println("query: " + query.getTitle());
+                
+                // Plot the sum of scores
+                c.voidEval("png(\"" + query.getTitle() + ".png" + "\")");
+    
+                c.voidEval("ymax <- max(docbins) + 0.02");
+                String plotCmd = "plot(ma ~ bins, type=\"h\", lwd=2, xlab=\"Days\", ylab=\"% of results\", main=\"" + query.getText() + "\", ylim=c(0, ymax))";
+                c.assign(".tmp.", plotCmd);
+                REXP r = c.parseAndEval("try( eval (parse (text=.tmp.)),silent=TRUE)");
+                if (r.inherits("try-error")) 
+                    System.err.println("Error: "+ r.asString());
+                c.voidEval("lines(density(bins, weights=docbins), col=\"blue\", bw=\"SJ\")");
+    
+                if (relDocs != null && relDocs.size() > 1) {
+                    c.voidEval("lines(density(bins, weights=reldocs), col=\"red\", bw=\"SJ\")");
+                }
+                
+                c.voidEval("rug(rug, col=\"red\")"); 
+                c.eval("dev.off()"); 
+                
+                // Plot the average scores
+                c.voidEval("png(\"" + query.getTitle() + "-avg.png" + "\")");
+    
+                c.voidEval("ymax <- max(avgscores) + 0.02");
+                c.voidEval("mavg <- rollmean(avgscores, 3, fill=list(NA, NULL, NA))");
+                plotCmd = "plot(mavg ~ bins, type=\"h\", lwd=2, xlab=\"Days\", ylab=\"% of results\", main=\"" + query.getText() + "\", ylim=c(0, ymax))";
+                c.assign(".tmp.", plotCmd);
+                r = c.parseAndEval("try( eval (parse (text=.tmp.)),silent=TRUE)");
+                if (r.inherits("try-error")) 
+                    System.err.println("Error: "+ r.asString());
+                c.voidEval("lines(density(bins, weights=avgscores), col=\"blue\", bw=\"SJ\")");
+    
+                if (relDocs != null && relDocs.size() > 1) {
+                    c.voidEval("lines(density(bins, weights=reldocs), col=\"red\", bw=\"SJ\")");
+                }
+                
+                c.voidEval("rug(rug, col=\"red\")"); 
+                c.eval("dev.off()");      
+               
+                // Plot the score distribution
+                c.voidEval("png(\"" + query.getTitle() + "-scores.png" + "\")");
+    
+                plotCmd = "plot(density(scores), main=\"" + query.getText() + "\")";
+                c.assign(".tmp.", plotCmd);
+                r = c.parseAndEval("try( eval (parse (text=.tmp.)),silent=TRUE)");
+                if (r.inherits("try-error")) 
+                    System.err.println("Error: "+ r.asString());
+                c.eval("dev.off()");  
+                
+                // Plot the relevant document distribution
+                c.voidEval("png(\"" + query.getTitle() + "-rel.png" + "\")");
+                
+                c.assign("rtimes", relDocTimes);
+                c.assign("rweights", relDocWeights);
+                c.assign("htimes", hitTimes);
+                c.assign("hweights", hitWeights);
+                c.voidEval("rweights = rweights / sum(rweights)");
+                c.voidEval("hweights = hweights / sum(hweights)");
+    //            c.voidEval("hkern = density(htimes, weights=hweights, window=\"gaussian\", bw=\"SJ-dpi\", n=1024)");
+                c.voidEval("hkern = density(htimes, weights=hweights, window=\"gaussian\", bw=\"SJ\")");
+                plotCmd = "plot(hkern, main=\"" + query.getText() + "\")";
+                c.assign(".tmp.", plotCmd);
+                r = c.parseAndEval("try( eval (parse (text=.tmp.)),silent=TRUE)");
+                if (r.inherits("try-error")) 
+                    System.err.println("Error: "+ r.asString());
+    //            c.voidEval("rkern = density(rtimes, weights=rweights, window=\"gaussian\", bw=\"SJ-dpi\", n=1024)");
+                c.voidEval("rkern = density(rtimes, weights=rweights, window=\"gaussian\", bw=\"SJ\")");
+                plotCmd = "lines(rkern, main=\"" + query.getText() + "\", col=\"red\")";
+                c.assign(".tmp.", plotCmd);
+                r = c.parseAndEval("try( eval (parse (text=.tmp.)),silent=TRUE)");
+                if (r.inherits("try-error")) 
+                    System.err.println("Error: "+ r.asString());
+                c.eval("dev.off()"); 
+                
+                c.voidEval("png(\"" + query.getTitle() + "-ts.png" + "\")");
+                c.voidEval("ts <- ts(docbins, freq=7)");
+                String cmd =  "decomp.ts <- decompose(ts)";
+                c.assign(".tmp.", cmd);
+                r = c.parseAndEval("try( eval (parse (text=.tmp.)),silent=TRUE)");
+                if (r.inherits("try-error")) 
+                    System.err.println("Error: "+ r.asString());
+    
+                c.voidEval("plot(decomp.ts$trend, ylim=c(0, 0.2))");
+                cmd =  "lines(density(binsw, weights=reldocsw), col=\"red\", bw=\"SJ\")";
+                c.assign(".tmp.", cmd);
+                r = c.parseAndEval("try( eval (parse (text=.tmp.)),silent=TRUE)");
+                if (r.inherits("try-error")) 
+                    System.err.println("Error: "+ r.asString());
+                c.voidEval("rug(rugw, col=\"red\")"); 
+    
+                c.eval("dev.off()"); 
+                
+                
 
-            c.voidEval("library(zoo)");
-            c.voidEval("ma <- rollmean(docbins, 3, fill=list(NA, NULL, NA))");
-            
-            System.out.println("num bins: " + numBins);
-            System.out.println("query: " + query.getTitle());
-            
-            // Plot the sum of scores
-            c.voidEval("png(\"" + query.getTitle() + ".png" + "\")");
-
-            c.voidEval("ymax <- max(docbins) + 0.02");
-            String plotCmd = "plot(ma ~ bins, type=\"h\", lwd=2, xlab=\"Days\", ylab=\"% of results\", main=\"" + query.getText() + "\", ylim=c(0, ymax))";
-            c.assign(".tmp.", plotCmd);
-            REXP r = c.parseAndEval("try( eval (parse (text=.tmp.)),silent=TRUE)");
-            if (r.inherits("try-error")) 
-                System.err.println("Error: "+ r.asString());
-            c.voidEval("lines(density(bins, weights=docbins), col=\"blue\", bw=\"SJ\")");
-
-            if (relDocs != null && relDocs.size() > 1) {
-                c.voidEval("lines(density(bins, weights=reldocs), col=\"red\", bw=\"SJ\")");
+                
+                // Plot rank over time
+                c.voidEval("png(\"" + query.getTitle() + "-rank.png" + "\")");
+    
+                c.voidEval("ymax <- max(100) + 0.02");
+                plotCmd = "plot(ranks ~ times, type=\"p\", xlab=\"Time\", ylab=\"Rank\", main=\"" + query.getText() + "\", ylim=c(0, ymax))";
+                c.assign(".tmp.", plotCmd);
+                r = c.parseAndEval("try( eval (parse (text=.tmp.)),silent=TRUE)");
+                if (r.inherits("try-error")) 
+                    
+                    System.err.println("Error: "+ r.asString());
+                c.eval("dev.off()"); 
+                
+                
+             
+                // Plot reldocs
+                /*
+                c.voidEval("png(\"" + query.getTitle() + "-reldocs.png" + "\")");
+                //c.voidEval("plot(reldocs ~ bins, type=\"h\", lwd=2, main=\"" + query.getText() + " relevant documents\")");
+                c.voidEval("plot(density(reldocs), col=\"red\")");
+                c.voidEval("rug(reldocs, col=\"red\")");            
+                c.eval("dev.off()"); 
+                */
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            
-            c.voidEval("rug(rug, col=\"red\")"); 
-            c.eval("dev.off()"); 
-            
-            // Plot the average scores
-            c.voidEval("png(\"" + query.getTitle() + "-avg.png" + "\")");
-
-            c.voidEval("ymax <- max(avgscores) + 0.02");
-            c.voidEval("mavg <- rollmean(avgscores, 3, fill=list(NA, NULL, NA))");
-            plotCmd = "plot(mavg ~ bins, type=\"h\", lwd=2, xlab=\"Days\", ylab=\"% of results\", main=\"" + query.getText() + "\", ylim=c(0, ymax))";
-            c.assign(".tmp.", plotCmd);
-            r = c.parseAndEval("try( eval (parse (text=.tmp.)),silent=TRUE)");
-            if (r.inherits("try-error")) 
-                System.err.println("Error: "+ r.asString());
-            c.voidEval("lines(density(bins, weights=avgscores), col=\"blue\", bw=\"SJ\")");
-
-            if (relDocs != null && relDocs.size() > 1) {
-                c.voidEval("lines(density(bins, weights=reldocs), col=\"red\", bw=\"SJ\")");
-            }
-            
-            c.voidEval("rug(rug, col=\"red\")"); 
-            c.eval("dev.off()");      
-           
-            // Plot the score distribution
-            c.voidEval("png(\"" + query.getTitle() + "-scores.png" + "\")");
-
-            plotCmd = "plot(density(scores), main=\"" + query.getText() + "\")";
-            c.assign(".tmp.", plotCmd);
-            r = c.parseAndEval("try( eval (parse (text=.tmp.)),silent=TRUE)");
-            if (r.inherits("try-error")) 
-                System.err.println("Error: "+ r.asString());
-            c.eval("dev.off()");  
-            
-            // Plot the relevant document distribution
-            c.voidEval("png(\"" + query.getTitle() + "-rel.png" + "\")");
-            
-            c.assign("rtimes", relDocTimes);
-            c.assign("rweights", relDocWeights);
-            c.assign("htimes", hitTimes);
-            c.assign("hweights", hitWeights);
-            c.voidEval("rweights = rweights / sum(rweights)");
-            c.voidEval("hweights = hweights / sum(hweights)");
-//            c.voidEval("hkern = density(htimes, weights=hweights, window=\"gaussian\", bw=\"SJ-dpi\", n=1024)");
-            c.voidEval("hkern = density(htimes, weights=hweights, window=\"gaussian\", bw=\"SJ\")");
-            plotCmd = "plot(hkern, main=\"" + query.getText() + "\")";
-            c.assign(".tmp.", plotCmd);
-            r = c.parseAndEval("try( eval (parse (text=.tmp.)),silent=TRUE)");
-            if (r.inherits("try-error")) 
-                System.err.println("Error: "+ r.asString());
-//            c.voidEval("rkern = density(rtimes, weights=rweights, window=\"gaussian\", bw=\"SJ-dpi\", n=1024)");
-            c.voidEval("rkern = density(rtimes, weights=rweights, window=\"gaussian\", bw=\"SJ\")");
-            plotCmd = "lines(rkern, main=\"" + query.getText() + "\", col=\"red\")";
-            c.assign(".tmp.", plotCmd);
-            r = c.parseAndEval("try( eval (parse (text=.tmp.)),silent=TRUE)");
-            if (r.inherits("try-error")) 
-                System.err.println("Error: "+ r.asString());
-            c.eval("dev.off()"); 
-            
-
-            c.voidEval("png(\"" + query.getTitle() + "-ts.png" + "\")");
-            c.voidEval("ts <- ts(docbins, freq=7)");
-            String cmd =  "decomp.ts <- decompose(ts)";
-            c.assign(".tmp.", cmd);
-            r = c.parseAndEval("try( eval (parse (text=.tmp.)),silent=TRUE)");
-            if (r.inherits("try-error")) 
-                System.err.println("Error: "+ r.asString());
-
-            c.voidEval("plot(decomp.ts$trend, ylim=c(0, 0.2))");
-            cmd =  "lines(density(binsw, weights=reldocsw), col=\"red\", bw=\"SJ\")";
-            c.assign(".tmp.", cmd);
-            r = c.parseAndEval("try( eval (parse (text=.tmp.)),silent=TRUE)");
-            if (r.inherits("try-error")) 
-                System.err.println("Error: "+ r.asString());
-            c.voidEval("rug(rugw, col=\"red\")"); 
-
-
-
-            c.eval("dev.off()"); 
-
-            
-            // Plot reldocs
-            /*
-            c.voidEval("png(\"" + query.getTitle() + "-reldocs.png" + "\")");
-            //c.voidEval("plot(reldocs ~ bins, type=\"h\", lwd=2, main=\"" + query.getText() + " relevant documents\")");
-            c.voidEval("plot(density(reldocs), col=\"red\")");
-            c.voidEval("rug(reldocs, col=\"red\")");            
-            c.eval("dev.off()"); 
-            */
         }          
     }
         

@@ -27,7 +27,7 @@ public class PeetzScorer extends TemporalScorer
      */
     public double score(SearchHit doc) {
 
-        double score = -100;
+        double score = Double.NEGATIVE_INFINITY;;
         double density = dist.density(getTime(doc));
         if ((density + sd)> mean) {
             // we're in a burst

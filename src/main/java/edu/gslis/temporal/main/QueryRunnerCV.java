@@ -1,7 +1,10 @@
 package edu.gslis.temporal.main;
 
+import java.io.FileWriter;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.lemurproject.kstem.Stemmer;
 
@@ -9,12 +12,10 @@ import edu.gslis.docscoring.support.CollectionStats;
 import edu.gslis.eval.Qrels;
 import edu.gslis.indexes.IndexWrapper;
 import edu.gslis.queries.GQuery;
-import edu.gslis.queries.expansion.FeedbackRelevanceModel;
+import edu.gslis.queries.expansion.FeedbackRelevanceModelCV;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
-import edu.gslis.temporal.scorers.OracleKDEScorer;
 import edu.gslis.temporal.scorers.RerankingScorer;
-import edu.gslis.temporal.scorers.ScorerDirichlet;
 import edu.gslis.textrepresentation.FeatureVector;
 import edu.gslis.utils.Stopper;
 
@@ -33,27 +34,24 @@ public class QueryRunnerCV implements Runnable
     IndexWrapper index;
     Qrels qrels;
     CollectionStats corpusStats;
-    boolean rescoreRm3 = true;
     
-    FormattedOutputTrecEval trecFormattedWriter;
-    FormattedOutputTrecEval trecFormattedWriterRm3;
+    FileWriter writer;
+    FileWriter rm3writer;
     
-    int numFeedbackTerms = 20;
-    int numFeedbackDocs = 20;
-    double rmLambda = 0.5;
+    double[] rmLambdas;
+    int[] numFeedbackDocs;
+    int[] numFeedbackTerms;
     
-    public void setRescoreRm3(boolean rescoreRm3) {
-        this.rescoreRm3 = rescoreRm3;
+    public void setRmLambdas(double[] lambdas) {
+        this.rmLambdas = lambdas;
     }
-    public void setNumFeedbackTerms(int numFeedbackTerms) {
-        this.numFeedbackTerms = numFeedbackTerms;
-    }
-    public void setNumFeedbackDocs(int numFeedbackDocs) {
+    public void setNumFeedbackDocs(int[] numFeedbackDocs) {
         this.numFeedbackDocs = numFeedbackDocs;
     }
-    public void setRmLambda(double lambda) {
-        this.rmLambda = lambda;
+    public void setNumFeedbackTerms(int[] numFeedbackTerms) {
+        this.numFeedbackTerms = numFeedbackTerms;
     }
+    
     public Stopper getStopper() {
         return stopper;
     }
@@ -98,28 +96,21 @@ public class QueryRunnerCV implements Runnable
         this.index = index;
     }
 
-    public FormattedOutputTrecEval getTrecFormattedWriter() {
-        return trecFormattedWriter;
+    public FileWriter getWriter() {
+        return writer;
     }
 
-    public void setTrecFormattedWriter(FormattedOutputTrecEval trecFormattedWriter) {
-        this.trecFormattedWriter = trecFormattedWriter;
+    public void setWriter(FileWriter writer) {
+        this.writer = writer;
+    }
+    public void setRm3Writer(FileWriter rm3writer) {
+        this.rm3writer = rm3writer;
     }
 
-    public FormattedOutputTrecEval getTrecFormattedWriterRm3() {
-        return trecFormattedWriterRm3;
-    }
-
-    public void setTrecFormattedWriterRm3(
-            FormattedOutputTrecEval trecFormattedWriterRm3) {
-        this.trecFormattedWriterRm3 = trecFormattedWriterRm3;
-    }
     public void setQrels(Qrels qrels) {
         this.qrels = qrels;
     }
     
-    // Problem: Need a scorer per thread...
-
     public void run()
     {
         
@@ -140,108 +131,131 @@ public class QueryRunnerCV implements Runnable
 
         SearchHits results = index.runQuery(query, NUM_RESULTS);
 
-        if (docScorer instanceof OracleKDEScorer) {
-            Set<String> relDocs = qrels.getRelDocs(query.getTitle());
-            SearchHits relHits = new SearchHits();
-            RerankingScorer dirScorer = new ScorerDirichlet();
-            dirScorer.setCollectionStats(corpusStats);
-            dirScorer.setQuery(query);
-            dirScorer.setParameter("mu", 1000);
-            for (String docno: relDocs) {
-                SearchHit hit = index.getSearchHit(docno, null);
-                double score = dirScorer.score(hit);
-                hit.setScore(score);
-                relHits.add(hit);
-            }
-            docScorer.init(relHits);
-        }
-        else {
-            docScorer.init(results);
-        }
-             
-//        System.out.println(query.getTitle() + ": score basic");
+        docScorer.init(results);
 
         Iterator<SearchHit> it = results.iterator();
-        SearchHits rescored = new SearchHits();
+        Map<SearchHit, double[]> rescored = new LinkedHashMap<SearchHit, double[]>();
         while (it.hasNext()) {
             SearchHit hit = it.next();
-            double score = docScorer.score(hit);
-            hit.setScore(score);
-            if (score == Double.NaN) {
-                System.err.println("Problem with score for " + query.getText() + "," + hit.getDocno() + "," + score);
-            } else if (score != Double.NEGATIVE_INFINITY) {
-                rescored.add(hit);
+            double[] scores = docScorer.scoreMultiple(hit); 
+            rescored.put(hit, scores);
+        }
+        
+
+        List<Double> params = docScorer.getParameter();
+
+        for (SearchHit hit: rescored.keySet()) {
+                        
+            StringBuffer str = new StringBuffer();
+            double[] scores = rescored.get(hit);
+            for (int k=0; k<scores.length; k++) {
+                double score = scores[k];
+                double param = params.get(k);
+                
+                str.append(query.getTitle() + " " + 
+                        hit.getDocno() + " " + 
+                        score + " " + 
+                        param + " " + 
+                        "\n"
+                        );
+            }
+            
+            synchronized (this) {
+                try {
+                    writer.write(str.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
-        rescored.rank();
-        
-        // Feedback model
-        FeedbackRelevanceModel rm3 = new FeedbackRelevanceModel();
-        rm3.setDocCount(numFeedbackDocs);
-        rm3.setTermCount(numFeedbackTerms);
-        rm3.setIndex(index);
-        rm3.setStopper(stopper);
-        rm3.setRes(rescored);
-        rm3.build();
-        FeatureVector rmVector = rm3.asFeatureVector();
-        rmVector = cleanModel(rmVector);
-        rmVector.clip(numFeedbackTerms);
-        rmVector.normalize();
-        FeatureVector feedbackVector =
-        FeatureVector.interpolate(query.getFeatureVector(), rmVector, rmLambda);
-        
-        GQuery feedbackQuery = new GQuery();
-        feedbackQuery.setTitle(query.getTitle());
-        feedbackQuery.setText(query.getText());
-        feedbackQuery.setFeatureVector(feedbackVector);
-                                
-//        System.out.println(query.getTitle() + ": run RM3");
 
-        //System.out.println(getQueryString(feedbackQuery));
-        SearchHits rm3results = new SearchHits();
-        SearchHits rm3rescored = new SearchHits();
-
-        try
+        for (int fbDocs: numFeedbackDocs) 
         {
-            rm3results = index.runQuery(feedbackQuery, NUM_RESULTS);
-            docScorer.setQuery(feedbackQuery);
-            docScorer.init(rm3results);
-            System.out.println(query.getTitle() + " RM3 " + feedbackQuery);
-            
-                 
-//            System.out.println(query.getTitle() + ": score RM3");
+            for (int fbTerms: numFeedbackTerms) 
+            {                
+               // Feedback model
+               FeedbackRelevanceModelCV rm3 = new FeedbackRelevanceModelCV();
+               rm3.setDocCount(fbDocs);
+               rm3.setTermCount(fbTerms);
+               rm3.setIndex(index);
+               rm3.setStopper(stopper);
+               rm3.setHits(rescored);
+               rm3.build();
+                
+               for (double rmLambda: rmLambdas) {
 
-            if (rescoreRm3) {
-                it = rm3results.iterator();
-                while (it.hasNext()) {            
-                    SearchHit hit = it.next();
-                    double score = docScorer.score(hit);
-                    hit.setScore(score);
-                    if (score == Double.NaN) {
-                        System.err.println("Problem with score for " + query.getText() + "," + hit.getDocno() + "," + score);
-                    } else if (score != Double.NEGATIVE_INFINITY) {
-                        rm3rescored.add(hit);
+                    int numVectors = rm3.getSize();
+                    for (int i=0; i<numVectors; i++) 
+                    {
+                        double param = params.get(i);
+                        
+                        FeatureVector rmVector = rm3.asFeatureVector(i);
+                        rmVector = cleanModel(rmVector);
+                        rmVector.clip(fbTerms);
+                        rmVector.normalize();
+                        FeatureVector feedbackVector =
+                        FeatureVector.interpolate(query.getFeatureVector(), rmVector, rmLambda);
+                        
+                        GQuery feedbackQuery = new GQuery();
+                        feedbackQuery.setTitle(query.getTitle());
+                        feedbackQuery.setText(query.getText());
+                        feedbackQuery.setFeatureVector(feedbackVector);
+                                      
+                        Map<SearchHit, Double> rm3rescored = new LinkedHashMap<SearchHit, Double>();
+
+                        try
+                        {
+                            SearchHits rm3results = index.runQuery(feedbackQuery, NUM_RESULTS);
+                            docScorer.setQuery(feedbackQuery);
+                            docScorer.init(rm3results);
+                            System.out.println(query.getTitle() + " RM3 " + feedbackQuery);
+                            
+                            it = rm3results.iterator();
+
+                            while (it.hasNext()) {            
+                                SearchHit hit = it.next();
+                                double[] scores = docScorer.scoreMultiple(hit);
+                                double score = scores[i];
+                                rm3rescored.put(hit, score);
+                            }
+                                             
+                        } catch (Exception e) {
+                            System.err.println("Error in query " + query.getTitle());
+                            e.printStackTrace();
+                        }
+                        
+                        for (SearchHit hit: rm3rescored.keySet()) {
+                            
+                            StringBuffer str = new StringBuffer();
+                            double score = rm3rescored.get(hit);
+                                                        
+                            str.append(query.getTitle() + " " + 
+                                    hit.getDocno() + " " + 
+                                    score + " " + 
+                                    param + "," + 
+                                    fbDocs + "," + 
+                                    fbTerms + "," + 
+                                    rmLambda + "\n"
+                                    );
+                            
+                            synchronized (this) {
+                                try {
+                                    rm3writer.write(str.toString());
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
                     }
                 }
-                
-            } else
-                rm3rescored = rm3results;
-            
-            rm3rescored.rank();
-
-        } catch (Exception e) {
-            System.out.println("Error in query " + query.getTitle());
-            e.printStackTrace();
+            }
         }
         
 
-//       System.out.println( query.getTitle() + ": writing results");
-        synchronized (this) {
-            trecFormattedWriter.write(rescored, query.getTitle());
-            trecFormattedWriterRm3.write(rm3rescored, query.getTitle());
-        }
-        System.out.println(query.getTitle() + ": complete");
+        
+        System.err.println(query.getTitle() + ": complete");
     }
+    
     
     public static FeatureVector cleanModel(FeatureVector model) {
         FeatureVector cleaned = new FeatureVector(null);
@@ -256,15 +270,5 @@ public class QueryRunnerCV implements Runnable
         return cleaned;
     }
 
-    public String getQueryString(GQuery query) {
-        StringBuilder queryString = new StringBuilder("#weight(");
-        Iterator<String> qt = query.getFeatureVector().iterator();
-        while(qt.hasNext()) {
-            String term = qt.next();
-            queryString.append(query.getFeatureVector().getFeatureWeight(term) + " " + term + " ");
-        }
-        queryString.append(")");
-        return queryString.toString();
-    }
-    
+       
 }

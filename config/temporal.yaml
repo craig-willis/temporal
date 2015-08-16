@@ -41,9 +41,9 @@ collections:
     trainQrels: ./qrels/qrels.latimes.301-400
     testQrels: ./qrels/qrels.latimes.301-400
     relLevel: 2         
-#    startDate: 599637600
-#    endDate: 662623200
-#    interval: 86400   
+    startDate: 599637600
+    endDate: 662623200
+    interval: 86400   
 #    tsDB: ../tsdb/latimes.tsindex
 #    clusterIndex: ../indexes/latimes.kmeans
 #    clusterDB: ../db/kmeans/latimes

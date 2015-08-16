@@ -1,4 +1,4 @@
-package edu.gslis.temporal.main;
+package edu.gslis.temporal.main.old;
 
 import java.io.FileWriter;
 import java.util.Iterator;
@@ -10,9 +10,10 @@ import edu.gslis.eval.Qrels;
 import edu.gslis.indexes.IndexWrapper;
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.queries.GQuery;
+import edu.gslis.queries.expansion.FeedbackRelevanceModel;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
-import edu.gslis.temporal.expansion.TemporalRM;
+import edu.gslis.temporal.main.FormattedOutputTrecEval;
 import edu.gslis.temporal.scorers.RerankingScorer;
 import edu.gslis.textrepresentation.FeatureVector;
 import edu.gslis.utils.Stopper;
@@ -22,7 +23,7 @@ import edu.gslis.utils.Stopper;
  * Assumes CER scorer
  *
  */
-public class QueryRunnerTERM implements Runnable
+public class QueryRunnerRM implements Runnable
 {
 
     ClassLoader loader = ClassLoader.getSystemClassLoader();
@@ -43,7 +44,7 @@ public class QueryRunnerTERM implements Runnable
     
     FormattedOutputTrecEval trecFormattedWriterRm3 = null;
     FileWriter rankLibWriter = null;
-    
+            
     int numFeedbackTerms = 20;
     int numFeedbackDocs = 20;
     double rmLambda = 0.5;
@@ -135,7 +136,7 @@ public class QueryRunnerTERM implements Runnable
     public void setRankLibWriter(FileWriter writer) {
         this.rankLibWriter = writer;
     }
-    
+
     public void run()
     {
         
@@ -173,14 +174,20 @@ public class QueryRunnerTERM implements Runnable
         }
         rescored.rank();
                 
-        // Construct temporal relevance models given the initial results
-        TemporalRM term = new TemporalRM();
-        term.setDocCount(numFeedbackDocs);
-        term.setTermCount(numFeedbackTerms);
-        term.setIndex(index);
-        term.setStopper(stopper);
-        term.setRes(rescored);
-        term.build(startTime, endTime, interval);
+        FeedbackRelevanceModel rm = new FeedbackRelevanceModel();
+        rm.setDocCount(numFeedbackDocs);
+        rm.setTermCount(numFeedbackTerms);
+        rm.setIndex(index);
+        rm.setRes(rescored);
+        rm.build();
+        FeatureVector rmfv = rm.asFeatureVector();
+        rmfv.clip(numFeedbackTerms);
+        rmfv.normalize();
+
+        FeatureVector termRm3 =
+                FeatureVector.interpolate(query.getFeatureVector(), rmfv, rmLambda);
+        
+        System.out.println("RM: " + termRm3.toString(20));
 
         SearchHits termrescored = new SearchHits();
 
@@ -199,12 +206,6 @@ public class QueryRunnerTERM implements Runnable
                 int bin = (int)((epoch - startTime)/interval);
                 if (bin >=0 && bin < numBins) {
                     
-                    // Get the model for this bin
-                    FeatureVector termFv = term.asFeatureVector(bin);
-                    // Interpolate with query
-                    FeatureVector termRm3 =
-                            FeatureVector.interpolate(query.getFeatureVector(), termFv, rmLambda);
-
                     // Rescore document against TeRM3 model
                     GQuery termQuery = new GQuery();
                     termQuery.setTitle(query.getTitle());
@@ -244,7 +245,8 @@ public class QueryRunnerTERM implements Runnable
                                 hit.getScore() + "," +
                                 numFeedbackTerms + "," +
                                 numFeedbackDocs + "," +
-                                rmLambda
+                                rmLambda + 
+                                "\n"
                         );
                     }
                 } catch (Exception e) {
@@ -252,7 +254,6 @@ public class QueryRunnerTERM implements Runnable
                 }
             }
         }
-        
         System.out.println(query.getTitle() + ": complete");
     }
     

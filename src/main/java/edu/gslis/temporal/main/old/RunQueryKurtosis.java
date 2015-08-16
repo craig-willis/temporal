@@ -1,6 +1,7 @@
-package edu.gslis.temporal.main;
+package edu.gslis.temporal.main.old;
 
 import java.io.BufferedWriter;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -17,11 +18,8 @@ import org.yaml.snakeyaml.constructor.Constructor;
 
 import ucar.unidata.util.StringUtil;
 import edu.gslis.docscoring.support.CollectionStats;
-import edu.gslis.eval.Qrels;
 import edu.gslis.indexes.IndexWrapper;
 import edu.gslis.indexes.IndexWrapperFactory;
-import edu.gslis.indexes.LDAIndex;
-import edu.gslis.indexes.TemporalLDAIndex;
 import edu.gslis.indexes.TimeSeriesIndex;
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.main.config.BatchConfig;
@@ -31,33 +29,22 @@ import edu.gslis.queries.GQueries;
 import edu.gslis.queries.GQueriesIndriImpl;
 import edu.gslis.queries.GQueriesJsonImpl;
 import edu.gslis.queries.GQuery;
-import edu.gslis.temporal.scorers.KDELDAScorer;
-import edu.gslis.temporal.scorers.LDAScorer;
+import edu.gslis.temporal.main.FormattedOutputTrecEval;
+import edu.gslis.temporal.main.QueryRunner;
+import edu.gslis.temporal.main.old.YAMLConfigBase;
 import edu.gslis.temporal.scorers.RerankingScorer;
-import edu.gslis.temporal.scorers.TemporalLDAScorer;
 import edu.gslis.temporal.scorers.TemporalScorer;
+import edu.gslis.temporal.util.RUtil;
 import edu.gslis.textrepresentation.FeatureVector;
 
 
-/** 
- * 
- * edu.gslis.temporal.main.RunQuery config/config.yaml
- * 
- * For each configured collection
- *    For each configured scorer
- *       For each configured set of topics
- *          Run initial retrieval
- *          Rescore
- *          Calculate RM3 model
- *          Rescore
- *          Output results
- */
-public class RunQuery extends YAMLConfigBase 
+
+public class RunQueryKurtosis extends YAMLConfigBase 
 {
     public static final String NAME_OF_TIMESTAMP_FIELD = "timestamp";
     static final int NUM_THREADS = 10;
     
-    public RunQuery(BatchConfig config) {
+    public RunQueryKurtosis(BatchConfig config) {
         super(config);
     }
 
@@ -72,12 +59,6 @@ public class RunQuery extends YAMLConfigBase
             System.out.println("Processing " + collectionName);
 
             String timeSeriesDBPath = collection.getTsDB();
-            String ldaTermTopicPath = collection.getLdaTermTopicPath();
-            String ldaDocTopicsPath = collection.getLdaDocTopicsPath();
-            String ldaDataPath = collection.getLdaPath();
-            
-            String qrelPath = collection.getTrainQrels();
-            Qrels qrels = new Qrels(qrelPath, true, collection.getRelLevel());
             
             long startTime = collection.getStartDate();
             long endTime = collection.getEndDate();
@@ -110,33 +91,8 @@ public class RunQuery extends YAMLConfigBase
                 double[] klweights = new double[numBins];
                 if (StringUtil.notEmpty(timeSeriesDBPath)) {
                     timeSeriesIndex.open(timeSeriesDBPath, true, "csv");
-                    
-                    /*
-                    System.out.println("Calculating KL divergence");
-                    // Calculate KL divergence
-                    TimeSeriesKL tskl = new TimeSeriesKL();
-                    klweights = tskl.calculateBinKL(index, timeSeriesIndex);
-                                       
-                    System.out.println("done");
-                    */
                 }
                 
-                LDAIndex ldaIndex = new LDAIndex();
-                if (StringUtil.notEmpty(ldaDocTopicsPath) &&
-                        StringUtil.notEmpty(ldaTermTopicPath))   
-                {             
-                    //ldaIndex.open(ldaDBPath, true);
-                    System.out.println("Loading LDA data");
-                    ldaIndex.load(ldaDocTopicsPath, ldaTermTopicPath);
-                    System.out.println("done");
-                }
-                
-                TemporalLDAIndex tempLdaIndex = new TemporalLDAIndex();
-                if (StringUtil.notEmpty(ldaDataPath)) {
-                    System.out.println("Loading temporal LDA data");
-                    tempLdaIndex.load(ldaDataPath);
-                    System.out.println("done");
-                }
                                     
                 String corpusStatsClass = config.getBgStatType();
                 CollectionStats corpusStats = (CollectionStats)loader.loadClass(corpusStatsClass).newInstance();
@@ -155,8 +111,7 @@ public class RunQuery extends YAMLConfigBase
                     String runId = prefix + "-" + scorerName + "_" + collectionName + "_" + queryFileName;
                     String trecResultsFile = outputDir + File.separator + runId + ".out";
                     
-                    String rm3Config = scorerConfig.getLambda() + ":" + scorerConfig.getNumFeedbackDocs() + ":" + scorerConfig.getNumFeedbackTerms();
-                    String runIdRm3 = prefix + "-rm3:" + rm3Config + "-"+ scorerName + "_" + collectionName + "_" + queryFileName;
+                    String runIdRm3 = prefix + "-rm3-" + scorerName + "_" + collectionName + "_" + queryFileName;
                     String trecResultsFileRm3 = outputDir + File.separator + runIdRm3 + ".out";
                     
                     outputDir.mkdirs();                        
@@ -174,9 +129,20 @@ public class RunQuery extends YAMLConfigBase
                     int numThreads = config.getNumThreads();
                     ExecutorService executor = Executors.newFixedThreadPool(numThreads);
                     Iterator<GQuery> queryIterator = queries.iterator();
+                    RUtil rutil = new RUtil();
                     while(queryIterator.hasNext()) 
                     {                            
                         GQuery query = queryIterator.next();
+                        
+                        // Weight query terms by kurtosis
+                        FeatureVector fv = query.getFeatureVector();
+                        for (String feature: fv.getFeatures()) {
+                            double[] ts = timeSeriesIndex.get(feature);
+                            double k = rutil.kurtosis(ts);
+                            fv.setTerm(feature, k);
+                        }
+                        fv.normalize();
+                        query.setFeatureVector(fv);
                                                 
                         // Scorer per worker means scorer per query
                         RerankingScorer docScorer = (RerankingScorer)loader.loadClass(className).newInstance();
@@ -206,27 +172,15 @@ public class RunQuery extends YAMLConfigBase
                             ((TemporalScorer)docScorer).setInterval(interval);
                             ((TemporalScorer)docScorer).setKLs(klweights);
                         }
-                        if (docScorer instanceof LDAScorer)
-                            ((LDAScorer)docScorer).setIndex(ldaIndex);
-                        if (docScorer instanceof KDELDAScorer)
-                            ((KDELDAScorer)docScorer).setIndex(ldaIndex);
-                        if (docScorer instanceof TemporalLDAScorer)
-                            ((TemporalLDAScorer)docScorer).setIndex(tempLdaIndex);
-                        
-                        
+                                                
                         QueryRunner worker = new QueryRunner();
                         worker.setDocScorer(docScorer);
                         worker.setIndex(index);
-                        worker.setQrels(qrels);
                         worker.setQuery(query);
                         worker.setStopper(stopper);
                         worker.setTrecFormattedWriter(trecFormattedWriter);
                         worker.setTrecFormattedWriterRm3(trecFormattedWriterRm3);
-                        worker.setCollectionStats(corpusStats);
-                        worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocsArray()[0]);
-                        worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTermsArray()[0]);
-                        worker.setRmLambda(scorerConfig.getLambdaArray()[0]);
-                        worker.setRescoreRm3(rescoreRm3);
+                       // worker.setRescoreRm3(rescoreRm3);
                         executor.execute(worker);
                     }
                     
@@ -238,9 +192,9 @@ public class RunQuery extends YAMLConfigBase
                     trecFormattedWriter.close();
                     trecFormattedWriterRm3.close();
 
+                    rutil.close();
                 }
                 
-                ldaIndex.close();
             }
         }    
     }
@@ -262,7 +216,7 @@ public class RunQuery extends YAMLConfigBase
         Yaml yaml = new Yaml(new Constructor(BatchConfig.class));
         BatchConfig config = (BatchConfig)yaml.load(new FileInputStream(yamlFile));
 
-        RunQuery runner = new RunQuery(config);
+        RunQueryKurtosis runner = new RunQueryKurtosis(config);
         runner.runBatch(rescoreRm3);
     }
     

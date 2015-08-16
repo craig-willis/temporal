@@ -1,4 +1,4 @@
-package edu.gslis.temporal.main;
+package edu.gslis.temporal.main.old;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -26,10 +26,9 @@ import edu.gslis.queries.GQuery;
 import edu.gslis.queries.expansion.FeedbackRelevanceModel;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
-import edu.gslis.temporal.scorers.KDEScorer;
+import edu.gslis.temporal.main.FormattedOutputTrecEval;
 import edu.gslis.temporal.scorers.RerankingScorer;
 import edu.gslis.temporal.util.PeetzHistogram;
-import edu.gslis.temporal.util.RKernelDensity;
 import edu.gslis.textrepresentation.FeatureVector;
 
 

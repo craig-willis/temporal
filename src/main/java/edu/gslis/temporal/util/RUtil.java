@@ -28,7 +28,101 @@ public class RUtil {
             e.printStackTrace();
         }
     }
-	
+   
+   
+   
+   public int[] changepoints(double[] x) throws Exception {
+       c.voidEval("library(changepoint)");
+       c.assign("x", x);
+       c.voidEval("m <- cpt.mean(x, method=\"BinSeg\")");
+       c.voidEval("cp <- cpts(m)");
+       int max = 0, start =0, end = 0;
+       try{
+           max = c.eval("which(x == max(x[cp]))").asInteger();
+           start = c.eval("min(cp)").asInteger();
+           end = c.eval("max(cp)").asInteger();
+       } catch (Exception e) {
+           e.printStackTrace();
+       }
+       return new int[] {start, end, max};
+   }
+   public void hist(String name, double[] x, String path) throws Exception {
+
+       c.voidEval("setwd(\"" + path + "\")");
+
+       c.assign("x", x);
+       c.voidEval("png(\"" + name + "-hist.png" + "\")");
+       c.voidEval("hist(x, breaks=1000)");       
+
+       c.eval("dev.off()");
+       
+   }	
+   public void density(String name, double[] x, String path) throws Exception {
+
+       c.voidEval("setwd(\"" + path + "\")");
+
+       c.assign("x", x);
+       c.voidEval("png(\"" + name + "-density.png" + "\")");
+       c.voidEval("plot(density(x))");       
+
+       c.eval("dev.off()");
+       
+   }
+   
+   public void plotcp(String name, double[] x, String path) throws Exception {
+
+       c.voidEval("setwd(\"" + path + "\")");
+
+       c.assign("x", x);
+       c.voidEval("png(\"" + name + "-cp.png" + "\")");
+       
+       c.voidEval("library(changepoint)");
+       c.voidEval("m <- cpt.mean(x, method=\"BinSeg\")");
+       c.voidEval("plot(m, xlab=\"time\", ylab=\"freq\", main=\"" + name + "\")");
+
+       c.eval("dev.off()");
+       
+   }
+   
+   public void plot(String name, double[] x, String path) throws Exception {
+
+       c.voidEval("setwd(\"" + path + "\")");
+
+       c.assign("x", x);
+       c.voidEval("png(\"" + name + ".png" + "\")");
+       c.voidEval("par(mfrow=c(2,1))");
+       c.voidEval("plot(x, type=\"l\", main=\"" + name +  "\")");
+       
+       c.voidEval("ts <- ts(x, freq=2)");
+       c.voidEval("decomp.ts <- decompose(ts)");
+       c.voidEval("plot(decomp.ts$trend, main=\"Time series trend\")");
+
+
+       c.eval("dev.off()");
+       
+   }
+   
+   
+   public void plot(String name, double[] x, double[] y, String path) throws Exception {
+
+       c.voidEval("setwd(\"" + path + "\")");
+
+       c.assign("x", x);
+       c.assign("y", y);
+       c.voidEval("png(\"" + name + ".png" + "\")");
+       c.voidEval("plot(y ~ x, main=\"" + name +  "\")");
+       c.eval("dev.off()");
+       
+   }
+   public double[] spec(double[] x, int freq) throws Exception{
+       c.voidEval("library(multitaper)");
+       c.assign("x", x);
+       c.voidEval("ts <- ts(x, freq=" + freq + ")");
+       c.voidEval("resSpec <- spec.mtm(ts, k=" + freq + ", nFFT=\"default\", Ftest=TRUE, jackknife=FALSE, plot = FALSE)");
+       double s = c.eval("max(resSpec$spec)").asDouble();
+       double f = c.eval("resSpec$freq[which(resSpec$spec == max(resSpec$spec))]").asDouble();
+       return new double[] {s, f};
+   }
    
    public double[] maxima(int[] x, double[] y) throws Exception {
        
@@ -42,6 +136,7 @@ public class RUtil {
        c.voidEval("mp <- dens$x[min] / (max(dens$x) - min(dens$x))");
        return c.eval("dens$y[max]/sum(dens$y[max])").asDoubles();       
    }
+   
    
    public int[] minima(int[] x, double[] y, String query) throws Exception {
        

@@ -3,6 +3,7 @@ package edu.gslis.temporal.util;
 import org.rosuda.REngine.Rserve.RConnection;
 
 
+
 public class RKernelDensity {
 	
 	private double[] ky;
@@ -12,15 +13,17 @@ public class RKernelDensity {
 	public RKernelDensity(double[] data, double[] weights) {
 		
 		try {
-			c = new RConnection();
-			c.assign("x", data);
-			c.assign("weights", weights);
-			c.voidEval("weights = weights / sum(weights)");
-			c.voidEval("kern = density(x, weights=weights, window=\"gaussian\", bw=\"SJ-dpi\", n=1024)");
-
-			ky = c.eval("kern$y").asDoubles();
-			
-
+		    if (data != null && data.length > 0) 
+		    {
+    			c = new RConnection();
+    			c.assign("x", data);
+    			c.assign("weights", weights);
+    			c.voidEval("weights = weights / sum(weights)");
+    			c.voidEval("kern = density(x, weights=weights, window=\"gaussian\", bw=\"SJ-dpi\", n=1024)");
+    
+    			ky = c.eval("kern$y").asDoubles();
+    			
+		    }
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -27,6 +27,7 @@ public abstract class RerankingScorer extends QueryDocScorer
     public double[] scoreMultiple(SearchHit hit) {
         return new double[0];
     }
+        
     
     public List<Double> getParameter() {
         return null;
@@ -34,6 +35,5 @@ public abstract class RerankingScorer extends QueryDocScorer
     
     public void setParameter(String paramName, List<Double> paramValues) {
         paramMap.put(paramName, paramValues);        
-    }
-
+    }   
 }

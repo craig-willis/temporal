@@ -1,6 +1,7 @@
-package edu.gslis.temporal.main;
+package edu.gslis.temporal.main.old;
 
 import java.io.BufferedWriter;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -27,6 +28,8 @@ import edu.gslis.queries.GQueries;
 import edu.gslis.queries.GQueriesIndriImpl;
 import edu.gslis.queries.GQueriesJsonImpl;
 import edu.gslis.queries.GQuery;
+import edu.gslis.temporal.main.FormattedOutputTrecEval;
+import edu.gslis.temporal.main.old.YAMLConfigBase;
 import edu.gslis.temporal.scorers.RerankingScorer;
 import edu.gslis.textrepresentation.FeatureVector;
 
@@ -92,9 +95,9 @@ public class RunQueryTRM extends YAMLConfigBase
                     String className = scorerConfig.getClassName();
 
                     
-                    String rm3Config = scorerConfig.getLambda() + ":" + scorerConfig.getNumFeedbackDocs() + ":" + scorerConfig.getNumFeedbackTerms();
+                    String rm3Config = scorerConfig.getLambdaArray() + ":" + scorerConfig.getNumFeedbackDocsArray() + ":" + scorerConfig.getNumFeedbackTermsArray();
                     if (model.startsWith("trm")) 
-                        rm3Config += ":" + scorerConfig.getBeta();
+                        rm3Config += ":" + scorerConfig.getBetaArray();
                     
                     if (model.equals("term"))
                         rm3Config += ":" + scorerConfig.getStdDev();
@@ -150,10 +153,10 @@ public class RunQueryTRM extends YAMLConfigBase
                             worker.setStopper(stopper);
                             worker.setTrecFormattedWriterRm3(trecFormattedWriterRm3);
                             worker.setCollectionStats(corpusStats);
-                            worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocs());
-                            worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTerms());
-                            worker.setRmLambda(scorerConfig.getLambda());
-                            worker.setBeta(scorerConfig.getBeta());
+                            worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocsArray()[0]);
+                            worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTermsArray()[0]);
+                            worker.setRmLambda(scorerConfig.getLambdaArray()[0]);
+                            worker.setBeta(scorerConfig.getBetaArray()[0]);
                             //worker.setRescoreRm3(rescoreRm3);
                             executor.execute(worker);
                         }
@@ -169,10 +172,10 @@ public class RunQueryTRM extends YAMLConfigBase
                             worker.setStopper(stopper);
                             worker.setTrecFormattedWriterRm3(trecFormattedWriterRm3);
                             worker.setCollectionStats(corpusStats);
-                            worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocs());
-                            worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTerms());
-                            worker.setRmLambda(scorerConfig.getLambda());
-                            worker.setBeta(scorerConfig.getBeta());
+                            worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocsArray()[0]);
+                            worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTermsArray()[0]);
+                            worker.setRmLambda(scorerConfig.getLambdaArray()[0]);
+                            worker.setBeta(scorerConfig.getBetaArray()[0]);
                             //worker.setRescoreRm3(rescoreRm3);
                             executor.execute(worker);
                         }
@@ -188,10 +191,10 @@ public class RunQueryTRM extends YAMLConfigBase
                             worker.setStopper(stopper);
                             worker.setTrecFormattedWriterRm3(trecFormattedWriterRm3);
                             worker.setCollectionStats(corpusStats);
-                            worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocs());
-                            worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTerms());
-                            worker.setRmLambda(scorerConfig.getLambda());
-                            worker.setBeta(scorerConfig.getBeta());
+                            worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocsArray()[0]);
+                            worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTermsArray()[0]);
+                            worker.setRmLambda(scorerConfig.getLambdaArray()[0]);
+                            worker.setBeta(scorerConfig.getBetaArray()[0]);
                             //worker.setRescoreRm3(rescoreRm3);
                             executor.execute(worker);
                         }
@@ -207,10 +210,10 @@ public class RunQueryTRM extends YAMLConfigBase
                             worker.setStopper(stopper);
                             worker.setTrecFormattedWriterRm3(trecFormattedWriterRm3);
                             worker.setCollectionStats(corpusStats);
-                            worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocs());
-                            worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTerms());
-                            worker.setRmLambda(scorerConfig.getLambda());
-                            worker.setBeta(scorerConfig.getBeta());
+                            worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocsArray()[0]);
+                            worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTermsArray()[0]);
+                            worker.setRmLambda(scorerConfig.getLambdaArray()[0]);
+                            worker.setBeta(scorerConfig.getBetaArray()[0]);
                             //worker.setRescoreRm3(rescoreRm3);
                             executor.execute(worker);
                         }    
@@ -226,10 +229,10 @@ public class RunQueryTRM extends YAMLConfigBase
                             worker.setStopper(stopper);
                             worker.setTrecFormattedWriterRm3(trecFormattedWriterRm3);
                             worker.setCollectionStats(corpusStats);
-                            worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocs());
-                            worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTerms());
-                            worker.setStdDev(scorerConfig.getStdDev());
-                            worker.setRmLambda(scorerConfig.getLambda());
+                            worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocsArray()[0]);
+                            worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTermsArray()[0]);
+                            worker.setStdDev(scorerConfig.getStdDev()[0]);
+                            worker.setRmLambda(scorerConfig.getLambdaArray()[0]);
                             //worker.setRescoreRm3(rescoreRm3);
                             executor.execute(worker);
                         }     
@@ -245,10 +248,10 @@ public class RunQueryTRM extends YAMLConfigBase
                             worker.setStopper(stopper);
                             worker.setTrecFormattedWriterRm3(trecFormattedWriterRm3);
                             worker.setCollectionStats(corpusStats);
-                            worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocs());
-                            worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTerms());
-                            worker.setStdDev(scorerConfig.getStdDev());
-                            worker.setRmLambda(scorerConfig.getLambda());
+                            worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocsArray()[0]);
+                            worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTermsArray()[0]);
+                            worker.setStdDev(scorerConfig.getStdDev()[0]);
+                            worker.setRmLambda(scorerConfig.getLambdaArray()[0]);
                             //worker.setRescoreRm3(rescoreRm3);
                             executor.execute(worker);
                         }                            
@@ -264,9 +267,9 @@ public class RunQueryTRM extends YAMLConfigBase
                             worker.setStopper(stopper);
                             worker.setTrecFormattedWriterRm3(trecFormattedWriterRm3);
                             worker.setCollectionStats(corpusStats);
-                            worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocs());
-                            worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTerms());
-                            worker.setRmLambda(scorerConfig.getLambda());
+                            worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocsArray()[0]);
+                            worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTermsArray()[0]);
+                            worker.setRmLambda(scorerConfig.getLambdaArray()[0]);
                             //worker.setRescoreRm3(rescoreRm3);
                             executor.execute(worker);
                         }      

@@ -22,8 +22,8 @@ import edu.gslis.temporal.util.RKernelDensity;
 public class KDEScorer extends TemporalScorer {
     
     
-    static String ALPHA = "alpha";
-    static String K = "k";
+    public static String ALPHA = "alpha";
+    public static String K = "k";
             
     RKernelDensity dist = null;
     

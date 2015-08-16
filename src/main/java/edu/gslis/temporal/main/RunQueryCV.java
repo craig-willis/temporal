@@ -1,14 +1,10 @@
 package edu.gslis.temporal.main;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
-import java.io.Writer;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -30,21 +26,16 @@ import edu.gslis.queries.GQueries;
 import edu.gslis.queries.GQueriesIndriImpl;
 import edu.gslis.queries.GQueriesJsonImpl;
 import edu.gslis.queries.GQuery;
-import edu.gslis.temporal.scorers.KDELDAScorer;
-import edu.gslis.temporal.scorers.LDAScorer;
 import edu.gslis.temporal.scorers.RerankingScorer;
-import edu.gslis.temporal.scorers.TemporalLDAScorer;
-import edu.gslis.temporal.scorers.TemporalScorer;
 
 
-/** 
- * 
- * Tune parameters using n-fold cross validation.
+/**
+ * Run queries and output for cross-validation
  */
-public class RunQueryRankLib extends YAMLConfigBase 
+public class RunQueryCV extends YAMLConfigBase 
 {
     
-    public RunQueryRankLib(BatchConfig config) {
+    public RunQueryCV(BatchConfig config) {
         super(config);
     }
     
@@ -67,7 +58,7 @@ public class RunQueryRankLib extends YAMLConfigBase
         for(CollectionConfig collection: collections) 
         {
             String collectionName = collection.getName();
-            System.out.println("Processing " + collectionName);
+            System.err.println("Processing " + collectionName);
             
             String qrelPath = collection.getTrainQrels();
             Qrels qrels = new Qrels(qrelPath, true, collection.getRelLevel());
@@ -94,14 +85,16 @@ public class RunQueryRankLib extends YAMLConfigBase
                     // Setup the scorers
                     String scorerName = scorerConfig.getName();
                     String className = scorerConfig.getClassName();
-                    System.out.println("Running scorer " + scorerName);
+                    System.err.println("Running scorer " + scorerName);
 
                     String runId = prefix + "-" + scorerName + "_" + collectionName + "_" + queryFileName;
-                    String rankLibResultsFile = outputDir + File.separator + runId + ".out";
+                    String resultsFile = outputDir + File.separator + runId + ".out";
+                    String rm3resultsFile = outputDir + File.separator + runId + "-rm3.out";
                                         
                     outputDir.mkdirs();                        
 
-                    FileWriter rankLibResultsWriter = new FileWriter(rankLibResultsFile);
+                    FileWriter resultsWriter = new FileWriter(resultsFile);
+                    FileWriter rm3ResultsWriter = new FileWriter(rm3resultsFile);
                     
                     int numThreads = config.getNumThreads();
                     ExecutorService executor = Executors.newFixedThreadPool(numThreads);
@@ -140,23 +133,28 @@ public class RunQueryRankLib extends YAMLConfigBase
                         }
                         docScorer.init();
 
-                        QueryRunnerRankLib worker = new QueryRunnerRankLib();
+                        QueryRunnerCV worker = new QueryRunnerCV();
                         worker.setDocScorer(docScorer);
                         worker.setIndex(index);
                         worker.setQrels(qrels);
                         worker.setQuery(query);
                         worker.setStopper(stopper);
-                        worker.setWriter(rankLibResultsWriter);
+                        worker.setWriter(resultsWriter);
+                        worker.setRm3Writer(rm3ResultsWriter);
                         worker.setCollectionStats(corpusStats);
+                        worker.setNumFeedbackDocs(scorerConfig.getNumFeedbackDocsArray());
+                        worker.setNumFeedbackTerms(scorerConfig.getNumFeedbackTermsArray());
+                        worker.setRmLambdas(scorerConfig.getLambdaArray());
                         executor.execute(worker);
                     }
                     
                     executor.shutdown();
                     // Wait until all threads are finish
                     executor.awaitTermination(360, TimeUnit.MINUTES);
-                    System.out.println("Finished all threads");
+                    System.err.println("Finished all threads");
                     
-                    rankLibResultsWriter.close();
+                    resultsWriter.close();
+                    rm3ResultsWriter.close();
                 }
             }
         }    
@@ -164,7 +162,6 @@ public class RunQueryRankLib extends YAMLConfigBase
     
     public static void main(String[] args) throws Exception 
     {
-//        doPermute();
         File yamlFile = new File(args[0]);
         if(!yamlFile.exists()) {
             System.err.println("you must specify a parameter file to run against.");
@@ -175,30 +172,7 @@ public class RunQueryRankLib extends YAMLConfigBase
         Yaml yaml = new Yaml(new Constructor(BatchConfig.class));
         BatchConfig config = (BatchConfig)yaml.load(new FileInputStream(yamlFile));
 
-        RunQueryRankLib runner = new RunQueryRankLib(config);
+        RunQueryCV runner = new RunQueryCV(config);
         runner.runBatch();
-    }
-        
-    
-    public static void doPermute() {
-        double[] lambda = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
-        double[] numDocs = {10, 20, 50, 100, 200, 500};
-        double[] numTerms = {10, 20, 50, 100, 200, 500};
-        double[] alpha = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
-        
-        List<double[]> params = new ArrayList<double[]>();
-        for (double a: lambda) {
-            for (double b: numDocs) {
-                for (double c: numTerms) {
-                    for (double d: alpha) {
-                        double[] values = {a, b, c, d};
-                        params.add(values);
-                    }
-                }
-            }
-        }
-        System.out.println(params.size());
-
-    }
-
+    }            
 }

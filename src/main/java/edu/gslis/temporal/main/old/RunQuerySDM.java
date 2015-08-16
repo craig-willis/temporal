@@ -1,4 +1,4 @@
-package edu.gslis.temporal.main;
+package edu.gslis.temporal.main.old;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -23,6 +23,8 @@ import edu.gslis.queries.GQueriesJsonImpl;
 import edu.gslis.queries.GQuery;
 import edu.gslis.queries.expansion.FeedbackRelevanceModel;
 import edu.gslis.searchhits.SearchHits;
+import edu.gslis.temporal.main.FormattedOutputTrecEval;
+import edu.gslis.temporal.main.QueryRunner;
 import edu.gslis.textrepresentation.FeatureVector;
 
 

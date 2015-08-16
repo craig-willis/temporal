@@ -8,12 +8,17 @@ public class ScorerConfig {
     public String expander;
     public Map<String, Object> params;
     public String priorPath;
+    String numFeedbackTerms;
+    String numFeedbackDocs;
+    String beta;
+    String sd;
+    String lambda;
     
-    public double beta = 0.5;
-    public double lambda = 0.5;
-    public int numFeedbackTerms = 20;    
-    public int numFeedbackDocs = 20;
-    public double sd = 1;
+    public double[] betaArray = new double[]{0.5};
+    public double[] lambdaArray = new double[]{0.5};
+    public int[] numFeedbackTermsArray = new int[]{20};    
+    public int[] numFeedbackDocsArray = new int[]{20};
+    public double[] sdArray = new double[]{1};
     
     
     public void setPriorPath(String priorPath) {
@@ -24,13 +29,21 @@ public class ScorerConfig {
         return priorPath;
     }
     
-    public double getStdDev() {
-        return sd;
+    public double[] getStdDev() {
+        return sdArray;
     }
     
-    public void setStdDev(double sd) {
-        this.sd = sd;
+    public void setStdDev(String sdStr) {
+        if (sdStr.contains(",")) {
+            String[] values = sdStr.split(",");
+            sdArray = new double[values.length];
+            for (int i=0; i<values.length; i++)
+                sdArray[i] = Double.parseDouble(values[i]);
+        }
+        else
+            sdArray = new double[]{ Double.valueOf(sdStr) };
     }
+    
     public String getName() {
         return name;
     }
@@ -56,30 +69,82 @@ public class ScorerConfig {
         this.params = params;
     }
 
-    public double getBeta() {
+    public double[] getBetaArray() {
+        return betaArray;
+    }
+    
+    public String getBeta() {
         return beta;
     }
     
-    public void setBeta(double beta) {
-        this.beta = beta;
+    public void setBeta(String betaStr) {
+        this.beta = betaStr;
+        if (betaStr.contains(",")) {
+            String[] values = betaStr.split(",");
+            betaArray = new double[values.length];
+            for (int i=0; i<values.length; i++)
+                betaArray[i] = Double.parseDouble(values[i].trim());
+        }
+        else
+            betaArray = new double[]{ Double.valueOf(betaStr) };
     }
-    public double getLambda() {
+    
+    public double[] getLambdaArray() {
+        return lambdaArray;
+    }
+
+    public String getLambda() {
         return lambda;
     }
-    public void setLambda(double lambda) {
-        this.lambda = lambda;
+
+    public void setLambda(String lambdaStr) {
+        this.lambda = lambdaStr;
+        if (lambdaStr.contains(",")) {
+            String[] values = lambdaStr.split(",");
+            lambdaArray = new double[values.length];
+            for (int i=0; i<values.length; i++)
+                lambdaArray[i] = Double.parseDouble(values[i].trim());
+        }
+        else
+            lambdaArray = new double[]{ Double.valueOf(lambdaStr) };
     }
-    public int getNumFeedbackTerms() {
+    
+    public String getNumFeedbackTerms() {
         return numFeedbackTerms;
     }
-    public void setNumFeedbackTerms(int numFeedbackTerms) {
-        this.numFeedbackTerms = numFeedbackTerms;
+    public int[] getNumFeedbackTermsArray() {
+        return numFeedbackTermsArray;
     }
-    public int getNumFeedbackDocs() {
+    public void setNumFeedbackTerms(String numFeedbackTermsStr) {
+        this.numFeedbackTerms = numFeedbackTermsStr;
+
+        if (numFeedbackTermsStr.contains(",")) {
+            String[] values = numFeedbackTermsStr.split(",");
+            numFeedbackTermsArray = new int[values.length];
+            for (int i=0; i<values.length; i++)
+                numFeedbackTermsArray[i] = Integer.parseInt(values[i].trim());
+        }
+        else
+            numFeedbackTermsArray = new int[]{ Integer.parseInt(numFeedbackTermsStr) };
+    }
+    
+    public int[] getNumFeedbackDocsArray() {
+        return numFeedbackDocsArray;
+    }
+    
+    public String getNumFeedbackDocs() {
         return numFeedbackDocs;
     }
-    public void setNumFeedbackDocs(int numFeedbackDocs) {
+    public void setNumFeedbackDocs(String numFeedbackDocs) {
         this.numFeedbackDocs = numFeedbackDocs;
+        if (numFeedbackDocs.contains(",")) {
+            String[] values = numFeedbackDocs.split(",");
+            numFeedbackDocsArray = new int[values.length];
+            for (int i=0; i<values.length; i++)
+                numFeedbackDocsArray[i] = Integer.parseInt(values[i].trim());
+        }
+        else
+            numFeedbackDocsArray = new int[]{ Integer.parseInt(numFeedbackDocs) };
     }
     
 }
