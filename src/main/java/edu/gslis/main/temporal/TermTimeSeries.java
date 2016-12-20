@@ -1,4 +1,4 @@
-package edu.gslis.indexes;
+package edu.gslis.main.temporal;
 
 import java.io.File;
 import java.io.FileWriter;

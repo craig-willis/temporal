@@ -2,7 +2,7 @@ package edu.gslis.scorers.temporal;
 
 import java.util.Iterator;
 
-import edu.gslis.indexes.TemporalLDAIndex;
+import edu.gslis.indexes.temporal.TemporalLDAIndex;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 

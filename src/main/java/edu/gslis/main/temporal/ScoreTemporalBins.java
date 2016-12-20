@@ -1,4 +1,4 @@
-package edu.gslis.indexes;
+package edu.gslis.main.temporal;
 
 import java.util.Iterator;
 
@@ -8,6 +8,9 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
+import edu.gslis.indexes.IndexWrapper;
+import edu.gslis.indexes.IndexWrapperFactory;
+import edu.gslis.indexes.temporal.TimeSeriesIndex;
 import edu.gslis.queries.GQueries;
 import edu.gslis.queries.GQueriesIndriImpl;
 import edu.gslis.queries.GQueriesJsonImpl;

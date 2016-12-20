@@ -1,6 +1,6 @@
 package edu.gslis.scorers.kmeans;
 
-import edu.gslis.indexes.KMeansIndex;
+import edu.gslis.indexes.temporal.cluster.KMeansIndex;
 import edu.gslis.scorers.temporal.RerankingScorer;
 import edu.gslis.searchhits.SearchHits;
 

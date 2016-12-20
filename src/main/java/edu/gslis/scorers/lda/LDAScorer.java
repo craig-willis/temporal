@@ -2,7 +2,7 @@ package edu.gslis.scorers.lda;
 
 import java.util.Iterator;
 
-import edu.gslis.indexes.LDAIndex;
+import edu.gslis.indexes.temporal.lda.LDAIndex;
 import edu.gslis.scorers.temporal.RerankingScorer;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;

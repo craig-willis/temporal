@@ -1,4 +1,4 @@
-package edu.gslis.indexes;
+package edu.gslis.main.temporal;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -14,6 +14,8 @@ import org.apache.commons.collections.Bag;
 import org.apache.commons.collections.bag.TreeBag;
 
 import edu.gslis.eval.Qrels;
+import edu.gslis.indexes.IndexWrapper;
+import edu.gslis.indexes.IndexWrapperFactory;
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.queries.GQueries;
 import edu.gslis.queries.GQueriesIndriImpl;

@@ -1,4 +1,4 @@
-package edu.gslis.indexes;
+package edu.gslis.main.temporal;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -17,6 +17,9 @@ import org.rosuda.REngine.Rserve.RConnection;
 
 import edu.gslis.docscoring.support.IndexBackedCollectionStats;
 import edu.gslis.eval.Qrels;
+import edu.gslis.indexes.IndexWrapper;
+import edu.gslis.indexes.IndexWrapperFactory;
+import edu.gslis.indexes.temporal.TimeSeriesIndex;
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.queries.GQueries;
 import edu.gslis.queries.GQueriesIndriImpl;

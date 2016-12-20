@@ -1,4 +1,4 @@
-package edu.gslis.indexes;
+package edu.gslis.indexes.temporal.lda;
 
 import java.io.BufferedReader;
 

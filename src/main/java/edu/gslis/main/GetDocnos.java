@@ -1,8 +1,6 @@
-package edu.gslis.indexes;
+package edu.gslis.main;
 
-import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.OutputStreamWriter;
 
 import org.apache.commons.cli.CommandLine;
@@ -11,10 +9,13 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
+import edu.gslis.indexes.IndexWrapper;
+import edu.gslis.indexes.IndexWrapperFactory;
+
 /** 
- * Dump all documents in an Indri index
+ * Print all docnos from index to file
  */
-public class DumpDocuments 
+public class GetDocnos 
 {
     public static void main(String[] args) throws Exception 
     {
@@ -23,7 +24,7 @@ public class DumpDocuments
         CommandLine cl = parser.parse( options, args);
         if (cl.hasOption("help")) {
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp( DumpDocuments.class.getCanonicalName(), options );
+            formatter.printHelp( GetDocnos.class.getCanonicalName(), options );
             return;
         }
         String indexPath = cl.getOptionValue("index");

@@ -1,4 +1,4 @@
-package edu.gslis.indexes;
+package edu.gslis.indexes.temporal.cluster;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

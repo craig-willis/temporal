@@ -1,4 +1,4 @@
-package edu.gslis.indexes;
+package edu.gslis.main;
 
 import java.io.FileWriter;
 import java.math.BigDecimal;
@@ -10,6 +10,8 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
+import edu.gslis.indexes.IndexWrapper;
+import edu.gslis.indexes.IndexWrapperFactory;
 import edu.gslis.queries.GQueries;
 import edu.gslis.queries.GQueriesIndriImpl;
 import edu.gslis.queries.GQueriesJsonImpl;
@@ -18,7 +20,11 @@ import edu.gslis.queries.expansion.FeedbackRelevanceModel;
 import edu.gslis.searchhits.SearchHits;
 import edu.gslis.textrepresentation.FeatureVector;
 
-public class GenerateFeedbackQueries 
+/**
+ * Get Feedback Queries -- currently supports only RM3
+ * TODO: Extend to support RM, RM3, and possibly Zhai's DFM.
+ */
+public class GetFeedbackQueries 
 {
     public static void main(String[] args) throws Exception 
     {
@@ -27,7 +33,7 @@ public class GenerateFeedbackQueries
         CommandLine cl = parser.parse( options, args);
         if (cl.hasOption("help")) {
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp( GenerateFeedbackQueries.class.getCanonicalName(), options );
+            formatter.printHelp( GetFeedbackQueries.class.getCanonicalName(), options );
             return;
         }
         String indexPath = cl.getOptionValue("index");
@@ -59,8 +65,8 @@ public class GenerateFeedbackQueries
             rm3.setStopper(null);
             rm3.setRes(results);
             rm3.build();
+            
             FeatureVector rmVector = rm3.asFeatureVector();
-            rmVector = cleanModel(rmVector);
             rmVector.clip(numFbTerms);
             rmVector.normalize();
             FeatureVector feedbackVector =
@@ -71,12 +77,10 @@ public class GenerateFeedbackQueries
             feedbackQuery.setText(query.getText());
             feedbackQuery.setFeatureVector(feedbackVector);
             
-
             outputWriter.write("<query>\n");
             outputWriter.write("<number>" +  query.getTitle() + "</number>\n");
             outputWriter.write("<text>" + toIndri(feedbackQuery) + "<text>\n");
             outputWriter.write("</query>\n");
-
         }
         outputWriter.write("</parameters>\n");
         outputWriter.close();
@@ -100,18 +104,6 @@ public class GenerateFeedbackQueries
         return queryString.toString();
     }
     
-    public static FeatureVector cleanModel(FeatureVector model) {
-        FeatureVector cleaned = new FeatureVector(null);
-        Iterator<String> it = model.iterator();
-        while(it.hasNext()) {
-            String term = it.next();
-            if(term.length() < 3 || term.matches(".*[0-9].*"))
-                continue;
-            cleaned.addTerm(term, model.getFeatureWeight(term));
-        }
-        cleaned.normalize();
-        return cleaned;
-    }
     
     public static Options createOptions()
     {

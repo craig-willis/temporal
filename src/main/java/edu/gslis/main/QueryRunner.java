@@ -1,4 +1,4 @@
-package edu.gslis.temporal.main;
+package edu.gslis.main;
 
 import java.util.Iterator;
 

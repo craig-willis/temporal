@@ -1,4 +1,4 @@
-package edu.gslis.indexes;
+package edu.gslis.main;
 
 import java.io.FileWriter;
 import java.text.DateFormat;
@@ -11,6 +11,8 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
+import edu.gslis.indexes.IndexWrapper;
+import edu.gslis.indexes.IndexWrapperFactory;
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.trec.util.Qrels;

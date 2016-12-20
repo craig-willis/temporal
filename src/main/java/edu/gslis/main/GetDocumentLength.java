@@ -1,4 +1,4 @@
-package edu.gslis.indexes;
+package edu.gslis.main;
 
 import java.io.FileWriter;
 
@@ -7,6 +7,9 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+
+import edu.gslis.indexes.IndexWrapper;
+import edu.gslis.indexes.IndexWrapperFactory;
 
 /**
  * Calculate the p(D \vert \theta_T)

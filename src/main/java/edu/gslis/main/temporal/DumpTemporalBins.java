@@ -1,4 +1,4 @@
-package edu.gslis.indexes;
+package edu.gslis.main.temporal;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -10,6 +10,7 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
+import edu.gslis.indexes.temporal.TimeSeriesIndex;
 import edu.gslis.textrepresentation.FeatureVector;
 
 /**

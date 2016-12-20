@@ -1,4 +1,4 @@
-package edu.gslis.indexes;
+package edu.gslis.main.temporal;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -15,6 +15,8 @@ import org.rosuda.REngine.Rserve.RConnection;
 import edu.gslis.docscoring.ScorerDirichlet;
 import edu.gslis.docscoring.support.IndexBackedCollectionStats;
 import edu.gslis.eval.Qrels;
+import edu.gslis.indexes.IndexWrapper;
+import edu.gslis.indexes.IndexWrapperFactory;
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.queries.GQueries;
 import edu.gslis.queries.GQueriesIndriImpl;
