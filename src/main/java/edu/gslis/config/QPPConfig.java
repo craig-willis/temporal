@@ -1,4 +1,4 @@
-package edu.gslis.main.config;
+package edu.gslis.config;
 
 
 

@@ -2,13 +2,9 @@ package edu.gslis.temporal.main;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-
-import edu.gslis.main.config.BatchConfig;
-import edu.gslis.main.config.ScorerConfig;
+import edu.gslis.config.BatchConfig;
 import edu.gslis.temporal.scorers.RerankingScorer;
 import edu.gslis.utils.Stopper;
 

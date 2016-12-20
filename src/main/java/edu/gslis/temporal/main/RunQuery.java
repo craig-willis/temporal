@@ -15,7 +15,9 @@ import java.util.concurrent.TimeUnit;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
-import ucar.unidata.util.StringUtil;
+import edu.gslis.config.BatchConfig;
+import edu.gslis.config.CollectionConfig;
+import edu.gslis.config.ScorerConfig;
 import edu.gslis.docscoring.support.CollectionStats;
 import edu.gslis.eval.Qrels;
 import edu.gslis.indexes.IndexWrapper;
@@ -24,9 +26,6 @@ import edu.gslis.indexes.LDAIndex;
 import edu.gslis.indexes.TemporalLDAIndex;
 import edu.gslis.indexes.TimeSeriesIndex;
 import edu.gslis.lucene.indexer.Indexer;
-import edu.gslis.main.config.BatchConfig;
-import edu.gslis.main.config.CollectionConfig;
-import edu.gslis.main.config.ScorerConfig;
 import edu.gslis.queries.GQueries;
 import edu.gslis.queries.GQueriesIndriImpl;
 import edu.gslis.queries.GQueriesJsonImpl;
@@ -37,6 +36,7 @@ import edu.gslis.temporal.scorers.RerankingScorer;
 import edu.gslis.temporal.scorers.TemporalLDAScorer;
 import edu.gslis.temporal.scorers.TemporalScorer;
 import edu.gslis.textrepresentation.FeatureVector;
+import ucar.unidata.util.StringUtil;
 
 
 /** 

@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.gslis.config.ScorerConfig;
 import edu.gslis.docscoring.QueryDocScorer;
-import edu.gslis.main.config.ScorerConfig;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 
