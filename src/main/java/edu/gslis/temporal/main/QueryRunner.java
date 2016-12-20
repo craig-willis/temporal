@@ -11,11 +11,11 @@ import edu.gslis.eval.Qrels;
 import edu.gslis.indexes.IndexWrapper;
 import edu.gslis.queries.GQuery;
 import edu.gslis.queries.expansion.FeedbackRelevanceModel;
+import edu.gslis.scorers.temporal.OracleKDEScorer;
+import edu.gslis.scorers.temporal.RerankingScorer;
+import edu.gslis.scorers.temporal.ScorerDirichlet;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
-import edu.gslis.temporal.scorers.OracleKDEScorer;
-import edu.gslis.temporal.scorers.RerankingScorer;
-import edu.gslis.temporal.scorers.ScorerDirichlet;
 import edu.gslis.textrepresentation.FeatureVector;
 import edu.gslis.utils.Stopper;
 

@@ -30,11 +30,11 @@ import edu.gslis.queries.GQueries;
 import edu.gslis.queries.GQueriesIndriImpl;
 import edu.gslis.queries.GQueriesJsonImpl;
 import edu.gslis.queries.GQuery;
-import edu.gslis.temporal.scorers.KDELDAScorer;
-import edu.gslis.temporal.scorers.LDAScorer;
-import edu.gslis.temporal.scorers.RerankingScorer;
-import edu.gslis.temporal.scorers.TemporalLDAScorer;
-import edu.gslis.temporal.scorers.TemporalScorer;
+import edu.gslis.scorers.lda.LDAScorer;
+import edu.gslis.scorers.temporal.KDELDAScorer;
+import edu.gslis.scorers.temporal.RerankingScorer;
+import edu.gslis.scorers.temporal.TemporalLDAScorer;
+import edu.gslis.scorers.temporal.TemporalScorer;
 import edu.gslis.textrepresentation.FeatureVector;
 import ucar.unidata.util.StringUtil;
 

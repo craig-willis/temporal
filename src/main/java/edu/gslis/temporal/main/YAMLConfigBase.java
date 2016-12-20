@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.gslis.config.BatchConfig;
-import edu.gslis.temporal.scorers.RerankingScorer;
+import edu.gslis.scorers.temporal.RerankingScorer;
 import edu.gslis.utils.Stopper;
 
 /**

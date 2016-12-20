@@ -6,8 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import edu.gslis.scorers.temporal.KDEScorer;
 import edu.gslis.searchhits.SearchHit;
-import edu.gslis.temporal.scorers.KDEScorer;
 import edu.gslis.temporal.util.RKernelDensity;
 import edu.gslis.textrepresentation.FeatureVector;
 import edu.gslis.utils.KeyValuePair;
