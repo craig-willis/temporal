@@ -132,16 +132,6 @@
            <version>0.0.1-SNAPSHOT</version>
        </dependency>
        <dependency>
-           <groupId>edu.illinois.lis</groupId>
-           <artifactId>filtering</artifactId>
-           <version>0.0.1-SNAPSHOT</version>
-       </dependency>
-       <dependency>
-           <groupId>edu.gslis</groupId>
-           <artifactId>trec2014</artifactId>
-           <version>0.0.1-SNAPSHOT</version>
-       </dependency> 
-       <dependency>
           <groupId>com.h2database</groupId>
           <artifactId>h2</artifactId>
           <version>1.4.181</version>
@@ -166,6 +156,26 @@
     <artifactId>textcat</artifactId>
     <version>1.0.1</version>
 </dependency>
-              
+        <dependency>
+            <groupId>org.nuiton.thirdparty</groupId>
+            <artifactId>REngine</artifactId>
+            <version>1.7-3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.nuiton.thirdparty</groupId>
+            <artifactId>Rserve</artifactId>
+            <version>1.7-3</version>
+        </dependency>
+            <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>20.0</version>
+        </dependency>               
+        <dependency>
+            <groupId>mpj</groupId>
+            <artifactId>mpj-express</artifactId>
+            <version>0.44</version>
+        </dependency>
+                
   </dependencies>
 </project>
