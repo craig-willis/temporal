@@ -2,7 +2,9 @@ package edu.gslis.config;
 
 import java.util.List;
 
-
+/**
+ * Batch run configuration object for YAMLConfigBase class.
+ */
 public class BatchConfig {
     String stopper = "";
     String indexRoot = "";
@@ -10,15 +12,14 @@ public class BatchConfig {
     String bgSourcePath = "";
     List<ScorerConfig> scorers;
     List<CollectionConfig> collections;
-    List<OptimizerConfig> optimizers;
     List<PriorConfig> priors;
     String optimizer = "";
     String runPrefix = "";
     String outputDir = "";
-    QPPConfig qpp;
     String constraint;
+    /* Number of threads for multi-threaded runs */
     int numThreads;
-    
+        
     public int getNumThreads() {
         return numThreads;
     }
@@ -59,20 +60,7 @@ public class BatchConfig {
     public void setCollections(List<CollectionConfig> collections) {
         this.collections = collections;
     }
-    
-    public List<OptimizerConfig> getOptimizers() {
-        return optimizers;
-    }
-    public void setOptimizers(List<OptimizerConfig> optimizers) {
-        this.optimizers = optimizers;
-    }
-    public String getOptimizer() {
-        return optimizer;
-    }
-    public void setOptimizer(String optimizer) {
-        this.optimizer = optimizer;
-    }
-    
+       
     public List<PriorConfig> getPriors() {
         return priors;
     }
@@ -91,12 +79,6 @@ public class BatchConfig {
     }
     public void setOutputDir(String outputDir) {
         this.outputDir = outputDir;
-    }
-    public QPPConfig getQpp() {
-        return qpp;
-    }
-    public void setQpp(QPPConfig qpp) {
-        this.qpp = qpp;
     }
     public void setConstraint(String constraint) {
         this.constraint = constraint;

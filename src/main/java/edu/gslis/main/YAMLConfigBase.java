@@ -9,16 +9,16 @@ import edu.gslis.scorers.temporal.RerankingScorer;
 import edu.gslis.utils.Stopper;
 
 /**
- * Base class for YAML-configured drivers
+ * Base class for YAML batch configured query drivers
  */
 public class YAMLConfigBase 
 {
-    ClassLoader loader = ClassLoader.getSystemClassLoader();
-    BatchConfig config = null;
-    Stopper stopper = null;
-    String prefix = null;
-    String indexRoot = null;
-    File outputDir = null;   
+	protected ClassLoader loader = ClassLoader.getSystemClassLoader();
+    protected BatchConfig config = null;
+    protected Stopper stopper = null;
+    protected String prefix = null;
+    protected String indexRoot = null;
+    protected File outputDir = null;   
     Map<String, RerankingScorer> scorers = new HashMap<String, RerankingScorer>();
     Map<String, Object> priors = new HashMap<String, Object>();
     Map<String, Double> priorWeights = new HashMap<String, Double>();
@@ -33,11 +33,14 @@ public class YAMLConfigBase
     protected void initGlobals()  throws Exception
     {
         // Global settings
+    	
+    	// Stop list
         stopper = new Stopper(config.getStopper());
+        // Run prefix
         prefix = config.getRunPrefix();
+        // Index root path
         indexRoot = config.getIndexRoot();
-                  
+        // Output directory
         outputDir = new File(config.getOutputDir());
     }
-
 }

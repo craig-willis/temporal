@@ -3,89 +3,44 @@ package edu.gslis.config;
 import java.util.Map;
 
 
+/**
+ * Collection configuration settings for use with YAMLConfigBase
+ * @author willis8
+ *
+ */
 public class CollectionConfig {
     String name;
-    String trainIndex;
-    String testIndex;
+    String index;
     Map<String, String> queries;
-    String testQrels;
-    String trainQrels;
+    String qrels;
     String bgSourcePath;
     Integer relLevel = 1;
-    String trainDocs;
     String dateFormat;
     long startDate;
     long endDate;
-    long interval;
-    String tsDB;
-    String ldaDocTopicsPath;
-    String ldaTermTopicPath;
-    String ldaPath;
     
-    public void setTsDB(String tsDB) {
-        this.tsDB = tsDB;
-    }
-    public String getTsDB() {
-        return tsDB;
-    }
-    
-    
-    public String getLdaPath() {
-        return ldaPath;
-    }
-    
-    public void setLdaPath(String path) {
-        this.ldaPath = path;
-    }
-    public String getLdaDocTopicsPath() {
-        return ldaDocTopicsPath;
-    }
-    public void setLdaDocTopicsPath(String path) {
-        this.ldaDocTopicsPath = path;
-    }
-    
-    public String getLdaTermTopicPath() {
-        return ldaTermTopicPath;
-    }
-    public void setLdaTermTopicPath(String path) {
-        this.ldaTermTopicPath = path;
-    }
+
     public String getName() {
         return name;
     }
     public void setName(String name) {
         this.name = name;
     }
-    public String getTrainIndex() {
-        return trainIndex;
+    public String getIndex() {
+        return index;
     }
-    public void setTrainIndex(String trainIndex) {
-        this.trainIndex = trainIndex;
+    public void setIndex(String trainIndex) {
+        this.index = trainIndex;
     }
-    public String getTestIndex() {
-        return testIndex;
+
+    
+    public void setQrels(String qrels) {
+        this.qrels = qrels;
     }
-    public void setTestIndex(String testIndex) {
-        this.testIndex = testIndex;
+    public String getQrels() {
+        return qrels;
     }
-    public String getTestQrels() {
-        return testQrels;
-    }
-    public void setTestQrels(String testQrels) {
-        this.testQrels = testQrels;
-    }
-    public String getTrainQrels() {
-        return trainQrels;
-    }
-    public void setTrainDocs(String trainDocs) {
-        this.trainDocs = trainDocs;
-    }
-    public String getTrainDocs() {
-        return trainDocs;
-    }
-    public void setTrainQrels(String trainQrels) {
-        this.trainQrels = trainQrels;
-    }
+
     public String getBgSourcePath() {
         return bgSourcePath;
     }
@@ -122,11 +77,4 @@ public class CollectionConfig {
     public void setEndDate(long endDate) {
         this.endDate = endDate;
     }
-    public long getInterval() {
-        return interval;
-    }
-    public void setInterval(long interval) {
-        this.interval = interval;
-    }    
-    
 }
