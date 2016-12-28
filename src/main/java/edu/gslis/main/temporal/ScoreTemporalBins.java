@@ -39,7 +39,7 @@ public class ScoreTemporalBins
         String topicsPath = cl.getOptionValue("topics");
 
         TimeSeriesIndex tsIndex = new TimeSeriesIndex();
-        tsIndex.open(tsIndexPath, true, "csv");
+        tsIndex.open(tsIndexPath, true);
         int numBins = tsIndex.getNumBins();
 
         IndexWrapper index = IndexWrapperFactory.getIndexWrapper(indexPath);

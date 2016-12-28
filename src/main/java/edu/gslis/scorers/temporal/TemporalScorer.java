@@ -79,8 +79,8 @@ public class TemporalScorer extends RerankingScorer
         long docTime = getDocTime(doc);
 
         // Ignore documents outside of the temporal bounds
-        if (docTime < startTime || docTime > endTime)
-            return Double.NEGATIVE_INFINITY;
+        //if (docTime < startTime || docTime > endTime)
+        //    return Double.NEGATIVE_INFINITY;
         
         double logLikelihood = 0.0;
         Iterator<String> queryIterator = gQuery.getFeatureVector().iterator();

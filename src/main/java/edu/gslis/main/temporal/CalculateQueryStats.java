@@ -1,6 +1,5 @@
 package edu.gslis.main.temporal;
 
-import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -45,7 +44,6 @@ public class CalculateQueryStats
         String indexPath = cl.getOptionValue("index");
 
         String queryFilePath = cl.getOptionValue("topics");
-        double alpha = Double.parseDouble(cl.getOptionValue("alpha", "0.005"));
         String qrelsPath = cl.getOptionValue("qrels");
         long startTime = Long.parseLong(cl.getOptionValue("startTime"));
         long endTime = Long.parseLong(cl.getOptionValue("endTime"));
@@ -72,22 +70,19 @@ public class CalculateQueryStats
         queries.read(queryFilePath);
 
         TimeSeriesIndex tsIndex = new TimeSeriesIndex();
-        tsIndex.open(tsIndexPath, true, "csv");
+        tsIndex.open(tsIndexPath, true);
         
         Iterator<GQuery> it = queries.iterator();
         RUtil rutil = new RUtil(port);
         System.out.println("title,numterms,scoremean,scoresd,scoremin,scoremax," +
                 "scorekmean,scoreksd,scorekmin,scorekmax," +
                 "scoresmean,scoressd,scoresmin,scoresmax," + 
-                "npmimean,npmisd,npmimin,npmimax," + 
-                "csmean,cssd,csmin,csmax," + 
                 "ac2mean,ac2sd,ac2min,ac2max," + 
                 "ac3mean,ac3sd,ac3min,ac3max," + 
                 "kmean,ksd,kmin,kmax," + 
                 "smean,ssd,smin,smax," + 
                 "cpmean,cpsd,cpmin,cpmax," +
                 "corrmean,corrsd,corrmin,corrmax," + 
-                "cscorrmean,cscorrsd,cscorrmin,cscorrmax," +
                 "ccf,st1,st2,st3"); 
               
         
@@ -101,8 +96,6 @@ public class CalculateQueryStats
 
         while (it.hasNext()) 
         {
-            DescriptiveStatistics npmistats = new DescriptiveStatistics();  
-            DescriptiveStatistics chisqstats = new DescriptiveStatistics();  
             DescriptiveStatistics acf2stats = new DescriptiveStatistics();  
             DescriptiveStatistics acf3stats = new DescriptiveStatistics();  
             DescriptiveStatistics kstats = new DescriptiveStatistics();  
@@ -112,7 +105,6 @@ public class CalculateQueryStats
             DescriptiveStatistics scorekstats = new DescriptiveStatistics();  
             DescriptiveStatistics scoreskewstats = new DescriptiveStatistics();  
             DescriptiveStatistics corrstats = new DescriptiveStatistics();
-            DescriptiveStatistics cscorrstats = new DescriptiveStatistics();
             PearsonsCorrelation corr = new PearsonsCorrelation();
             DescriptiveStatistics bindist = new DescriptiveStatistics();  
             DescriptiveStatistics topbindist = new DescriptiveStatistics();  
@@ -212,14 +204,6 @@ public class CalculateQueryStats
             FeatureVector fv = query.getFeatureVector();
             for (String feature: fv.getFeatures()) 
             {
-                double[] npmi = tsIndex.getNpmi(feature);
-                for (int bin=0; bin<npmi.length; bin++) {
-                    npmistats.addValue(npmi[bin]);
-                }
-                double[] chisq = tsIndex.getChiSq(feature, alpha);
-                for (int bin=0; bin<chisq.length; bin++) {
-                    chisqstats.addValue(chisq[bin]);
-                }                    
                 double ac2 = rutil.acf(tsIndex.get(feature), 2);
                 acf2stats.addValue(ac2);
                 double ac3 = rutil.acf(tsIndex.get(feature), 3);
@@ -243,11 +227,7 @@ public class CalculateQueryStats
                     double[] freq1 = tsIndex.get(feature);
                     double[] freq2 = tsIndex.get(feature2);
                     double rho = corr.correlation(freq1, freq2);
-                    corrstats.addValue(rho);
-                    
-                    double[] cs2 = tsIndex.getChiSq(feature2, alpha);
-                    double csrho = corr.correlation(chisq, cs2);
-                    cscorrstats.addValue(csrho);
+                    corrstats.addValue(rho);                   
                 }
             }
             
@@ -256,15 +236,12 @@ public class CalculateQueryStats
                scorestats.getMean() + ", " + scorestats.getStandardDeviation()  + "," + scorestats.getMin() + "," + scorestats.getMax() + "," +
                scorekstats.getMean() + ", " + scorekstats.getStandardDeviation()  + "," + scorekstats.getMin() + "," + scorekstats.getMax() + "," +
                scoreskewstats.getMean() + ", " + scoreskewstats.getStandardDeviation()  + "," + scoreskewstats.getMin() + "," + scoreskewstats.getMax() + "," +
-               npmistats.getMean() + ", " + npmistats.getStandardDeviation()  + "," + npmistats.getMin() + "," + npmistats.getMax() + "," +
-               chisqstats.getMean() + ", " + chisqstats.getStandardDeviation()  + "," + chisqstats.getMin() + "," + chisqstats.getMax() + "," +
                acf2stats.getMean() + ", " + acf2stats.getStandardDeviation()  + "," + acf2stats.getMin() + "," + acf2stats.getMax() + "," +
                acf3stats.getMean() + ", " + acf3stats.getStandardDeviation()  + "," + acf3stats.getMin() + "," + acf3stats.getMax() + "," +
                kstats.getMean() + ", " + kstats.getStandardDeviation()  + "," + kstats.getMin() + "," + kstats.getMax() + "," +
                skewstats.getMean() + ", " + skewstats.getStandardDeviation()  + "," + skewstats.getMin() + "," + skewstats.getMax() + "," +
                cpstats.getMean() + ", " + cpstats.getStandardDeviation()  + "," + cpstats.getMin() + "," + cpstats.getMax() + ","  +
                corrstats.getMean() + ", " + corrstats.getStandardDeviation() + "," + corrstats.getMin() + "," + corrstats.getMax() + "," +
-               cscorrstats.getMean() + ", " + cscorrstats.getStandardDeviation() + "," + cscorrstats.getMin() + "," + cscorrstats.getMax() + 
                "," + ccf0 + "," + st1 + "," +st2 + "," + st3 + "," + 
                bindist.getMean() + ", " + bindist.getStandardDeviation() + "," +
                topbindist.getMean() + "," + topbindist.getStandardDeviation() + "," + 

@@ -17,21 +17,15 @@ import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.textrepresentation.FeatureVector;
 
 /**
- * Builds a simple H2 RDB with a single "series" table consisting of columns:
- *  term | bin0 | bin1 ... bink
- *
- * The bins are determined based on the specified interval. 
- * 
- * ./run.sh edu.gslis.temporal.main.CreateTermTimeIndex 
+ * Builds term-time index
+ *  * 
+ * ./run.sh edu.gslis.main.temporal.CreateTermTimeIndex 
  *      -index <path to index>
- *      -start <start time in secons>
+ *      -start <start time in seconds>
  *      -end <end time in seconds>
  *      -interval <interval in seconds>
- *      -format (h2 or csv)
- *      -output <path to output H2 DB or csv file>
+ *      -output <path to output  file>
  *      -df <if true, use document freq, if false use term freq>
- * 
- * The resulting model is used by the DocTimeScorer and TimeSmoothedScorer.
  */
 public class CreateTermTimeIndex 
 {
@@ -109,12 +103,11 @@ public class CreateTermTimeIndex
             numBins ++;
 
         String output = cl.getOptionValue("output");
-        String format = cl.getOptionValue("format");
 
         System.err.println("Creating " + output + " with " + numBins + " bins");
 
         TimeSeriesIndex tsIndex = new TimeSeriesIndex();
-        tsIndex.open(output, false, format);
+        tsIndex.open(output, false);
             
 
         System.err.println("Calculating bin totals");

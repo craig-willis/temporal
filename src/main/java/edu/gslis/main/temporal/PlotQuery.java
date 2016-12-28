@@ -27,8 +27,6 @@ import edu.gslis.queries.GQueriesJsonImpl;
 import edu.gslis.queries.GQuery;
 import edu.gslis.scorers.temporal.TSMScorer;
 import edu.gslis.scorers.temporal.TemporalScorer;
-import edu.gslis.searchhits.SearchHit;
-import edu.gslis.searchhits.SearchHits;
 
 public class PlotQuery 
 {
@@ -61,7 +59,7 @@ public class PlotQuery
         Qrels qrels =new Qrels(qrelsPath, false, 1);
 
         TimeSeriesIndex tsIndex = new TimeSeriesIndex();
-        tsIndex.open(tsIndexPath, true, "csv");
+        tsIndex.open(tsIndexPath, true);
         
         IndexWrapper index = IndexWrapperFactory.getIndexWrapper(indexPath);
         IndexBackedCollectionStats collectionStats = new IndexBackedCollectionStats();
@@ -206,48 +204,6 @@ public class PlotQuery
             }
             c.eval("dev.off()");             
             
-            // Plot npmi & chisq
-            c.voidEval("png(\"" + query.getTitle() + "-npmi.png" + "\")");
-            c.voidEval(par);
-
-            for (String feature: query.getFeatureVector().getFeatures()) 
-            {
-                double[] npmi = tsIndex.getNpmi(feature);
-                c.assign("z", npmi);
-                c.voidEval("plot(z ~ x, type=\"h\", lwd=2, main=\"" + feature + "\")");
-                
-                if (relDocBins.size() > 0) {
-                    c.voidEval("rug(reldocs, col=\"red\")");
-                }
-                
-                for (int bin=0; bin<npmi.length; bin++) {
-                    System.out.println(feature + "," + bin + "," + tsIndex.get(feature, bin) + "," + df.format(npmi[bin]) + "," + relDocBag.getCount(bin));
-                }
-
-            }
-            c.eval("dev.off()");
-
-
-            c.voidEval("png(\"" + query.getTitle() + "-chisq.png" + "\")");
-            c.voidEval(par);
-
-            for (String feature: query.getFeatureVector().getFeatures()) 
-            {
-                double[] chisq = tsIndex.getChiSq(feature, -1);
-                c.assign("z", chisq);
-                c.voidEval("plot(z ~ x, type=\"h\", lwd=2, main=\"" + feature + "\")");
-                
-                if (relDocBins.size() > 0) {
-                    c.voidEval("rug(reldocs, col=\"red\")");
-                }
-                
-                for (int bin=0; bin<chisq.length; bin++) {
-                    System.out.println(feature + "," + bin + "," + tsIndex.get(feature, bin) + "," + df.format(chisq[bin]) + "," + relDocBag.getCount(bin));
-                }
-            }
-            c.eval("dev.off()");
-
-
             
             /*
             // Diaz and Jones: temporal KL

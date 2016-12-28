@@ -36,7 +36,7 @@ public class DumpTemporalBins
         
 
         TimeSeriesIndex tsIndex = new TimeSeriesIndex();
-        tsIndex.open(tsIndexPath, true, "csv");
+        tsIndex.open(tsIndexPath, true);
         
         
         int numBins = tsIndex.getNumBins();

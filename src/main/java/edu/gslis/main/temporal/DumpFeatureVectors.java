@@ -33,7 +33,7 @@ public class DumpFeatureVectors
         int numTerms = Integer.parseInt(cl.getOptionValue("numTerms"));
 
         TimeSeriesIndex tsIndex = new TimeSeriesIndex();
-        tsIndex.open(index, true, "csv");
+        tsIndex.open(index, true);
         
         Map<Integer, FeatureVector> tms = new TreeMap<Integer, FeatureVector>();
         

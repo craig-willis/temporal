@@ -41,7 +41,7 @@ public class MixtureTermTimeIndex
         
 
         TimeSeriesIndex tsIndex = new TimeSeriesIndex();
-        tsIndex.open(tsIndexPath, true, "csv");
+        tsIndex.open(tsIndexPath, true);
         
         IndexWrapper index = IndexWrapperFactory.getIndexWrapper(indexPath);
         FileWriter output = new FileWriter(outputPath);
