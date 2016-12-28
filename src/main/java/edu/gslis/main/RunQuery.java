@@ -57,8 +57,13 @@ public class RunQuery extends YAMLConfigBase
     public void runBatch() throws Exception 
     {
         initGlobals();
-        
-        
+                
+        // Start a thread per query
+        int numThreads = config.getNumThreads();
+        if (numThreads == 0) { numThreads = 1; }
+        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+
+        List<Writer> writers = new ArrayList<Writer>();
         // For each collection
         List<CollectionConfig> collections = config.getCollections();
         for(CollectionConfig collection: collections) 
@@ -124,51 +129,51 @@ public class RunQuery extends YAMLConfigBase
                     // for each parameter combination
                     for (List<Double> params: prod) {
                     	
-                        // Scorer per worker means scorer per query
-                        RerankingScorer docScorer = (RerankingScorer)loader.loadClass(className).newInstance();
-                        
-                        docScorer.setConfig(scorerConfig);
-                        docScorer.setCollectionStats(corpusStats);
-                        
-                        if (docScorer instanceof TemporalScorer) {
-                        	((TemporalScorer)docScorer).setStartTime(startTime);
-                        	((TemporalScorer)docScorer).setStartTime(endTime);
-                        }
-                        
                     	String paramStr = "";
                     	for (int i=0; i<params.size(); i++) {
                         	String name = paramNames.get(i);
                         	Double value = params.get(i);
-                            docScorer.setParameter(name, value);
                             if (paramStr.length() > 0) 
                             	paramStr += ":";
                             paramStr += name +"=" + value;
                     	}
-                    	                    	                   
-                    	// Begin: Multi-threaded query runner
                     	
                         // Create output file
                     	File resultsDir = new File(outputDir + "/" + collectionName + "/" + queryFileName + "/" + scorerName);
                     	resultsDir.mkdirs();     
-                        String runId = scorerName + "_" + paramStr;
                         String trecResultsFile = resultsDir + File.separator + paramStr + ".out";
                         
                         Writer trecResultsWriter = new BufferedWriter(new FileWriter(trecResultsFile));
                         FormattedOutputTrecEval trecFormattedWriter = new FormattedOutputTrecEval();
-                        trecFormattedWriter.setRunId(runId);
+                        trecFormattedWriter.setRunId(scorerName);
                         trecFormattedWriter.setWriter(trecResultsWriter);
+                        writers.add(trecResultsWriter);
                                          
-                        // Start a thread per query
-                        int numThreads = config.getNumThreads();
-                        if (numThreads == 0) { numThreads = 1; }
-                        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
-
                         Iterator<GQuery> queryIterator = queries.iterator();
                         while(queryIterator.hasNext()) 
                         {                            
 	                        GQuery query = queryIterator.next();
+	                        
+	                        // Scorer per worker means scorer per query
+	                        RerankingScorer docScorer = (RerankingScorer)loader.loadClass(className).newInstance();
+	                        
+	                        docScorer.setConfig(scorerConfig);
+	                        docScorer.setCollectionStats(corpusStats);
+	                        
+	                        if (docScorer instanceof TemporalScorer) {
+	                        	((TemporalScorer)docScorer).setStartTime(startTime);
+	                        	((TemporalScorer)docScorer).setStartTime(endTime);
+	                        }
+	                        
+	                        
+	        				String[] prams = paramStr.split(":");
+	        				for (String param: prams) {
+	        					String[] p = param.split("=");
+	        					docScorer.setParameter(p[0], Double.valueOf(p[1]));
+	        				}
+	        	    			        
+
 	                        docScorer.setQuery(query);		                                                
-	                        docScorer.init();
 	                                
 	                        // Run worker
 	                        QueryRunner worker = new QueryRunner();
@@ -179,19 +184,20 @@ public class RunQuery extends YAMLConfigBase
 	                        worker.setTrecFormattedWriter(trecFormattedWriter);
 	                        worker.setCollectionStats(corpusStats);
 	                        executor.execute(worker);
-	                    }
-                        
-                        executor.shutdown();
-                        // Wait until all threads are finish
-                        executor.awaitTermination(360, TimeUnit.MINUTES);
-                        System.err.println("Finished all threads");
-                        
-                        trecFormattedWriter.close();
-                        // End multi-threaded query runner
+	                    }                        
                     }
                 }
             }
-        }    
+        }  
+        executor.shutdown();
+        
+        // Wait until all threads are finish
+        executor.awaitTermination(360, TimeUnit.MINUTES);
+        System.err.println("Finished all threads");
+        
+        for (Writer writer: writers) {
+        	writer.close();
+        }
     }
     
     public static void main(String[] args) throws Exception 

@@ -23,6 +23,9 @@ public class YAMLConfigBase
     Map<String, Object> priors = new HashMap<String, Object>();
     Map<String, Double> priorWeights = new HashMap<String, Double>();
 
+    public YAMLConfigBase() {
+    }
+    
     public YAMLConfigBase(BatchConfig config) {
         this.config = config;
     }
