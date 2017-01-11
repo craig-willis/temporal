@@ -73,6 +73,7 @@ public class RunQuery extends YAMLConfigBase
             
             long startTime = collection.getStartDate();
             long endTime = collection.getEndDate();
+            long interval = collection.getInterval();
             
             // For each query set
             Map<String, String> queryFiles = collection.getQueries();
@@ -162,7 +163,8 @@ public class RunQuery extends YAMLConfigBase
 	                        
 	                        if (docScorer instanceof TemporalScorer) {
 	                        	((TemporalScorer)docScorer).setStartTime(startTime);
-	                        	((TemporalScorer)docScorer).setStartTime(endTime);
+	                        	((TemporalScorer)docScorer).setEndTime(endTime);
+	                        	((TemporalScorer)docScorer).setInterval(interval);
 	                        }
 	                        
 	                        

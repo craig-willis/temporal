@@ -18,6 +18,7 @@ public class CollectionConfig {
     String dateFormat;
     long startDate;
     long endDate;
+    long interval;
     
 
     public String getName() {
@@ -76,5 +77,12 @@ public class CollectionConfig {
     }
     public void setEndDate(long endDate) {
         this.endDate = endDate;
+    }
+    
+    public long getInterval() {
+        return interval;
+    }
+    public void setInterval(long interval) {
+        this.interval = interval;
     }
 }

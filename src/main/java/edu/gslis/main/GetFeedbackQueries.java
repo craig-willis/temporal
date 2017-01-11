@@ -2,6 +2,7 @@ package edu.gslis.main;
 
 import java.io.FileWriter;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.Iterator;
 
 import org.apache.commons.cli.CommandLine;
@@ -69,8 +70,9 @@ public class GetFeedbackQueries
             FeatureVector rmVector = rm3.asFeatureVector();
             rmVector.clip(numFbTerms);
             rmVector.normalize();
+            query.getFeatureVector().normalize();
             FeatureVector feedbackVector =
-            FeatureVector.interpolate(query.getFeatureVector(), rmVector, lambda);
+            		FeatureVector.interpolate(query.getFeatureVector(), rmVector, lambda);
             
             GQuery feedbackQuery = new GQuery();
             feedbackQuery.setTitle(query.getTitle());
@@ -79,7 +81,7 @@ public class GetFeedbackQueries
             
             outputWriter.write("<query>\n");
             outputWriter.write("<number>" +  query.getTitle() + "</number>\n");
-            outputWriter.write("<text>" + toIndri(feedbackQuery) + "<text>\n");
+            outputWriter.write("<text>" + toIndri(feedbackQuery) + "</text>\n");
             outputWriter.write("</query>\n");
         }
         outputWriter.write("</parameters>\n");
@@ -89,6 +91,7 @@ public class GetFeedbackQueries
     
     public static String toIndri(GQuery query) {
         
+    	DecimalFormat df = new DecimalFormat("#.#####");
         StringBuilder queryString = new StringBuilder("#weight(");
         Iterator<String> qt = query.getFeatureVector().iterator();
         while(qt.hasNext()) {

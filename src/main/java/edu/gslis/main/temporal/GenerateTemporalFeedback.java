@@ -2,10 +2,10 @@ package edu.gslis.main.temporal;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -15,13 +15,13 @@ import org.apache.commons.cli.Options;
 
 import edu.gslis.indexes.IndexWrapper;
 import edu.gslis.indexes.IndexWrapperFactory;
+import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.queries.GQueries;
 import edu.gslis.queries.GQueriesIndriImpl;
 import edu.gslis.queries.GQueriesJsonImpl;
 import edu.gslis.queries.GQuery;
-import edu.gslis.queries.expansion.FeedbackRelevanceModel;
-import edu.gslis.searchhits.SearchHits;
-import edu.gslis.temporal.expansion.TemporalRM;
+import edu.gslis.temporal.expansion.ScorableFeatureVector;
+import edu.gslis.temporal.expansion.TemporalClusterFeedback;
 import edu.gslis.textrepresentation.FeatureVector;
 
 public class GenerateTemporalFeedback 
@@ -42,11 +42,10 @@ public class GenerateTemporalFeedback
         int numFbDocs =Integer.parseInt(cl.getOptionValue("numFbDocs", "1000"));
         int numFbTerms =Integer.parseInt(cl.getOptionValue("numFbTerms", "20"));
         double lambda =Double.parseDouble(cl.getOptionValue("lambda", "0.5"));
-        long startTime = Long.parseLong(cl.getOptionValue("startTime"));
-        long endTime = Long.parseLong(cl.getOptionValue("endTime"));
-        long interval = Long.parseLong(cl.getOptionValue("interval"));
         String outputPath = cl.getOptionValue("output");
         
+        Writer writer = new FileWriter(outputPath);
+        writer.write("<parameters>\n");
         GQueries queries = null;
         if (topicsPath.endsWith("indri")) 
             queries = new GQueriesIndriImpl();
@@ -54,12 +53,12 @@ public class GenerateTemporalFeedback
             queries = new GQueriesJsonImpl();
         queries.read(topicsPath);
         
-        FileWriter writer = new FileWriter(outputPath);
         IndexWrapper index = IndexWrapperFactory.getIndexWrapper(indexPath);
+        index.setTimeFieldName(Indexer.FIELD_EPOCH);
         if (topic != null) 
         {
             GQuery query = queries.getNamedQuery(topic);
-            getTemporalRM(query, index, numFbDocs, numFbTerms, startTime, endTime, interval, lambda, writer);
+            getTemporalRM(query, index, numFbDocs, numFbTerms, lambda, writer);
 
         }
         else
@@ -67,79 +66,96 @@ public class GenerateTemporalFeedback
             Iterator<GQuery> queryIt = queries.iterator();
             while (queryIt.hasNext()) {
                 GQuery query = queryIt.next();
-                getTemporalRM(query, index, numFbDocs, numFbTerms, startTime, endTime, interval, lambda, writer);
+                getTemporalRM(query, index, numFbDocs, numFbTerms, lambda, writer);
             }
         }
+        writer.write("</parameters>\n");
+        writer.close();
     }
     
     public static void getTemporalRM(GQuery query, IndexWrapper index, int numFbDocs, int numFbTerms,
-            long startTime, long endTime, long interval, double lambda, FileWriter writer)  throws IOException
+            double lambda, Writer writer)  throws IOException
     {
-        SearchHits results = index.runQuery(query, numFbDocs);
+    	System.out.println("Generating temporal feedback for query " + query.getTitle());
+    	TemporalClusterFeedback rm = new TemporalClusterFeedback();
+        rm.setDocCount(numFbDocs);
+        rm.setTermCount(numFbTerms);
+        rm.setIndex(index);
+        rm.setOriginalQuery(query);
+        rm.build();
+        FeatureVector rmVector = rm.asFeatureVector();
+        /*
+        rm.buildMultipleRM();
+        List<ScorableFeatureVector> rmFvs = rm.getFeatureVectors();
+        FeatureVector rmVector = rmFvs.get(0);
+        for (int i=1; i<4; i++) {
+          
+            if (rmFvs.size() > i+1) {
+	            ScorableFeatureVector fv = rmFvs.get(i);
+	            rmVector = FeatureVector.interpolate(rmVector, fv, 0.75);
+            }
+        }
+       
+        //FeatureVector rmVector = null;
+        //if (rmFvs.size() > 1) {
+        //	ScorableFeatureVector fv2 = rmFvs.get(1);
+        //	rmVector = FeatureVector.interpolate(fv1, fv2, 0.75);
+        //	System.out.println("Score2: " + fv2.getScore());
+        //} else {
+        //	rmVector = fv1;        	
+        //}
+        */
+        rmVector.clip(numFbTerms);
+        rmVector.normalize();
+        
+        
+        FeatureVector feedbackVector =
+        FeatureVector.interpolate(query.getFeatureVector(), rmVector, lambda);
+        
+        GQuery feedbackQuery = new GQuery();
+        feedbackQuery.setTitle(query.getTitle());
+        feedbackQuery.setText(query.getText());
+        feedbackQuery.setFeatureVector(feedbackVector);
+        
+        writer.write("<query>\n");
+        writer.write("<number>" +  query.getTitle() + "</number>\n");
+        writer.write("<text>" + toIndri(feedbackQuery) + "</text>\n");
+        writer.write("</query>\n");
+        
         
         /*
-        TemporalMixtureFeedbackModel term = new TemporalMixtureFeedbackModel();
-        term.setIndex(index);
-        term.setStopper(null);
-        term.setRes(results);
-        term.build(startTime, endTime, interval);
+        int i=0;
+        for (ScorableFeatureVector rmfv: rmFvs) {
+        	double score = rmfv.getScore();
+	        rmfv.clip(20);
+	        rmfv.normalize();
+	        System.out.println(rmfv.toString(20));
+	        i++;
+        }
         */
         
-        FeedbackRelevanceModel rm = new FeedbackRelevanceModel();
-        rm.setDocCount(20);
-        rm.setTermCount(20);
-        rm.setIndex(index);
-        rm.setRes(results);
-        rm.build();
-        FeatureVector rmfv = rm.asFeatureVector();
-        rmfv.clip(20);
-        rmfv.normalize();
         
-        TemporalRM term = new TemporalRM();
-        term.setIndex(index);
-        term.setStopper(null);
-        term.setRes(results);
-        term.setDocCount(20);
-        term.setTermCount(20);
-        term.build(startTime, endTime, interval);
-       
-        DateFormat df = new SimpleDateFormat("yyyy.MM.dd");
-        writer.write(query.getText() + "\n");
-        int numBins = (int)((endTime - startTime)/interval);
-        for (int i=0; i<numBins; i++) {
-            long stime = startTime + interval*i;
+        /*
+        FeatureVector fv = rm.asFeatureVector();
+        fv.clip(numFbTerms);
+        fv.normalize();
+        System.out.println(fv);
+        */
 
-            FeatureVector fv = term.asFeatureVector(i);
-            fv.normalize();
-            System.out.println("Bin=" + i);
-            double score = score(query, fv, index);
-            writer.write(i + ":" + df.format(stime*1000) + " " + score + "\n");
-            writer.write(fv.toString(20) + "\n");
-            System.out.println(fv.toString(20));
-        }     
-        System.out.println(rmfv.toString(20));
-        writer.close();
-    }
-        
-    public static double score(GQuery query, FeatureVector fv, IndexWrapper index) {
-        double logLikelihood = 0.0;
-        Iterator<String> queryIterator = query.getFeatureVector().iterator();
-        while(queryIterator.hasNext()) {
-            String feature = queryIterator.next();
-            
-            double freq = fv.getFeatureWeight(feature);
-            double len = fv.getLength();
-            double cp = (index.termFreq(feature)/ index.termCount());
-            double dp = (freq + 1*cp)/ (len + 1);            
-            //double dp = (freq/len);
-            double queryWeight = query.getFeatureVector().getFeatureWeight(feature);
-            logLikelihood += queryWeight * Math.log(dp);
-            System.out.println(feature + "=" + queryWeight * Math.log(dp));
+        /*
+        List<ScorableFeatureVector> rmFvs = rm.getFeatureVectors();
+        int i=0;
+        for (ScorableFeatureVector rmfv: rmFvs) {
+        	double score = rmfv.getScore();
+	        rmfv.clip(20);
+	        rmfv.normalize();
+	        System.out.println(rmfv.toString(20));
+	        i++;
         }
-        System.out.println("ll=" + logLikelihood);
-        return logLikelihood;
+        */
+
     }
-    
+
     public static String toIndri(GQuery query) {
         
         StringBuilder queryString = new StringBuilder("#weight(");
@@ -157,19 +173,6 @@ public class GenerateTemporalFeedback
         return queryString.toString();
     }
     
-    public static FeatureVector cleanModel(FeatureVector model) {
-        FeatureVector cleaned = new FeatureVector(null);
-        Iterator<String> it = model.iterator();
-        while(it.hasNext()) {
-            String term = it.next();
-            if(term.length() < 3 || term.matches(".*[0-9].*"))
-                continue;
-            cleaned.addTerm(term, model.getFeatureWeight(term));
-        }
-        cleaned.normalize();
-        return cleaned;
-    }
-    
     public static Options createOptions()
     {
         Options options = new Options();
@@ -179,10 +182,7 @@ public class GenerateTemporalFeedback
         options.addOption("numFbDocs", true, "Number of feedback docs");
         options.addOption("numFbTerms", true, "Number of feedback terms");
         options.addOption("lambda", true, "RM3 lambda");
-        options.addOption("startTime", true, "Start time");
-        options.addOption("endTime", true, "End time");
-        options.addOption("interval", true, "Interval");
-        options.addOption("output", true, "Output");
+        options.addOption("output", true, "path to output file");
         return options;
     }
 

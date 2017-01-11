@@ -28,6 +28,10 @@ import edu.gslis.queries.GQuery;
 import edu.gslis.scorers.temporal.TSMScorer;
 import edu.gslis.scorers.temporal.TemporalScorer;
 
+/**
+ * Generate
+ *
+ */
 public class PlotQuery 
 {
     public static void main(String[] args) throws Exception 
@@ -73,11 +77,12 @@ public class PlotQuery
         double N = index.docCount();
         Iterator<GQuery> it = queries.iterator();
         DecimalFormat df = new DecimalFormat("#0.0000");
+        // For each query
         while (it.hasNext()) 
         {
             GQuery query = it.next();
                         
-            // Get the relevant documents
+            // Get the true relevant documents
             Set<String> relDocs = qrels.getRelDocs(query.getTitle());
             List<Integer> relDocBins = new ArrayList<Integer>();
             Bag relDocBag = new TreeBag();
@@ -86,6 +91,7 @@ public class PlotQuery
                 if (index.getMetadataValue(relDoc, Indexer.FIELD_EPOCH) != null)
                 {
                     double epoch = Double.parseDouble(index.getMetadataValue(relDoc, Indexer.FIELD_EPOCH));
+                    // Get the bin for the document
                     int bin = (int) ((epoch - startTime) / interval);
                     relDocBins.add(bin);
                     relDocBag.add(bin);

@@ -18,7 +18,7 @@ import edu.gslis.textrepresentation.FeatureVector;
 
 /**
  * Builds term-time index
- *  * 
+ * 
  * ./run.sh edu.gslis.main.temporal.CreateTermTimeIndex 
  *      -index <path to index>
  *      -start <start time in seconds>
@@ -45,11 +45,14 @@ public class CreateTermTimeIndex
         long interval = Long.parseLong(cl.getOptionValue("interval"));
         boolean useDf = cl.hasOption("df");
         
+        /* Per term bin counts */
         Map<String, Map<Long, Long>> termTimeMap = new TreeMap<String, Map<Long, Long>>();
+        
+        /* Total counts for bin */
         Map<Long, Long> totalTimeMap = new TreeMap<Long, Long>();
+        
         IndexWrapper index =  IndexWrapperFactory.getIndexWrapper(indexPath);
         int numDocs = (int)index.docCount();
-        //numDocs = 10;
         for (int docid=1; docid<numDocs; docid++) 
         {
             if (docid % 1000  == 0)

@@ -29,6 +29,9 @@ public class RUtil {
         }
     }
    
+   public RConnection getConnection() {
+	   return c;
+   }
    
    
    public int[] changepoints(double[] x) throws Exception {
@@ -110,7 +113,7 @@ public class RUtil {
        c.assign("x", x);
        c.assign("y", y);
        c.voidEval("png(\"" + name + ".png" + "\")");
-       c.voidEval("plot(y ~ x, main=\"" + name +  "\")");
+       c.voidEval("plot(y ~ x, main=\"" + name +  "\", type=\"l\")");
        c.eval("dev.off()");
        
    }
@@ -217,6 +220,29 @@ public class RUtil {
         return c.eval("s").asDouble();      
     }
 
+   public double[] sma(double[] data, int n) throws Exception {
+	   c.assign("x",  data);
+
+	   c.voidEval("library(TTR)");
+	   c.voidEval("sma <- SMA(x, " + n + ")");
+	   c.voidEval("sma[is.na(sma)] <- 0");
+	   return c.eval("sma").asDoubles();
+   }
+   
+   public double[] mclust(double[] x, double[] y) throws Exception {
+	   c.assign("x",  x);
+	   c.assign("y",  y);
+	   c.voidEval("library(mclust)");
+	   c.voidEval("df <- data.frame(x, y)");
+	   c.voidEval("mod <- Mclust(df)");
+	   c.voidEval("prob <- mod$parameters$pro");
+	   c.voidEval("df$class <- mod$classification");
+	   //c.voidEval("classes <- aggregate(df$x, list(df$class), mean)");
+	   // fit$parameters$pro -- probability of each model
+	   // mean(d[which(fit$classification==x),]$score) -- average score
+	   
+	   return c.eval("df$class").asDoubles();
+   }
 	public void close() {
 		try {
 			c.close();

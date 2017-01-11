@@ -103,6 +103,7 @@ public class QueryRunner implements Runnable
         docScorer.setQuery(query);
         SearchHits results = index.runQuery(query, NUM_RESULTS);
         
+        docScorer.setIndex(index);;
         docScorer.init(results);
              
         Iterator<SearchHit> it = results.iterator();

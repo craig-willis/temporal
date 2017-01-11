@@ -6,6 +6,7 @@ import java.util.Map;
 
 import edu.gslis.config.ScorerConfig;
 import edu.gslis.docscoring.QueryDocScorer;
+import edu.gslis.indexes.IndexWrapper;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 
@@ -14,8 +15,13 @@ public abstract class RerankingScorer extends QueryDocScorer
     ScorerConfig config;
     
     Map<String, List<Double>> paramMap = new HashMap<String, List<Double>>();
+    IndexWrapper index = null;
     
     public abstract void init(SearchHits hits);
+    
+    public void setIndex(IndexWrapper index) {
+    	this.index = index;
+    }
     
     public void setConfig(ScorerConfig config) {
         this.config = config;
