@@ -243,6 +243,22 @@ public class RUtil {
 	   
 	   return c.eval("df$class").asDoubles();
    }
+   
+   
+   public double dp(double[] x) throws Exception {
+       c.assign("x", x);
+       c.voidEval("library(TSA)");
+       c.voidEval("p <- periodogram(x, plot=F)");
+       return c.eval("length(x)/which(p$spec == max(p$spec))").asDouble();       
+   }
+   
+   public double dps(double[] x) throws Exception {
+       c.assign("x", x);
+       c.voidEval("library(TSA)");
+       c.voidEval("p <- periodogram(x, plot=F)");
+       return c.eval("max(p$spec)").asDouble();      
+   }
+   
 	public void close() {
 		try {
 			c.close();
@@ -251,4 +267,5 @@ public class RUtil {
 		}
 	}
 
+	
 }

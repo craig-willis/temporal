@@ -7,7 +7,10 @@ import edu.gslis.searchhits.SearchHits;
 import edu.gslis.textrepresentation.FeatureVector;
 
 /**
- * Implements Lavrenko's relevance model
+ * Implements Lavrenko's relevance model, but weighting
+ * individual expansion terms by the KL divergence of their
+ * temporal distribution compared to the background temporal
+ * distribution.
  */
 public class TRMScorer extends TemporalScorer {
     
@@ -71,6 +74,11 @@ public class TRMScorer extends TemporalScorer {
         FeatureVector tsfv = new FeatureVector(null);
         for (String term: rmVector.getFeatures()) {
         	double[] termts = ts.getTermFrequencies(term);
+            if (termts == null) {
+            	System.err.println("Unexpected null termts for " + term);
+            	continue;
+            }
+
             sum = sum(termts);
             for (int i=0; i<termts.length; i++)
             	termts[i] = (termts[i]/sum)+0.0000000001;
@@ -79,8 +87,8 @@ public class TRMScorer extends TemporalScorer {
             for (int i=0; i<termts.length; i++) {
             	ll += termts[i] * Math.log(termts[i]/background[i]);
             }
-            double weight = Math.pow((1-Math.exp(-ll)), alpha) * Math.pow(rmVector.getFeatureWeight(term), (1-alpha));
-            //double weight = (1-Math.exp(-ll))*rmVector.getFeatureWeight(term);            
+            //double weight = Math.pow((1-Math.exp(-ll)), alpha) * Math.pow(rmVector.getFeatureWeight(term), (1-alpha));
+            double weight = (1-Math.exp(-ll))*rmVector.getFeatureWeight(term);            
             tsfv.addTerm(term, weight);
         }
  
@@ -103,6 +111,8 @@ public class TRMScorer extends TemporalScorer {
     
     public double sum(double[] d) {
     	double sum = 0;
+    	if (d == null)
+    		return 0;
     	for (double x: d)
     		sum += x;
     	return sum;
