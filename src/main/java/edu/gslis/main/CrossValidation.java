@@ -15,8 +15,16 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
 
 /** 
- * Cross-validation driver
- * Leave-one-out
+ * Very simple leave-one-out cross validation that takes a directory of trec_eval 
+ * output files.
+ * 
+ * The basic process works as follows:
+ * 1. Use edu.gslis.main.RunQuery framework to generate trec-formatted output
+ *    for each parameter combination.
+ * 2. Run mkeval.sh, which simply runs trec_eval -c -m all_trec -q, and outputs
+ *    to a separate evaluation file per parameter combination.
+ * 3. Run this class passing in the path to the trec_eval output directory and the
+ *    desired metric
  * 
  */
 public class CrossValidation 
@@ -76,8 +84,6 @@ public class CrossValidation
         			}
 
         		}
-        		// Run trec_eval, store results
-        		// key = params, value = map query to value
         	}
         }
         
