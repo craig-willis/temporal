@@ -25,8 +25,8 @@ import edu.gslis.queries.GQueries;
 import edu.gslis.queries.GQueriesIndriImpl;
 import edu.gslis.queries.GQueriesJsonImpl;
 import edu.gslis.queries.GQuery;
-import edu.gslis.scorers.temporal.TSMScorer;
 import edu.gslis.scorers.temporal.TemporalScorer;
+import edu.gslis.scorers.temporal.old.TSMScorer;
 
 /**
  * Generate
