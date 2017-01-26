@@ -321,7 +321,16 @@ public class TemporalScorer extends RerankingScorer
         }
         
         return tms;
-    }      
+    }   
+    
+    public double sum(double[] d) {
+    	double sum = 0;
+    	if (d == null)
+    		return 0;
+    	for (double x: d)
+    		sum += x;
+    	return sum;
+    }
     
     public static void main(String[] args) {
         
