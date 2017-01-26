@@ -1,10 +1,11 @@
-package edu.gslis.scorers.temporal;
+package edu.gslis.scorers.temporal.old;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.gslis.scorers.temporal.TemporalScorer;
 import edu.gslis.searchhits.SearchHit;
 
 public class SimplePriorScorer extends TemporalScorer {

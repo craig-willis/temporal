@@ -12,9 +12,9 @@ import edu.gslis.searchhits.SearchHits;
 
 public abstract class RerankingScorer extends QueryDocScorer 
 {
-    ScorerConfig config;
+    public ScorerConfig config;
     
-    Map<String, List<Double>> paramMap = new HashMap<String, List<Double>>();
+    public Map<String, List<Double>> paramMap = new HashMap<String, List<Double>>();
     IndexWrapper index = null;
     
     public abstract void init(SearchHits hits);

@@ -1,14 +1,24 @@
-package edu.gslis.scorers.temporal;
+package edu.gslis.scorers.temporal.old;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+
+import edu.gslis.scorers.temporal.TemporalScorer;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
+import edu.gslis.textrepresentation.FeatureVector;
 
 /**
- * New TSM scorer. 
+ * Calculate temporal language models for all intervals
+ * Smooth the document using temporal language models 
+ * weighted by KL divergence from the collection.
  */
-public class TSMScorer extends TemporalScorer 
+public class BMNScorer extends TemporalScorer 
 {
 
     String MU = "mu";
@@ -22,23 +32,48 @@ public class TSMScorer extends TemporalScorer
         double logLikelihood = 0.0;
         Iterator<String> queryIterator = gQuery.getFeatureVector().iterator();
                 
-        // Dirichlet parameter controlling amount of smoothing using temporal model
+        // Usual Dirichlet parameter
         double mu = paramTable.get(MU);
-        // Parameter controlling linear combination of smoothed document and collection language models.
+        // Parameter controlling linear combination of temporal and collection language models.
         double lambda = paramTable.get(LAMBDA);
         double smooth = paramTable.get(SMOOTH);
-
         
         // Get the bin for this document 
         long docTime = getDocTime(doc);
         int t = getBin(docTime);
 
-        // Ignore documents outside of the temporal bounds
-        if (docTime < startTime)
+        if (docTime < startTime) {
             return Double.NEGATIVE_INFINITY;
-
+        }
+       
         try
         {
+            FeatureVector dv = doc.getFeatureVector();
+            
+            Set<String> features = new HashSet<String>();
+            features.addAll(dv.getFeatures());
+            features.addAll(gQuery.getFeatureVector().getFeatures());
+            
+            int numBins = tsIndex.getNumBins();
+            // Approximate document generation likelihood 
+            double max = Double.NEGATIVE_INFINITY;
+            int bestBin = t;
+            for (int bin = 0; bin < numBins; bin++) {
+                // Log-likelihood of document given temporal model
+                double ll = 0;
+                if (bin == t)
+                    ll = scoreTemporalModelIgnore(dv, bin);
+                else    
+                    ll = scoreTemporalModel(dv, bin);
+                    
+                //System.out.println("\t" + bin + "," + ll); 
+                if (ll > max)  {
+                    max = ll;
+                    bestBin = bin;
+                }
+            }
+
+            //System.out.println(doc.getDocno() + "," + t + "," + bestBin + "," + max);           
             
             // Now calculate the score for this document using 
             // a combination of the temporal and collection LM.
@@ -53,18 +88,16 @@ public class TSMScorer extends TemporalScorer
                 //p(w | C): +1 is necessary when working with partial collections (i.e., latimes)
                 double collectionProb = (1 + collectionStats.termCount(feature)) 
                         / collectionStats.getTokCount();
-
+                
                 // Temporal model
-                double tfreq = tsIndex.get(feature, t);
-                double tlen = tsIndex.getLength(t);
+                double tfreq = tsIndex.get(feature, bestBin);
+                double tlen = tsIndex.getLength(bestBin);
                 
-                double temporalPr = 0;
-                if (tlen > 0)
-                    temporalPr = tfreq / tlen; 
-                
-                
+                double temporalPr = tfreq / tlen; 
+
                 double queryWeight = gQuery.getFeatureVector().getFeatureWeight(feature);
-                                
+
+                
                 if (smooth == 1) {
                     // 2-stage                
                     double smoothedTopicProb = 
@@ -74,8 +107,7 @@ public class TSMScorer extends TemporalScorer
                     double smoothedDocProb = 
                             lambda*smoothedTopicProb + (1-lambda)*collectionProb;
                     
-                    logLikelihood += queryWeight * Math.log(smoothedDocProb); 
-                    
+                    logLikelihood += queryWeight * Math.log(smoothedDocProb);                        
                 }
                 else if (smooth == 2) { 
                     // Wei & Croft
@@ -104,9 +136,8 @@ public class TSMScorer extends TemporalScorer
                 }  
                 else {
                     System.err.println("Invalid smoothing model specified.");
-                }     
+                }                           
             }
-                
         } catch (Exception e) {
             e.printStackTrace(); 
         }                        
@@ -120,8 +151,8 @@ public class TSMScorer extends TemporalScorer
     @Override
     public void close() {
     }
-    
     @Override
     public void init(SearchHits hits) {
-    }       
+    }   
+    
 }

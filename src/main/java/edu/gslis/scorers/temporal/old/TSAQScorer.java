@@ -1,16 +1,17 @@
-package edu.gslis.scorers.temporal;
+package edu.gslis.scorers.temporal.old;
 
 import java.util.Iterator;
 
+import edu.gslis.scorers.temporal.TemporalScorer;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 
 /**
- * TSM-Q:  
- * Smooth documents using temporal model based on KL(Q || TM)
- * 
+ * Calculate temporal language models for all intervals
+ * Smooth the document using temporal language models 
+ * weighted by KL divergence from the collection.
  */
-public class TSMQScorer extends TemporalScorer 
+public class TSAQScorer extends TemporalScorer 
 {
 
     String MU = "mu";
@@ -19,43 +20,42 @@ public class TSMQScorer extends TemporalScorer
 
     
     
+    
     public double score(SearchHit doc)
     {
         double logLikelihood = 0.0;
         Iterator<String> queryIterator = gQuery.getFeatureVector().iterator();
                 
-        // Dirichlet parameter controlling amount of smoothing using temporal model
+        // Usual Dirichlet parameter
         double mu = paramTable.get(MU);
-        // Parameter controlling linear combination of smoothed document and collection language models.
+        // Parameter controlling linear combination of temporal and collection language models.
         double lambda = paramTable.get(LAMBDA);
         double smooth = paramTable.get(SMOOTH);
 
-        
-        // Get the bin for this document 
-        long docTime = getDocTime(doc);
-        int t = getBin(docTime);
-
-        // Ignore documents outside of the temporal bounds
-        if (docTime < startTime)
+        // Get the document time      
+        long docTime = getDocTime(doc);        
+        if (docTime < startTime) {
             return Double.NEGATIVE_INFINITY;
-
-        // Approximate query generation likelihood
-        int numBins = tsIndex.getNumBins();
-        double max = Double.NEGATIVE_INFINITY;
-        int bestBin = t;
-        for (int bin = 0; bin < numBins; bin++) {
-            // Log-likelihood of query given temporal model
-            double ll = scoreTemporalModel(gQuery.getFeatureVector(), bin);
-                
-            if (ll > max)  {
-                max = ll;
-                bestBin = bin;
-            }
         }
 
-        
         try
-        {
+        {                        
+            // Approximate query generation likelihood for each bin
+            int numBins = tsIndex.getNumBins();
+            double[] scores = new double[numBins];
+            double z = 0;            
+            for (int bin = 0; bin < numBins; bin++) {
+                // Log-likelihood of query given temporal model
+                double ll = scoreTemporalModel(gQuery.getFeatureVector(), bin);
+                scores[bin] = Math.exp(ll);
+                z += scores[bin];
+            }
+
+            // p(theta_i given Q)
+            for (int bin = 0; bin < numBins; bin++) {
+                scores[bin] = scores[bin]/z;
+            }
+            
             
             // Now calculate the score for this document using 
             // a combination of the temporal and collection LM.
@@ -70,16 +70,19 @@ public class TSMQScorer extends TemporalScorer
                 //p(w | C): +1 is necessary when working with partial collections (i.e., latimes)
                 double collectionProb = (1 + collectionStats.termCount(feature)) 
                         / collectionStats.getTokCount();
+                
+                // Sum of probabilities of this term across all bins
+                double temporalPr = 0;
+                for (int bin = 0; bin < numBins; bin++) {
+                    double tfreq = tsIndex.get(feature, bin);
+                    double tlen = tsIndex.get("_total_", bin);
 
-                // Temporal model
-                double tfreq = tsIndex.get(feature, bestBin);
-                double tlen = tsIndex.getLength(bestBin);
-                
-                double temporalPr = tfreq / tlen; 
-                
+                    temporalPr += (scores[bin]) * (tfreq/tlen);
+                }
+                     
                 double queryWeight = gQuery.getFeatureVector().getFeatureWeight(feature);
 
-                                
+                
                 if (smooth == 1) {
                     // 2-stage                
                     double smoothedTopicProb = 
@@ -118,22 +121,23 @@ public class TSMQScorer extends TemporalScorer
                 }  
                 else {
                     System.err.println("Invalid smoothing model specified.");
-                }     
+                }                      
             }
-                
         } catch (Exception e) {
             e.printStackTrace(); 
         }                        
            
         return logLikelihood;
     }
+    
+    
 
       
     @Override
     public void close() {
     }
-    
     @Override
     public void init(SearchHits hits) {
-    }       
+    }   
+    
 }

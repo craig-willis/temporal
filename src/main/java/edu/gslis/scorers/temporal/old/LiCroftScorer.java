@@ -1,4 +1,4 @@
-package edu.gslis.scorers.temporal;
+package edu.gslis.scorers.temporal.old;
 
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
@@ -6,6 +6,7 @@ import java.util.TimeZone;
 
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.queries.GQuery;
+import edu.gslis.scorers.temporal.TemporalScorer;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 

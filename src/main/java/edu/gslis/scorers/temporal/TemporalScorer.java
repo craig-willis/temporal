@@ -16,14 +16,14 @@ import edu.gslis.textrepresentation.FeatureVector;
 
 public class TemporalScorer extends RerankingScorer 
 {
-    String MU = "mu";
+	public String MU = "mu";
     
-    long startTime;
-    long endTime;
-    long interval;
-    String tsIndexPath;
+    public long startTime;
+    public long endTime;
+    public long interval;
+    public String tsIndexPath;
     
-    TimeSeriesIndex tsIndex = null;
+    public TimeSeriesIndex tsIndex = null;
     
     double[] kls = null;
     DescriptiveStatistics klstats = new DescriptiveStatistics();

@@ -1,9 +1,10 @@
-package edu.gslis.scorers.temporal;
+package edu.gslis.scorers.temporal.old;
 
 import java.util.Iterator;
 import java.util.List;
 
 import edu.gslis.queries.GQuery;
+import edu.gslis.scorers.temporal.RerankingScorer;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 

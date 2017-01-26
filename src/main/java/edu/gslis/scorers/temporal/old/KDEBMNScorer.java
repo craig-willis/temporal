@@ -1,10 +1,12 @@
-package edu.gslis.scorers.temporal;
+package edu.gslis.scorers.temporal.old;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
 import edu.gslis.lucene.indexer.Indexer;
+import edu.gslis.scorers.temporal.KDEScorer;
+import edu.gslis.scorers.temporal.TemporalScorer;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 import edu.gslis.temporal.util.RKernelDensity;

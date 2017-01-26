@@ -1,17 +1,19 @@
-package edu.gslis.scorers.temporal;
+package edu.gslis.scorers.temporal.old;
 
 import java.util.Iterator;
 
+import edu.gslis.scorers.temporal.TemporalScorer;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 
 /**
  * Weight documents by probability that temporal bin generated the query
  */
-public class TPMQScorer extends TemporalScorer 
+public class TIMQScorer extends TemporalScorer 
 {
 
     String MU = "mu";
+    String ALPHA = "alpha";
     
     public double scoreBin(int bin) 
     {
@@ -26,8 +28,6 @@ public class TPMQScorer extends TemporalScorer
             {
                 String feature = queryIterator.next();
                 
-                // The 1 here is because some query terms in TREC don't appear in all collections when we 
-                // separate out sources.
                 double queryWeight = gQuery.getFeatureVector().getFeatureWeight(feature);
     
                 double tfreq = tsIndex.get(feature, bin);
@@ -60,8 +60,11 @@ public class TPMQScorer extends TemporalScorer
 
         double docll = super.score(doc);
         double binll = scoreBin(bin);
+
+        
+        double alpha = paramTable.get(ALPHA);
                 
-        return binll + docll;
+        return alpha*binll + (1-alpha)*docll;
     }
     
       

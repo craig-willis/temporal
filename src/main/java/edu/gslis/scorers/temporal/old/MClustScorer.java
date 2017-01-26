@@ -1,5 +1,6 @@
-package edu.gslis.scorers.temporal;
+package edu.gslis.scorers.temporal.old;
 
+import edu.gslis.scorers.temporal.TemporalScorer;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 import edu.gslis.temporal.util.RKernelDensity;

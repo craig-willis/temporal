@@ -1,8 +1,9 @@
-package edu.gslis.scorers.temporal;
+package edu.gslis.scorers.temporal.old;
 
 import java.util.Iterator;
 
 import edu.gslis.indexes.temporal.TemporalLDAIndex;
+import edu.gslis.scorers.temporal.TemporalScorer;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 
