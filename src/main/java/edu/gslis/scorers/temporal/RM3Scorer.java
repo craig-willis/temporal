@@ -24,6 +24,7 @@ public class RM3Scorer extends ScorerDirichlet {
     	int numFbDocs = 50;
     	int numFbTerms = 20;
     	double lambda = 1.0;
+    	double mu = 0.0;
     	
         if (paramTable.get(FB_DOCS) != null ) 
         	numFbDocs = paramTable.get(FB_DOCS).intValue();
@@ -31,6 +32,9 @@ public class RM3Scorer extends ScorerDirichlet {
         	numFbTerms = paramTable.get(FB_TERMS).intValue();
         if (paramTable.get(LAMBDA) != null ) 
         	lambda = paramTable.get(LAMBDA).doubleValue();
+        if (paramTable.get(MU) != null ) 
+        	mu = paramTable.get(MU).intValue();
+        
         
         //System.out.println("numFbDocs=" + numFbDocs + ", numFbTerms=" + numFbTerms + ", lambda=" + lambda);
         
@@ -55,6 +59,11 @@ public class RM3Scorer extends ScorerDirichlet {
         gQuery.setFeatureVector(fv);
         
         //System.out.println(gQuery.toString());
+        
+        synchronized(this) {
+        	System.out.println(gQuery.getTitle() + " mu=" + mu + ", numFbDocs=" + numFbDocs + ", numFbTerms=" + numFbTerms + ", lambda=" + lambda);
+        	System.out.println(rmVector.toString(10));        
+        }
     }         
     
 }

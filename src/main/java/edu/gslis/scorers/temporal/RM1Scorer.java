@@ -11,22 +11,26 @@ public class RM1Scorer extends ScorerDirichlet {
     
     public static String FB_DOCS = "fbDocs";
     public static String FB_TERMS = "fbTerms";
+    public static String MU = "mu";
             
     
 	/**
-	 * Estimate the relevance model from the top FB_DOCS
-	 * results.
+	 * Estimate the RM1 model from the top FB_DOCS.
 	 */
     @Override
     public void init(SearchHits hits) {   
 
     	int numFbDocs = 50;
     	int numFbTerms = 20;
+    	double mu = 0;
     	
         if (paramTable.get(FB_DOCS) != null ) 
         	numFbDocs = paramTable.get(FB_DOCS).intValue();
         if (paramTable.get(FB_TERMS) != null ) 
         	numFbTerms = paramTable.get(FB_TERMS).intValue();
+        
+        if (paramTable.get(MU) != null ) 
+        	mu = paramTable.get(MU).intValue();
         
         if (hits.size() < numFbDocs)
         	numFbDocs = hits.size();
@@ -46,9 +50,8 @@ public class RM1Scorer extends ScorerDirichlet {
         gQuery.setFeatureVector(rmVector);
         
         synchronized(this) {
-        	System.out.println(gQuery.getTitle() + " numFbDocs=" + numFbDocs + ", numFbTerms=" + numFbTerms);
+        	System.out.println(gQuery.getTitle() + " mu=" + mu + ", numFbDocs=" + numFbDocs + ", numFbTerms=" + numFbTerms);
         	System.out.println(rmVector.toString(10));        
         }
-    }         
-    
+    }    
 }
