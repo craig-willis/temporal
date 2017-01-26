@@ -5,9 +5,9 @@ import edu.gslis.searchhits.SearchHits;
 import edu.gslis.textrepresentation.FeatureVector;
 
 /**
- * Implements Lavrenko's relevance model
+ * Implements Lavrenko's relevance model with interpolation with the original query (RM3)
  */
-public class RMScorer extends ScorerDirichlet {
+public class RM3Scorer extends ScorerDirichlet {
     
     public static String FB_DOCS = "fbDocs";
     public static String FB_TERMS = "fbTerms";
