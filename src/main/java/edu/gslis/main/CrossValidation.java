@@ -1,6 +1,7 @@
 package edu.gslis.main;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +30,13 @@ import org.apache.commons.io.FileUtils;
  */
 public class CrossValidation 
 {
+	
+
+	/**
+	 * Everything happens in main...
+	 * @param args
+	 * @throws Exception
+	 */
     public static void main(String[] args) throws Exception 
     {
         Options options = createOptions();
@@ -39,9 +47,13 @@ public class CrossValidation
             formatter.printHelp( CrossValidation.class.getCanonicalName(), options );
             return;
         }
-        //String outputPath = cl.getOptionValue("output");
+        String outputPath = cl.getOptionValue("output");
         String inputPath = cl.getOptionValue("input");
         String metric = cl.getOptionValue("metric");
+        boolean verbose = cl.hasOption("verbose");
+        
+        // Per-query cross-validation output
+        FileWriter output  = new FileWriter(outputPath);
         
         // Read trec_eval output 
         File inputDir = new File(inputPath);
@@ -49,7 +61,8 @@ public class CrossValidation
         Map<String, Map<String, Double>> trecEval = 
         		new TreeMap<String, Map<String, Double>>();
         if (inputDir.isDirectory()) {
-        	//Read output file
+        	
+        	//Read each input file (parameter output)
         	for (File file: inputDir.listFiles()) {
         		if (file.isDirectory())
         			continue;
@@ -69,12 +82,14 @@ public class CrossValidation
         			try {
         				 value = Double.parseDouble(fields[2]); 
         			} catch (Exception e) {
+        				System.err.println(e.getMessage());
         				continue;
         			}
         			
         			topics.add(topic);
         			
         			if (measure.equals(metric)) {
+        				// Store the topic=value pair for each parameter set for this metric
         				Map<String, Double> topicMap = trecEval.get(paramSet);
         				if (topicMap == null) 
         					topicMap = new TreeMap<String, Double>();
@@ -87,7 +102,7 @@ public class CrossValidation
         	}
         }
         
-		// For each topic
+        // Do cross validation
         Map<String, Double> testMap = new TreeMap<String, Double>();
 		for (String heldOut: topics) {			
 			// This is the held-out topic.		
@@ -98,27 +113,39 @@ public class CrossValidation
 			for (String paramSet: trecEval.keySet()) {
 				Map<String, Double> topicMap = trecEval.get(paramSet);
 			
+				// Get the topic/values for this parameter set
 				double score = 0;
 				for (String topic: topicMap.keySet()) {
 					// Ignore held-out topic
 					if (topic.equals(heldOut))
 						continue;
-					score += topicMap.get(topic);										
+					// Get the average score for the training set
+					score += topicMap.get(topic);						
 				}				
+				// Divide by topics less held-out topic
 				score /= (topicMap.size() - 1);
 								
 				if (score > max) {
 					max = score;
-					maxParam = paramSet;
+					maxParam = paramSet;					
 				}
+				if (verbose)
+					System.err.println(heldOut + ", " + paramSet + ", "  + score);
 			}
-			
+
+			if (verbose)
+				System.err.println(heldOut + ", " + maxParam + ", "  + max + ",max");
+
 			// Get the score for the held out topic
 			if (trecEval.get(maxParam).get(heldOut) != null) {
 				double value = trecEval.get(maxParam).get(heldOut);
-				System.out.println(heldOut + "\t" + maxParam + "\t" + value);
+				
+				if (verbose)
+					System.err.println(heldOut + ", " + maxParam + ", "  + value + ",final");
+				output.write(heldOut + "\t" + maxParam + "\t" + value + "\n");
 				testMap.put(heldOut, value);			
 			} else {
+				// This can happen if RM contains terms outside of collection time range
 				System.err.println("Warning: no value for " + heldOut);
 			}
         }
@@ -129,7 +156,8 @@ public class CrossValidation
 			score += testMap.get(topic);
 		}
 		score /= testMap.size();
-		System.out.println(metric + "\t" + score);
+		System.err.println(metric + "\t" + score);
+		output.close();
 
     }
     public static Options createOptions()
@@ -138,6 +166,7 @@ public class CrossValidation
         options.addOption("input", true, "Path to directory trec_eval output files");
         options.addOption("metric", true, "Cross validation metric");
         options.addOption("output", true, "Output path");
+        options.addOption("verbose", false, "Verbose output");
         return options;
     }
       
