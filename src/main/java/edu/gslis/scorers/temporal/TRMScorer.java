@@ -1,6 +1,7 @@
 package edu.gslis.scorers.temporal;
 
 import edu.gslis.main.temporal.TermTimeSeries;
+import edu.gslis.queries.GQuery;
 import edu.gslis.queries.expansion.FeedbackRelevanceModel;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
@@ -107,15 +108,11 @@ public class TRMScorer extends TemporalScorer {
         System.out.println(tsfv.toString(10));
         System.out.println(fv.toString(10));
         
-    }         
+    }    
     
-    public double sum(double[] d) {
-    	double sum = 0;
-    	if (d == null)
-    		return 0;
-    	for (double x: d)
-    		sum += x;
-    	return sum;
+
+    public GQuery getQuery() {
+    	return gQuery;
     }
     
 }
