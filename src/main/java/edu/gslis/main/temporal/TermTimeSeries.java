@@ -29,7 +29,7 @@ public class TermTimeSeries
 		this.startTime = startTime;
 		this.endTime = endTime;
 		this.interval = interval;
-        this.numBins = (int) ((endTime - startTime)/interval);
+        this.numBins = (int) ((endTime - startTime)/interval)+1;
         this.totals = new double[numBins];
         this.terms = terms;
 	}
