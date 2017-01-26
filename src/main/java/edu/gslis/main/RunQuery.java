@@ -143,6 +143,10 @@ public class RunQuery extends YAMLConfigBase
                     	File resultsDir = new File(outputDir + "/" + collectionName + "/" + queryFileName + "/" + scorerName);
                     	resultsDir.mkdirs();     
                         String trecResultsFile = resultsDir + File.separator + paramStr + ".out";
+                        if (new File(trecResultsFile).exists()) {
+                        	System.out.println("File " + trecResultsFile + " exists, skipping");
+                        	continue;
+                        }
                         
                         Writer trecResultsWriter = new BufferedWriter(new FileWriter(trecResultsFile));
                         FormattedOutputTrecEval trecFormattedWriter = new FormattedOutputTrecEval();
