@@ -85,7 +85,6 @@ public class QueryRunner implements Runnable
     public void run()
     {
         
-        System.err.println(query.getTitle() + ":" + query.getText());
         String queryText = query.getText().trim();
         String[] terms = queryText.split("\\s+");
         String stoppedQuery = "";
@@ -98,14 +97,15 @@ public class QueryRunner implements Runnable
         FeatureVector qv = new FeatureVector(stoppedQuery, stopper);
         query.setFeatureVector(qv);
         
-        System.out.println(query.getTitle() + " " + query);
         
         docScorer.setQuery(query);
         SearchHits results = index.runQuery(query, NUM_RESULTS);
         
         docScorer.setIndex(index);;
         docScorer.init(results);
-             
+                     
+        //System.out.println(query.getTitle() + " " + query);
+
         Iterator<SearchHit> it = results.iterator();
         SearchHits rescored = new SearchHits();
         while (it.hasNext()) {
@@ -123,6 +123,6 @@ public class QueryRunner implements Runnable
         synchronized (this) {
             trecFormattedWriter.write(rescored, query.getTitle());
         }
-        System.out.println(query.getTitle() + ": complete");
+        //System.out.println(query.getTitle() + ": complete");
     }
 }
