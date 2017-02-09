@@ -64,6 +64,7 @@ public class RunQuery extends YAMLConfigBase
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
 
         List<Writer> writers = new ArrayList<Writer>();
+        List<Writer> queryWriters = new ArrayList<Writer>();
         // For each collection
         List<CollectionConfig> collections = config.getCollections();
         for(CollectionConfig collection: collections) 
@@ -139,9 +140,11 @@ public class RunQuery extends YAMLConfigBase
                             paramStr += name +"=" + value;
                     	}
                     	
+
+                    	
                         // Create output file
                     	File resultsDir = new File(outputDir + "/" + collectionName + "/" + queryFileName + "/" + scorerName);
-                    	resultsDir.mkdirs();     
+                    	resultsDir.mkdirs();                     	 
                         String trecResultsFile = resultsDir + File.separator + paramStr + ".out";
                         if (new File(trecResultsFile).exists()) {
                         	System.out.println("File " + trecResultsFile + " exists, skipping");
@@ -153,6 +156,13 @@ public class RunQuery extends YAMLConfigBase
                         trecFormattedWriter.setRunId(scorerName);
                         trecFormattedWriter.setWriter(trecResultsWriter);
                         writers.add(trecResultsWriter);
+                        
+                    	// Create file to store the resulting query
+                    	File queryDir = new File("queries/" + collectionName + "/" + queryFileName + "/" + scorerName);
+                    	queryDir.mkdirs();                     	 
+                        String queryFile = queryDir + File.separator + paramStr + ".out";
+                        Writer queryWriter = new BufferedWriter(new FileWriter(queryFile));
+                        queryWriters.add(queryWriter);
                                          
                         Iterator<GQuery> queryIterator = queries.iterator();
                         while(queryIterator.hasNext()) 
@@ -188,6 +198,7 @@ public class RunQuery extends YAMLConfigBase
 	                        worker.setQuery(query);
 	                        worker.setStopper(stopper);
 	                        worker.setTrecFormattedWriter(trecFormattedWriter);
+	                        worker.setQueryWriter(queryWriter);
 	                        worker.setCollectionStats(corpusStats);
 	                        executor.execute(worker);
 	                    }                        
@@ -202,6 +213,10 @@ public class RunQuery extends YAMLConfigBase
         System.err.println("Finished all threads");
         
         for (Writer writer: writers) {
+        	writer.close();
+        }
+        
+        for (Writer writer: queryWriters) {
         	writer.close();
         }
     }

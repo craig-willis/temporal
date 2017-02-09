@@ -1,5 +1,6 @@
 package edu.gslis.main;
 
+import java.io.Writer;
 import java.util.Iterator;
 
 import org.lemurproject.kstem.Stemmer;
@@ -29,6 +30,7 @@ public class QueryRunner implements Runnable
     CollectionStats corpusStats;
     
     FormattedOutputTrecEval trecFormattedWriter;
+    Writer queryWriter;
     
     public Stopper getStopper() {
         return stopper;
@@ -82,6 +84,10 @@ public class QueryRunner implements Runnable
         this.trecFormattedWriter = trecFormattedWriter;
     }
 
+    public void setQueryWriter(Writer queryWriter) {
+    	this.queryWriter = queryWriter;
+    }
+    
     public void run()
     {
         
@@ -121,7 +127,12 @@ public class QueryRunner implements Runnable
         rescored.rank();
                                 
         synchronized (this) {
-            trecFormattedWriter.write(rescored, query.getTitle());
+        	try {
+	        	queryWriter.write(docScorer.getQuery().toString() + "\n\n");
+	            trecFormattedWriter.write(rescored, query.getTitle());
+        	} catch (Exception e) {
+        		e.printStackTrace();
+        	}
         }
         //System.out.println(query.getTitle() + ": complete");
     }
