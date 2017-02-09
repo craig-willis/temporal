@@ -1,7 +1,9 @@
 package edu.gslis.main;
 
 import java.io.FileWriter;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
@@ -11,6 +13,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
 
 import edu.gslis.docscoring.support.CollectionStats;
@@ -34,9 +37,11 @@ import edu.gslis.textrepresentation.FeatureVector;
  * from RM, re-score top 1000 documents. Find the
  * best query by AP.
  */
-public class GetBestRMTerms 
+public class GetBestRMTerms extends Metrics
 {
 	static int MAX_RESULTS=1000;
+
+	
     public static void main(String[] args) throws Exception 
     {
         Options options = createOptions();
@@ -51,8 +56,11 @@ public class GetBestRMTerms
         String topicsPath = cl.getOptionValue("topics");
         int numFbDocs =Integer.parseInt(cl.getOptionValue("numFbDocs", "50"));
         int numFbTerms =Integer.parseInt(cl.getOptionValue("numFbTerms", "20"));
-        String outputPath = cl.getOptionValue("output");
         String qrelsPath = cl.getOptionValue("qrels");
+        String metric = cl.getOptionValue("metric");
+        boolean verbose = cl.hasOption("verbose");
+        if (metric == null)
+        	metric = "ap";
         
         Qrels qrels =new Qrels(qrelsPath, false, 1);		
 
@@ -64,18 +72,25 @@ public class GetBestRMTerms
         queries.read(topicsPath);
         
         IndexWrapper index = IndexWrapperFactory.getIndexWrapper(indexPath);
-        FileWriter outputWriter = new FileWriter(outputPath);
         Iterator<GQuery> queryIt = queries.iterator();
+        double baseline = 0;
+        double maxavg = 0;
         while (queryIt.hasNext()) {
             GQuery query = queryIt.next();
-            System.out.println("==========================");
-            System.out.println("Query: " + query.getTitle());
-            System.out.println(query.toString());
-
+            if (verbose) {
+	            System.out.println("==========================");
+	            System.out.println("Query: " + query.getTitle());
+	            System.out.println(query.toString());
+            }
+            
             // Run the initial query, which will be used for re-ranking
             SearchHits results = index.runQuery(query, MAX_RESULTS);
-            double origAp = avgPrecision(results, qrels, query.getTitle());            
-            System.out.println("Initial AP:" + origAp);
+            double orig = metric(metric, results, qrels, query, MAX_RESULTS); 
+            baseline += orig;
+            
+            if (verbose)
+            	System.out.println("Initial " + metric + ":" + orig);
+            
             
             // Build the relevance model
             SearchHits fbDocs = new SearchHits(results.hits());
@@ -105,90 +120,102 @@ public class GetBestRMTerms
             //FeatureVector fv =
             //		FeatureVector.interpolate(query.getFeatureVector(), rmVector, 0.5);
             
-            System.out.println("RM");
+            //System.out.println("RM");
         	qtmp.setFeatureVector(rmVector);
     		scorer.setQuery(qtmp);
-            System.out.println(rmVector.toString());
+            //System.out.println(rmVector.toString());
         	Iterator<SearchHit> it = htmp.iterator();
         	while (it.hasNext()) {
         		SearchHit hit = it.next();
         		hit.setScore(scorer.score(hit));
         	}
         	htmp.rank();
-            double rmAp = avgPrecision(htmp, qrels, query.getTitle());
-            System.out.println(query.getTitle() + " RM AP:" + rmAp);	
+        	
+        	double rmMetric = metric(metric, results, qrels, query, MAX_RESULTS);	
             
-            double maxAp = Math.max(origAp, rmAp);
+            if (verbose)
+            	System.out.println("RM " + metric + ":" + rmMetric);
+            
+
+            double maxMetric = Math.max(orig, rmMetric);
             Set<String> terms = rmVector.getFeatures();
             FeatureVector maxFv = new FeatureVector(null);
             
             scorer.setParameter("mu", 2500);
             
             Set<Set<String>> sets = Sets.powerSet(terms);
-            //System.out.println("Set size: " + sets.size());
-            int i=0;
             for (Set<String> set: sets) {	
             	if (set.size() <= 1 || set.size() > 5) 
             		continue;
             	            		
-            	FeatureVector workingFv = new FeatureVector(null);
-            	for (String term: set)
-            		workingFv.addTerm(term);
-            	
-            	qtmp.setFeatureVector(workingFv);
-        		scorer.setQuery(qtmp);
-            	// Rescore the results
-            	it = htmp.iterator();
-            	while (it.hasNext()) {
-            		SearchHit hit = it.next();
-            		hit.setScore(scorer.score(hit));
-            	}
-            	htmp.rank();
-            	
-            	// Calculate ap
-                double tmpAp = avgPrecision(htmp, qrels, query.getTitle());
-                
-                //if (tmpAp > Math.max(origAp, rmAp)) {
-                //	System.out.println(i + " " + StringUtils.join(set, " ") + ": " + tmpAp);
-                //}
-                if (tmpAp > maxAp) {
-                	maxAp = tmpAp;
-                	maxFv = workingFv.deepCopy();
-                	System.out.println(i + " " + StringUtils.join(set, " ") + ": " + tmpAp);               
-                }
-                i++;
+            	Set<Double> weights = Sets.newHashSet(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9);
+                Set<Set<Double>> weightSets = Sets.powerSet(weights);
+                for (Set<Double> weightSet: weightSets) {	
+                	
+                	if (weightSet.size() != set.size() || sum(weightSet) != 1)
+                		continue;
+
+
+                	
+					Collection<List<Double>> permutations = Collections2.permutations(weightSet);
+					
+					// For all 
+					for (List<Double> permutation: permutations) {
+						FeatureVector workingFv = new FeatureVector(null);
+						int j=0;
+						for (String term: set) {							
+							double w = permutation.get(j);
+							workingFv.addTerm(term, w);
+							j++;
+						}
+		            	
+		            	qtmp.setFeatureVector(workingFv);
+		        		scorer.setQuery(qtmp);
+		            	// Rescore the results
+		            	it = htmp.iterator();
+		            	while (it.hasNext()) {
+		            		SearchHit hit = it.next();
+		            		hit.setScore(scorer.score(hit));
+		            	}
+		            	htmp.rank();
+		            	
+		            	
+		                double tmp = metric(metric, results, qrels, query, MAX_RESULTS);
+		                
+		                if (verbose) {
+		                	String str = "";
+		                	for (String term: workingFv.getFeatures()) {
+		                		str += term + ": " + workingFv.getFeatureWeight(term) + ",";
+		                	}
+		                
+		                	System.out.println(str + tmp);
+		                }
+		                
+		                if (tmp > maxMetric) {
+		                	maxMetric = tmp;
+		                	maxFv = workingFv.deepCopy();
+		                	//System.out.println(i + " " + StringUtils.join(set, " ") + ": " + tmpAp);               
+		                }
+					}
+                }  
             }   
-            System.out.println("Final query " + query.getTitle() + "," + maxAp + "," + 
-            		"," + StringUtils.join(maxFv.getFeatures(), " "));
             
-            GQuery feedbackQuery = new GQuery();
-            feedbackQuery.setTitle(query.getTitle());
-            feedbackQuery.setText(query.getText());
-            feedbackQuery.setFeatureVector(rmVector);     
-            
-        }
-        outputWriter.close();
-    }
-        
-    public static double avgPrecision(SearchHits results, Qrels qrels, String queryName) {
-        
-        double avgPrecision  = 0.0;
-        
-        Iterator<SearchHit> it = results.iterator();
-        int k = 1;
-        int numRelRet = 0;
-        while(it.hasNext()) {
-            SearchHit result = it.next();
-            if(qrels.isRel(queryName, result.getDocno())) {
-                numRelRet++;
-                avgPrecision += (double)numRelRet/k;
+            maxFv.normalize();
+            for (String term: terms) {
+            	System.out.println(query.getTitle() + "," + term + "," + maxFv.getFeatureWeight(term));
             }
-            k++;
+            
+            System.err.println("Final query " + query.getTitle() + "," + maxMetric + "," + 
+            		"," + StringUtils.join(maxFv.getFeatures(), " "));
+            maxavg += maxMetric;
         }
-        avgPrecision /= qrels.numRel(queryName);
-        return avgPrecision;
+        
+        baseline /= queries.numQueries();
+        maxavg /= queries.numQueries();
+        System.err.println(metric + "," + baseline + "," + maxavg);
     }
-	    
+    
+    
     public static Options createOptions()
     {
         Options options = new Options();
@@ -196,8 +223,9 @@ public class GetBestRMTerms
         options.addOption("topics", true, "Path to topics file");
         options.addOption("numFbDocs", true, "Number of feedback docs");
         options.addOption("numFbTerms", true, "Number of feedback terms");
-        options.addOption("output", true, "Path to output topics file");
+        options.addOption("metric", true, "Metric to optimize for");
         options.addOption("qrels", true, "Path to Qrels");
+        options.addOption("verbose", false, "Verbose output");
         return options;
     }
 

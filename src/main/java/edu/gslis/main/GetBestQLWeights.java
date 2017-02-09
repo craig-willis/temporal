@@ -36,11 +36,12 @@ import edu.gslis.textrepresentation.FeatureVector;
  * from RM, re-score top 1000 documents. Find the
  * best query by AP.
  */
-public class GetBestQLWeights 
+public class GetBestQLWeights  extends Metrics
 {
 	static int MAX_RESULTS=1000;
     public static void main(String[] args) throws Exception 
     {
+    	boolean verbose = false;
         Options options = createOptions();
         CommandLineParser parser = new GnuParser();
         CommandLine cl = parser.parse( options, args);
@@ -52,6 +53,9 @@ public class GetBestQLWeights
         String indexPath = cl.getOptionValue("index");
         String topicsPath = cl.getOptionValue("topics");
         String qrelsPath = cl.getOptionValue("qrels");
+        String metric = cl.getOptionValue("metric");
+        if (metric == null)
+        	metric = "ap";
         
         Qrels qrels =new Qrels(qrelsPath, false, 1);		
 
@@ -64,20 +68,24 @@ public class GetBestQLWeights
         
         IndexWrapper index = IndexWrapperFactory.getIndexWrapper(indexPath);
         Iterator<GQuery> queryIt = queries.iterator();
+        System.out.println("query,term,weight");
+        double baseline = 0;
+        double maxavg = 0;
         while (queryIt.hasNext()) {
             GQuery query = queryIt.next();
-            System.out.println("==========================");
-            System.out.println("Query: " + query.getTitle());
-            System.out.println(query.toString());
+            if (verbose) {
+            	System.out.println("==========================");
+            	System.out.println("Query: " + query.getTitle());
+            	System.out.println(query.toString());
+            }
 
             // Run the initial query, which will be used for re-ranking
             SearchHits results = index.runQuery(query, MAX_RESULTS);
-            //double origAp = avgPrecision(results, qrels, query.getTitle());   
-            double origNDCG = ndcg(MAX_RESULTS, query, results, qrels); 
-            System.out.println("Initial NDCG:" + origNDCG);
+            double orig = metric(metric, results, qrels, query, MAX_RESULTS); 
+            baseline += orig;
             
-            
-            
+            if (verbose)
+            	System.out.println("Initial " + metric + ":" + orig);
             
             ScorerDirichlet scorer = new ScorerDirichlet();
             CollectionStats corpusStats = new IndexBackedCollectionStats();            
@@ -85,7 +93,7 @@ public class GetBestQLWeights
             scorer.setCollectionStats(corpusStats);
     
             
-            double maxNDCG = origNDCG;
+            double max = orig;
             FeatureVector qv = query.getFeatureVector();
             List<String> terms = new ArrayList<String>();
             terms.addAll(qv.getFeatures());
@@ -128,19 +136,21 @@ public class GetBestQLWeights
 	            	
 	            	// Calculate ap
 	                //double tmpAp = avgPrecision(htmp, qrels, query.getTitle());
+	                double tmp = metric(metric, results, qrels, query, MAX_RESULTS);
 	                
-	                double tmpNDCG = ndcg(MAX_RESULTS, query, htmp, qrels); 
+	                if (verbose) {
+	                	String str = "";
+	                	for (String term: workingFv.getFeatures()) {
+	                		str += term + ": " + workingFv.getFeatureWeight(term) + ",";
+	                	}
 	                
-	                String str = "";
-	                for (String term: workingFv.getFeatures()) {
-	                	str += term + ": " + workingFv.getFeatureWeight(term) + ",";
+	                	System.out.println(str + tmp);
 	                }
 	                
-	                System.out.println(str + tmpNDCG);
-	                
-	                if (tmpNDCG > maxNDCG) {
-	                	maxNDCG = tmpNDCG;
+	                if (tmp > max) {
+	                	max = tmp;
 	                	maxFv = workingFv.deepCopy();
+	                	
 	                	//System.out.println(i + " " + StringUtils.join(set, " ") + ": " + tmpAp);               
 	                }
             	}
@@ -150,146 +160,21 @@ public class GetBestQLWeights
             for (String term: terms) {
             	System.out.println(query.getTitle() + "," + term + "," + maxFv.getFeatureWeight(term));
             }
-            System.out.println(query.getTitle() + ",MaxAP," + maxNDCG);
-            System.out.println("Final query " + query.getTitle() + "," + maxNDCG + "," + 
-            		"," + StringUtils.join(maxFv.getFeatures(), " "));
-                        
-        }
-    }
-        
-    public static double sum(Set<Double> set) {
-    	double sum = 0;
-    	for (double d: set)
-    		sum+= d;
-    	return sum;
-    }
-    public static double avgPrecision(SearchHits results, Qrels qrels, String queryName) {
-        
-        double avgPrecision  = 0.0;
-        
-        Iterator<SearchHit> it = results.iterator();
-        int k = 1;
-        int numRelRet = 0;
-        while(it.hasNext()) {
-            SearchHit result = it.next();
-            if(qrels.isRel(queryName, result.getDocno())) {
-                numRelRet++;
-                avgPrecision += (double)numRelRet/k;
+
+            if (verbose) {
+	            System.out.println("Final query " + query.getTitle() + "," + max + "," + 
+	            		"," + StringUtils.join(maxFv.getFeatures(), " "));
             }
-            k++;
+            maxavg += max;
         }
-        avgPrecision /= qrels.numRel(queryName);
-        return avgPrecision;
+        
+        baseline /= queries.numQueries();
+        maxavg /= queries.numQueries();
+        System.err.println(metric + "," + baseline + "," + maxavg);
+
     }
     
-    
-	
-	/**
-	 * Compute nDCG@k for a single query
-	 * @param rankCutoff The k in nDCG@k
-	 * @param query
-	 * @param results
-	 * @param qrels Relevance judgments
-	 * @return
-	 */
-	public static double ndcg(int rankCutoff, GQuery query, SearchHits results, Qrels qrels) {
-		return ndcg(rankCutoff, query.getTitle(), results, qrels);
-	}
-
-	/**
-	 * Compute nDCG@k for a single query
-	 * @param rankCutoff The k in nDCG@k
-	 * @param query
-	 * @param results
-	 * @param qrels Relevance judgments
-	 * @return
-	 */
-	public static double ndcg(int rankCutoff, String query, SearchHits results, Qrels qrels) {
-		double dcg = dcg(rankCutoff, query, results, qrels);
-		double idcg = idcg(rankCutoff, query, qrels);
-		if (idcg == 0) {
-			System.err.println("No relevant documents for query "+query+"?");
-			return 0;
-		}
-		return dcg / idcg;
-	}
-	
-	/**
-	 * Compute DCG@k for a single query
-	 * @param rankCutoff The k in DCG@k
-	 * @param query
-	 * @param results
-	 * @param qrels Relevance judgments
-	 * @return
-	 */
-	public static double dcg(int rankCutoff, GQuery query, SearchHits results, Qrels qrels) {
-		return dcg(rankCutoff, query.getTitle(), results, qrels);
-	}
-	
-	/**
-	 * Compute DCG@k for a single query
-	 * @param rankCutoff The k in DCG@k
-	 * @param query
-	 * @param results
-	 * @param qrels Relevance judgments
-	 * @return
-	 */
-	public static double dcg(int rankCutoff, String query, SearchHits results, Qrels qrels) {
-		double dcg = 0.0;
-		for (int i = 1; i <= rankCutoff; i++) {
-			SearchHit hit = results.getHit(i-1);
-			int rel = qrels.getRelLevel(query, hit.getDocno());
-			dcg += dcgAtRank(i, rel);
-		}
-		return dcg;
-	}
-	
-	/**
-	 * Compute ideal DCG@k for a single query
-	 * @param rankCutoff The k in DCG@k
-	 * @param query
-	 * @param results
-	 * @param qrels Relevance judgments
-	 * @return
-	 */
-	public static double idcg(int rankCutoff, GQuery query, Qrels qrels) {
-		return idcg(rankCutoff, query.getTitle(), qrels);
-	}
-	
-	/**
-	 * Compute ideal DCG@k for a single query
-	 * @param rankCutoff The k in DCG@k
-	 * @param query
-	 * @param results
-	 * @param qrels Relevance judgments
-	 * @return
-	 */
-	public static double idcg(int rankCutoff, String query, Qrels qrels) {
-		SearchHits idealResults = new SearchHits();
-		
-		Set<String> relDocs = qrels.getRelDocs(query);
-
-		if (relDocs == null) {
-			return dcg(rankCutoff, query, idealResults, qrels);
-		}
-
-		for (String doc : relDocs) {
-			int relLevel = qrels.getRelLevel(query, doc);
-
-			SearchHit hit = new SearchHit();
-			hit.setDocno(doc);
-			hit.setScore(relLevel);
-			idealResults.add(hit);
-		}
-		
-		idealResults.rank();
-		
-		return dcg(rankCutoff, query, idealResults, qrels);
-	}
-	
-	private static double dcgAtRank(int rank, int rel) {
-		return (double)(Math.pow(2, rel) - 1)/(Math.log(rank+1));
-	}
+ 
 
     public static Options createOptions()
     {
@@ -297,6 +182,7 @@ public class GetBestQLWeights
         options.addOption("index", true, "Path to input index");
         options.addOption("topics", true, "Path to topics file");
         options.addOption("qrels", true, "Path to Qrels");
+        options.addOption("metric", true, "One of ap, ndcg, p_20");
         return options;
     }
 
