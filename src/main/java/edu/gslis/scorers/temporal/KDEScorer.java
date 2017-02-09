@@ -55,7 +55,14 @@ public class KDEScorer extends TemporalScorer {
         double alpha = paramTable.get(ALPHA);
         
         double ll = super.score(doc);
-        double kde = Math.log(dist.density(getTime(doc)));
+        double kde = 0;
+        try {         	
+        	double pr = dist.density(getTime(doc));
+        	if (pr > 0)
+        		kde = Math.log(pr);
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
         
         return alpha*kde + (1-alpha)*ll;
     }
