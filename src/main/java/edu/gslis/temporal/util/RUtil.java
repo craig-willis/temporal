@@ -252,6 +252,13 @@ public class RUtil {
        return c.eval("length(x)/which(p$spec == max(p$spec))").asDouble();       
    }
    
+   public double avgSpec(double[] x) throws Exception {
+       c.assign("x", x);
+       c.voidEval("library(TSA)");
+       c.voidEval("p <- periodogram(x, plot=F)");
+       return c.eval("mean(p$spec)").asDouble();       
+   }
+   
    public double dps(double[] x) throws Exception {
        c.assign("x", x);
        c.voidEval("library(TSA)");
@@ -259,6 +266,16 @@ public class RUtil {
        return c.eval("max(p$spec)").asDouble();      
    }
    
+   public double bursts(double[] x) throws Exception {
+       c.assign("x", x);
+       c.voidEval("library(bursts)");
+       c.voidEval("y <- which(x > 0)");
+       c.voidEval("duration <- 0");
+       c.voidEval("bursts <- kleinberg(y)");
+       c.voidEval("l2 <- bursts[bursts$level == max(bursts$level),] ");
+       c.voidEval("duration <- 1 - ((l2$end - l2$start)/length(x))");
+       return c.eval("duration").asDouble();    
+   }
 	public void close() {
 		try {
 			c.close();

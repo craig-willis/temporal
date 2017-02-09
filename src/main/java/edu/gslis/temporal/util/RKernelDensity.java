@@ -13,7 +13,7 @@ public class RKernelDensity {
 	public RKernelDensity(double[] data, double[] weights) {
 		
 		try {
-		    if (data != null && data.length > 0) 
+		    if (data != null && data.length > 2) 
 		    {
     			c = new RConnection();
     			c.assign("x", data);
@@ -53,9 +53,11 @@ public class RKernelDensity {
 		double f = 0.0;
 		String cmd = "ind = which(abs(" + x + "-kern$x)==min(abs(" + x + "-kern$x)))";
 		try {
-			int ind = c.eval(cmd).asInteger();
-			double ll = ky[ind-1];
-			return ll;
+			if (c != null) {
+				int ind = c.eval(cmd).asInteger();
+				double ll = ky[ind-1];
+				return ll;
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
