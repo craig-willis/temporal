@@ -1,0 +1,44 @@
+stopper: data/stoplist.kba
+indexRoot: /data0/willis8/indexes
+bgStatType: edu.gslis.docscoring.support.IndexBackedCollectionStats
+runPrefix: base
+outputDir: ./output
+numThreads: 10
+scorers:
+  - name: rm1
+    className: edu.gslis.scorers.temporal.RM1Scorer
+    params:
+       mu : 500,1000,1500,2000,2500
+       fbDocs : 10,25,50,75,100
+       fbTerms : 10,25,50,75,100
+collections:
+#  - name: latimes-krovetz
+#    index: latimes.temporal.krovetz
+#    queries:
+#      title: ./topics/topics.latimes.301-400.krovetz.indri
+#    qrels: ./qrels/qrels.latimes.301-400
+#  - name: ap-krovetz
+#    index: ap.temporal.krovetz
+#    queries:
+#      title: ./topics/topics.ap.51-150.krovetz.indri
+#    qrels: ./qrels/qrels.ap.51-150
+#  - name: tweets2011-krovetz
+#    index: tweets2011.temporal.krovetz
+#    queries:
+#      title: ./topics/topics.microblog2011.krovetz.indri
+#    qrels: ./qrels/qrels.tweets2011
+#  - name: ft-krovetz
+#    index: ft.temporal.krovetz
+#    queries:
+#      title: ./topics/topics.ft.301-400.krovetz.indri
+#    qrels: ./qrels/qrels.ft.301-400
+  - name: blog06
+    index: blog06.temporal
+    queries:
+      title: ./topics/topics.blog06.851-1050.indri
+    qrels: ./qrels/qrels.blog06.851-1050
+#  - name: tweets2012-krovetz
+#    index: tweets2011.temporal.krovetz
+#    queries:
+#      title: ./topics/topics.microblog2012.krovetz.indri
+#    qrels: ./qrels/qrels.tweets2012
