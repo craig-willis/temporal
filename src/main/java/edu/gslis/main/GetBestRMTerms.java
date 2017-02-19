@@ -1,7 +1,12 @@
 package edu.gslis.main;
 
+import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +16,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.Collections2;
@@ -59,8 +65,11 @@ public class GetBestRMTerms extends Metrics
         String qrelsPath = cl.getOptionValue("qrels");
         String metric = cl.getOptionValue("metric");
         boolean verbose = cl.hasOption("verbose");
+        String outputFile = cl.getOptionValue("output");
         if (metric == null)
         	metric = "ap";
+        
+        FileWriter writer = new FileWriter(outputFile);
         
         Qrels qrels =new Qrels(qrelsPath, false, 1);		
 
@@ -77,19 +86,16 @@ public class GetBestRMTerms extends Metrics
         double maxavg = 0;
         while (queryIt.hasNext()) {
             GQuery query = queryIt.next();
-            if (verbose) {
-	            System.out.println("==========================");
-	            System.out.println("Query: " + query.getTitle());
-	            System.out.println(query.toString());
-            }
+	        System.out.println("==========================");
+            System.out.println("Query: " + query.getTitle());
+            System.out.println(query.toString());
             
             // Run the initial query, which will be used for re-ranking
             SearchHits results = index.runQuery(query, MAX_RESULTS);
             double orig = metric(metric, results, qrels, query, MAX_RESULTS); 
             baseline += orig;
             
-            if (verbose)
-            	System.out.println("Initial " + metric + ":" + orig);
+            System.out.println("Initial " + metric + ":" + orig);
             
             
             // Build the relevance model
@@ -113,17 +119,24 @@ public class GetBestRMTerms extends Metrics
             rm.setStopper(null);
             rm.setRes(fbDocs);
             rm.build();            
-          
+            
+
             FeatureVector rmVector = rm.asFeatureVector();
+            Set<String> features = new HashSet<String>();
+            features.addAll(rmVector.getFeatures());
+            for (String feature: features) {
+				if (feature.matches("^[0-9]*$")) {
+					rmVector.removeTerm(feature);
+				}
+            }
+          
             rmVector.clip(numFbTerms);
             rmVector.normalize();
-            //FeatureVector fv =
-            //		FeatureVector.interpolate(query.getFeatureVector(), rmVector, 0.5);
-            
-            //System.out.println("RM");
+
+
         	qtmp.setFeatureVector(rmVector);
     		scorer.setQuery(qtmp);
-            //System.out.println(rmVector.toString());
+
         	Iterator<SearchHit> it = htmp.iterator();
         	while (it.hasNext()) {
         		SearchHit hit = it.next();
@@ -132,9 +145,9 @@ public class GetBestRMTerms extends Metrics
         	htmp.rank();
         	
         	double rmMetric = metric(metric, results, qrels, query, MAX_RESULTS);	
-            
-            if (verbose)
-            	System.out.println("RM " + metric + ":" + rmMetric);
+        	System.out.println(rmVector.toString());
+        	
+            System.out.println("RM " + metric + ":" + rmMetric);
             
 
             double maxMetric = Math.max(orig, rmMetric);
@@ -142,80 +155,109 @@ public class GetBestRMTerms extends Metrics
             FeatureVector maxFv = new FeatureVector(null);
             
             scorer.setParameter("mu", 2500);
+                       	            		        	
+            Set<List<Double>> weightSets = getWeights(numFbTerms);
             
-            Set<Set<String>> sets = Sets.powerSet(terms);
-            for (Set<String> set: sets) {	
-            	if (set.size() <= 1 || set.size() > 5) 
-            		continue;
-            	            		
-            	Set<Double> weights = Sets.newHashSet(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9);
-                Set<Set<Double>> weightSets = Sets.powerSet(weights);
-                for (Set<Double> weightSet: weightSets) {	
-                	
-                	if (weightSet.size() != set.size() || sum(weightSet) != 1)
-                		continue;
+            
+			//System.err.println("Weights: " + weightSets.size());
+			int i=0;
+            for (List<Double> weightSet: weightSets) {	
+            	
+				Collection<List<Double>> permutations = Collections2.permutations(weightSet);
 
-
-                	
-					Collection<List<Double>> permutations = Collections2.permutations(weightSet);
-					
-					// For all 
-					for (List<Double> permutation: permutations) {
-						FeatureVector workingFv = new FeatureVector(null);
-						int j=0;
-						for (String term: set) {							
-							double w = permutation.get(j);
-							workingFv.addTerm(term, w);
-							j++;
-						}
-		            	
-		            	qtmp.setFeatureVector(workingFv);
-		        		scorer.setQuery(qtmp);
-		            	// Rescore the results
-		            	it = htmp.iterator();
-		            	while (it.hasNext()) {
-		            		SearchHit hit = it.next();
-		            		hit.setScore(scorer.score(hit));
-		            	}
-		            	htmp.rank();
-		            	
-		            	
-		                double tmp = metric(metric, results, qrels, query, MAX_RESULTS);
-		                
-		                if (verbose) {
-		                	String str = "";
-		                	for (String term: workingFv.getFeatures()) {
-		                		str += term + ": " + workingFv.getFeatureWeight(term) + ",";
-		                	}
-		                
-		                	System.out.println(str + tmp);
-		                }
-		                
-		                if (tmp > maxMetric) {
-		                	maxMetric = tmp;
-		                	maxFv = workingFv.deepCopy();
-		                	//System.out.println(i + " " + StringUtils.join(set, " ") + ": " + tmpAp);               
-		                }
+				// permutations contain duplicates, lets get the unique lists
+				Set<List<Double>> psets = new HashSet<List<Double>>();
+				psets.addAll(permutations);
+				
+				//System.err.println(i + "/" + weightSet.size() + " (" + psets.size() + ")");
+				for (List<Double> permutation: psets) {
+					FeatureVector workingFv = new FeatureVector(null);
+					int j=0;
+					for (String term: rmVector.getFeatures()) {							
+						double w = permutation.get(j);
+						workingFv.addTerm(term, w);
+						j++;
 					}
-                }  
-            }   
-            
+	            	
+	            	qtmp.setFeatureVector(workingFv);
+	        		scorer.setQuery(qtmp);
+	            	// Rescore the results
+	            	it = htmp.iterator();
+	            	while (it.hasNext()) {
+	            		SearchHit hit = it.next();
+	            		hit.setScore(scorer.score(hit));
+	            	}
+	            	htmp.rank();
+	            	
+	            	
+	                double tmp = metric(metric, results, qrels, query, MAX_RESULTS);
+	                
+	                if (verbose) {
+	                	String str = "";
+	                	for (String term: workingFv.getFeatures()) {
+                			str += term + ":" + workingFv.getFeatureWeight(term) + ", ";
+	                	}		                
+	                	System.out.println(str + tmp);
+	                }
+	                
+	                if (tmp > maxMetric) {
+	                	maxMetric = tmp;
+	                	maxFv = workingFv.deepCopy();
+	                	
+	                	String str = "";
+	                	for (String term: workingFv.getFeatures()) {
+	                		str += term + ": " + workingFv.getFeatureWeight(term) + ",";
+	                	}
+	                    System.out.println("Max " + query.getTitle() + "," + maxMetric + "," +  str);
+	                }
+				}
+				i++;
+            }  
+        
             maxFv.normalize();
             for (String term: terms) {
-            	System.out.println(query.getTitle() + "," + term + "," + maxFv.getFeatureWeight(term));
+            	writer.write(query.getTitle() + "," + term + "," + maxFv.getFeatureWeight(term) + "\n");
             }
             
-            System.err.println("Final query " + query.getTitle() + "," + maxMetric + "," + 
-            		"," + StringUtils.join(maxFv.getFeatures(), " "));
+        	String str = "";
+        	for (String term: maxFv.getFeatures()) {
+        		str += term + ": " + maxFv.getFeatureWeight(term) + ",";
+        	}
+            System.out.println("Final query " + query.getTitle() + "," + maxMetric + "," + 
+            		"," + str);
             maxavg += maxMetric;
         }
+        writer.close();
         
         baseline /= queries.numQueries();
         maxavg /= queries.numQueries();
-        System.err.println(metric + "," + baseline + "," + maxavg);
+        System.out.println(metric + "," + baseline + "," + maxavg);
     }
     
-    
+
+ 	public static Set<List<Double>> getWeights(int size) throws Exception {
+		List<String> lines = FileUtils.readLines(new File("weights.txt"));
+		Set<List<Double>> sets = new HashSet<List<Double>>();
+		for (String line: lines) {
+			String[] fields = line.split(",");
+			List<Double> list = new ArrayList<Double>();
+			for (String field: fields) {
+				double d = Double.parseDouble(field);
+				list.add(d);
+			}
+			Collections.sort(list);
+			
+			int diff = size - list.size();
+			for (int i=0; i<diff; i++) {
+				list.add(0.0);
+			}
+			
+			sets.add(list);
+		}
+		
+		return sets;
+	}
+ 	
     public static Options createOptions()
     {
         Options options = new Options();
@@ -226,6 +268,7 @@ public class GetBestRMTerms extends Metrics
         options.addOption("metric", true, "Metric to optimize for");
         options.addOption("qrels", true, "Path to Qrels");
         options.addOption("verbose", false, "Verbose output");
+        options.addOption("output", true, "Output file");
         return options;
     }
 

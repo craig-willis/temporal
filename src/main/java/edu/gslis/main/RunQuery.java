@@ -179,6 +179,8 @@ public class RunQuery extends YAMLConfigBase
 	                        	((TemporalScorer)docScorer).setStartTime(startTime);
 	                        	((TemporalScorer)docScorer).setEndTime(endTime);
 	                        	((TemporalScorer)docScorer).setInterval(interval);
+	                        	((TemporalScorer)docScorer).setCollectionName(collectionName);
+	                        	
 	                        }
 	                        
 	                        

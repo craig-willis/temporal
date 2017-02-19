@@ -57,6 +57,8 @@ public class GetBestQLWeights  extends Metrics
         if (metric == null)
         	metric = "ap";
         
+        double mu = Double.parseDouble(cl.getOptionValue("mu"));
+        
         Qrels qrels =new Qrels(qrelsPath, false, 1);		
 
         GQueries queries = null;
@@ -100,7 +102,7 @@ public class GetBestQLWeights  extends Metrics
 
             FeatureVector maxFv = qv.deepCopy();
             
-            scorer.setParameter("mu", 2500);
+            scorer.setParameter("mu", mu);
             
             GQuery qtmp = new GQuery();
             qtmp.setTitle(query.getTitle());
@@ -183,6 +185,7 @@ public class GetBestQLWeights  extends Metrics
         options.addOption("topics", true, "Path to topics file");
         options.addOption("qrels", true, "Path to Qrels");
         options.addOption("metric", true, "One of ap, ndcg, p_20");
+        options.addOption("mu", true, "mu");
         return options;
     }
 
