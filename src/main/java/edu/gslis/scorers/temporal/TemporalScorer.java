@@ -22,6 +22,7 @@ public class TemporalScorer extends RerankingScorer
     public long endTime;
     public long interval;
     public String tsIndexPath;
+    public String collectionName;
     
     public TimeSeriesIndex tsIndex = null;
     
@@ -71,6 +72,14 @@ public class TemporalScorer extends RerankingScorer
     }
     
     public void close() {        
+    }
+    
+    public void setCollectionName(String col) {
+    	this.collectionName = col;
+    }
+    
+    public String getCollectionName() {
+    	return collectionName;
     }
 
     public double score(SearchHit doc) 
