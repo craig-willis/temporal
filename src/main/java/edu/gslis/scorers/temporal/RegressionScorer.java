@@ -64,7 +64,7 @@ public class RegressionScorer extends TemporalScorer {
         	}
         	double tkl = 0;
             for (int i=0; i<tsw.length; i++) {
-            	tsw[i] = (tsw[i]/sum)+0.0000000001;
+            	tsw[i] = (tsw[i]/sum);
             	tkl += tsw[i] * Math.log(tsw[i]/background[i]);
             }
             
@@ -83,7 +83,7 @@ public class RegressionScorer extends TemporalScorer {
 
             sum = sum(termts);
             for (int i=0; i<termts.length; i++)
-            	termts[i] = (termts[i]/sum)+0.0000000001;
+            	termts[i] = (termts[i]/sum);
             
             double tkl = 0;
             for (int i=0; i<termts.length; i++) {
@@ -104,6 +104,23 @@ public class RegressionScorer extends TemporalScorer {
 
                 tsfv.addTerm(term, lm);
             	
+            } else if (collectionName.equals("ap")) {
+
+            	
+            	// 0.12 + 0.19*dpn + 0.17*tklin + 0.29*nidf
+            	double lm=0;
+            	if (sum > 0) {
+	            	double dpn = 0 ;
+	            	try {
+	            		dpn = rutil.dp(termts)/sdp;
+	            	} catch (Exception e) {
+	            		e.printStackTrace();
+	            	}
+	            	double tklin = tkli/stkli;
+	            	lm = 0.12 + 0.19*dpn + 0.17*tklin + 0.29*n;
+            	}
+            	tsfv.addTerm(term, lm);	            	
+
             } else if (collectionName.equals("latimes-krovetz")) {
            
             	double lm=0;

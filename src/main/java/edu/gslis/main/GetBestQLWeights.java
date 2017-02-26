@@ -41,7 +41,6 @@ public class GetBestQLWeights  extends Metrics
 	static int MAX_RESULTS=1000;
     public static void main(String[] args) throws Exception 
     {
-    	boolean verbose = false;
         Options options = createOptions();
         CommandLineParser parser = new GnuParser();
         CommandLine cl = parser.parse( options, args);
@@ -56,6 +55,8 @@ public class GetBestQLWeights  extends Metrics
         String metric = cl.getOptionValue("metric");
         if (metric == null)
         	metric = "ap";
+    	boolean verbose = cl.hasOption("verbose");
+
         
         double mu = Double.parseDouble(cl.getOptionValue("mu"));
         
@@ -138,7 +139,7 @@ public class GetBestQLWeights  extends Metrics
 	            	
 	            	// Calculate ap
 	                //double tmpAp = avgPrecision(htmp, qrels, query.getTitle());
-	                double tmp = metric(metric, results, qrels, query, MAX_RESULTS);
+	                double tmp = metric(metric, htmp, qrels, query, MAX_RESULTS);
 	                
 	                if (verbose) {
 	                	String str = "";
@@ -186,6 +187,7 @@ public class GetBestQLWeights  extends Metrics
         options.addOption("qrels", true, "Path to Qrels");
         options.addOption("metric", true, "One of ap, ndcg, p_20");
         options.addOption("mu", true, "mu");
+        options.addOption("verbose", false, "Verbose");
         return options;
     }
 

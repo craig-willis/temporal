@@ -2,12 +2,12 @@ package edu.gslis.main.temporal;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import edu.gslis.temporal.util.RUtil;
 import edu.gslis.textrepresentation.FeatureVector;
 
 public class TermTimeSeries 
@@ -24,6 +24,8 @@ public class TermTimeSeries
     /* Total counts for bin */
     double[] totals = new double[0];
     Set<String> terms = null;
+    
+    RUtil rutil = new RUtil();
     
 	public TermTimeSeries(long startTime, long endTime, long interval, Set<String> terms) {
 		this.startTime = startTime;
@@ -45,7 +47,6 @@ public class TermTimeSeries
         Iterator<String> it = docVector.iterator();
         while (it.hasNext()) {
             String f = it.next();
-
             
             double pd = docVector.getFeatureWeight(f)/docVector.getLength();
             
@@ -81,6 +82,67 @@ public class TermTimeSeries
 	
 	public double getTotalFrequencies(int bin) {
 		return totals[bin];
+	}
+	
+	public void smooth() {	
+		int win=3;
+		try {
+			totals = rutil.sma(totals, win);
+			
+			for (String term: termMap.keySet()) {
+				double[] freq = termMap.get(term);
+				termMap.put(term, rutil.sma(freq, win));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public double[] getDP() {
+		return null;
+	}
+	
+	public double[] getDPS() {
+		return null;
+	}
+
+	public double[] getTKL() {
+		return null;
+	}
+	
+	public double[] getTKLI() {
+		return null;
+	}
+	
+	public double[] getTKLC() {
+		return null;
+	}
+	
+	public double[] getACF() {
+		return null;
+	}
+	
+	public double[] getBinProp() {
+		return null;
+	}
+
+	public double[] getDPNorm() {
+		return null;
+	}
+
+	public double[] getDPSNorm() {
+		return null;
+	}
+	
+	public double[] getTKLNorm() {
+		return null;
+	}
+
+	public double[] getTKLINorm() {
+		return null;
+	}
+	public double[] getTKLCNorm() {
+		return null;
 	}
 	
 	public void save(String path) throws IOException {
