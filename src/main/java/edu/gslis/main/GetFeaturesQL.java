@@ -1,5 +1,6 @@
 package edu.gslis.main;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -50,7 +51,15 @@ public class GetFeaturesQL
         long startTime = Long.parseLong(cl.getOptionValue("startTime"));
         long endTime  = Long.parseLong(cl.getOptionValue("endTime"));
         long interval = Long.parseLong(cl.getOptionValue("interval"));  
+        int fbDocs = Integer.parseInt(cl.getOptionValue("fbDocs", "50"));
         boolean smooth = cl.hasOption("smooth");
+        String tsPath = null;        
+        if (cl.hasOption("ts")) 
+        	tsPath = cl.getOptionValue("ts");
+        
+        String plotPath = null;        
+        if (cl.hasOption("plot")) 
+        	plotPath = cl.getOptionValue("plot");        
 
         GQueries queries = null;
         if (topicsPath.endsWith("indri")) 
@@ -64,10 +73,8 @@ public class GetFeaturesQL
         
         RUtil rutil = new RUtil();
         Iterator<GQuery> queryIt = queries.iterator();
-        System.out.println(
-        			"query,term,rm,rmn,dp,dpn,dps,dpsn," + 
-        			"tkl,tkln,tkli,tklin,tklc,tklcn," + 
-        		    "pwr,pwc,idf,nidf,acf");
+        
+        System.out.println("query,term,rmn,dpn,dpsn,tkln,tklin,tklcn,pwr,pwc,nidf,acf,burst");
 
         while (queryIt.hasNext()) {
             GQuery query = queryIt.next();
@@ -92,114 +99,93 @@ public class GetFeaturesQL
             if (smooth)
             	ts.smooth();
                         
-            FeatureVector rmfv = getRMFV(results, 50, 20, index, query.getFeatureVector().getFeatures());
+            if (tsPath != null)
+            	ts.save(tsPath + "/" + query.getTitle() + ".ts");
+            FeatureVector rmfv = getRMFV(results, fbDocs, 100, index, query.getFeatureVector().getFeatures());
             
             double[] background = ts.getBinTotals();
-
-            double srm = 0;
-            double sdps = 0;
-            double sdp = 0;
-            double sidf = 0;
-            double stkl = 0;
-            double stkli = 0;
-            double stklc = 0;   
-
-            double[] ndp= new double[(int)query.getFeatureVector().getLength()];
-            double[] ndps= new double[(int)query.getFeatureVector().getLength()];
-            double[] ntkl= new double[(int)query.getFeatureVector().getLength()];
-            double[] ntkli= new double[(int)query.getFeatureVector().getLength()];
-            double[] ntklc= new double[(int)query.getFeatureVector().getLength()];
-            double[] nidf= new double[(int)query.getFeatureVector().getLength()];
+ 
+            
+            FeatureVector nidf = new FeatureVector(null);       
+            FeatureVector dp = new FeatureVector(null);
+            FeatureVector dps = new FeatureVector(null);
+            FeatureVector tklc = new FeatureVector(null);
+            FeatureVector tkli = new FeatureVector(null);
+            FeatureVector tkln = new FeatureVector(null);
+            FeatureVector acfn = new FeatureVector(null);
+            FeatureVector bd = new FeatureVector(null);
             
             FeatureVector cfv = new FeatureVector(null);
-            int j=0;
             for (String term: query.getFeatureVector().getFeatures()) {
-            	double[] tsw = ts.getTermFrequencies(term);
+               	double[] tsw = ts.getTermFrequencies(term);
+                if (tsw == null) {
+                	System.err.println("Unexpected null termts for " + term);
+                	continue;
+                }
+                
+                if (plotPath != null) {
+                	File dir = new File(plotPath + "/" + query.getTitle());
+                	dir.mkdirs();
+                	ts.plot(term, plotPath + "/" + query.getTitle());
+                }
 
-            	srm += rmfv.getFeatureWeight(term);
-            	
+            	double idf = Math.log(1 + index.docCount()/index.docFreq(term));
+            	nidf.addTerm(term, idf);
+
             	double sum = sum(tsw);
-            	if (sum > 0) {
 
-                    for (int i=0; i<tsw.length; i++) {
-                    	tsw[i] = (tsw[i]/sum);
-                    }
-
-                    
-                    double dps = rutil.dps(tsw);
-                    ndps[j] = dps;
-                	sdps += dps;
-                	
-                    double dp = rutil.dp(tsw);
-                    ndp[j] = dp;
-                	sdp += dp;
-                	                    
-                	double tkl = 0;
-                    for (int i=0; i<tsw.length; i++) {
-                    	if (tsw[i] >0 && background[i] > 0)
-                    		tkl += tsw[i] * Math.log(tsw[i]/background[i]);
-                    }
-                    
-                    ntkl[j] = tkl;
-                    stkl += tkl;
-                    
-                    double tkli =  (Math.exp(-(1/tkl)));
-                    stkli += tkli;
-                    ntkli[j] = tkli;
-                    
-                    double tklc =  1 - (Math.exp(-(tkl))); 
-                    stklc += tklc;
-                    ntklc[j] = tklc;
-                    
-                    //System.out.println(term + ",tkl=" + tkl + ",tkli=" + tkli + ",tlkc=" + tklc);
-                   
-            	}
-            	double idf = Math.log(1 + index.docCount()/index.docFreq(term));
-            	sidf += idf;
-            	nidf[j] = idf;
-            	cfv.addTerm(term,index.termFreq(term)/index.termCount() );
-            	j++;
-            }  
-                        
-            //System.out.println("stkl=" + stkl + ",stkli=" + stkli + ",stklc=" + stklc);
-            for (String term: query.getFeatureVector().getFeatures()) {
-            	double[] tsw = ts.getTermFrequencies(term);
-
-                double sum = sum(tsw);
-                                
-            	double rm = rmfv.getFeatureWeight(term);
-            	double dps = 0;
-            	double dp =0;
             	double tkl = 0;
-            	double tkli = 0;
-            	double tklc = 0;
-             	double acf = 0;
+                for (int i=0; i<tsw.length; i++) {
+                	tsw[i] = (tsw[i]/sum);
+                	if (tsw[i] >0 && background[i] > 0)
+                		tkl += tsw[i] * Math.log(tsw[i]/background[i]);
+                }
+                
             	if (sum > 0) {
-            		acf = rutil.acf(tsw);
-                	dps = rutil.dps(tsw);
-                	dp = rutil.dp(tsw);  
-                    for (int i=0; i<tsw.length; i++) {
-                    	tsw[i] = (tsw[i]/sum);                    	
-                    }
-                    
-                    for (int i=0; i<tsw.length; i++) {
-                    	if (tsw[i] >0 && background[i] > 0)
-                    		tkl += tsw[i] * Math.log(tsw[i]/background[i]);
-                    }
-                    
-                	tkli += (Math.exp(-(1/tkl))); 
-                	tklc += 1 - (Math.exp(-(tkl)));                     
+    	        	try {        		
+    	        		dp.addTerm(term, rutil.dp(tsw)); 
+    	        		dps.addTerm(term, rutil.dps(tsw)); 
+    	        		acfn.addTerm(term, rutil.acf(tsw));
+    	        		bd.addTerm(term, rutil.bursts(tsw));
+    	        	} catch (Exception e) {
+    	        		e.printStackTrace();        		
+    	        	}
             	}
             	
+            	tkln.addTerm(term, tkl);
+                tkli.addTerm(term, (Math.exp(-(1/tkl))));           
+            	tklc.addTerm(term, 1 - (Math.exp(-(tkl))));
+
+            	cfv.addTerm(term,index.termFreq(term)/index.termCount() );
+            }  
+            rmfv.normalize();
+            nidf.normalize();
+            dp.normalize();
+            dps.normalize();
+            normalize(tkli);
+            normalize(tkln);
+            normalize(tklc);
+            scale(acfn);
+            
+
+            for (String term: query.getFeatureVector().getFeatures()) {
+
+            	double rm = rmfv.getFeatureWeight(term);
+            	double dpn = dp.getFeatureWeight(term);
+            	double dpsn = dps.getFeatureWeight(term);
+            	double tkl = tkln.getFeatureWeight(term);
+            	double tklin = tkli.getFeatureWeight(term);
+            	double tklcn = tklc.getFeatureWeight(term);
             	double pwc = cfv.getFeatureWeight(term);
-            	double idf = Math.log(1 + index.docCount()/index.docFreq(term));
+            	double idf = nidf.getFeatureWeight(term);
             	double pwr = dfv.getFeatureWeight(term);
+            	double acf = acfn.getFeatureWeight(term);
+            	double burst = bd.getFeatureWeight(term);
             	
                 System.out.println(query.getTitle() + "," + term 
-                	+ "," + rm + "," + rm/srm + "," + dp + "," + dp/sdp + "," + dps + "," + dps/sdps 
-                	+ "," + tkl + "," + tkl/stkl + "," + tkli + "," + tkli/stkli + "," + tklc + "," + tklc/stklc
-                	+ "," + pwr + "," + pwc + "," + idf + "," + idf/sidf 
-                	+ "," + acf);
+                	+ "," + rm + "," + dpn + "," + dpsn 
+                	+ "," + tkl + "," + tklin + "," +  tklcn
+                	+ "," + pwr + "," + pwc + "," + idf + "," + acf + "," + burst);
             }            
         }
     }
@@ -250,8 +236,32 @@ public class GetFeaturesQL
         //qfv.normalize();
         return qfv;
     }
+
+    public static void scale(FeatureVector fv) {    	
+    	for (String term: fv.getFeatures()) {
+    		double x = fv.getFeatureWeight(term);
+    		double z = x + 1;
+    		fv.setTerm(term, z);
+    	}
+    	fv.normalize();
+    }
     
-    
+    public static void normalize(FeatureVector fv) {    	
+    	double min = Double.POSITIVE_INFINITY;
+    	for (String term: fv.getFeatures()) {
+    		double x = fv.getFeatureWeight(term);
+    		if (x < min) min = x;    		
+    	}
+
+    	if (min < 0) {
+	    	for (String term: fv.getFeatures()) {
+	    		double x = fv.getFeatureWeight(term);
+	    		double z = Math.abs(min) + x;
+	    		fv.setTerm(term, z);
+	    	}    	
+    	}
+    	fv.normalize();
+    }
 
 
     public static Options createOptions()
@@ -263,6 +273,9 @@ public class GetFeaturesQL
         options.addOption("endTime", true, "Collection end time");
         options.addOption("interval", true, "Collection interval");       
         options.addOption("smooth", false, "Smooth the timeseries");
+        options.addOption("fbDocs", true, "Number of feedback docs");
+        options.addOption("ts", true, "Save the timeseries to this file");
+        options.addOption("plot", true, "Plot");
         return options;
     }
 
