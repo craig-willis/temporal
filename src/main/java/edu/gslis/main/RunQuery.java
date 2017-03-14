@@ -211,7 +211,7 @@ public class RunQuery extends YAMLConfigBase
         executor.shutdown();
         
         // Wait until all threads are finish
-        executor.awaitTermination(360, TimeUnit.MINUTES);
+        executor.awaitTermination(48, TimeUnit.HOURS);
         System.err.println("Finished all threads");
         
         for (Writer writer: writers) {
