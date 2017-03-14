@@ -74,7 +74,7 @@ public class GetFeaturesQL
         RUtil rutil = new RUtil();
         Iterator<GQuery> queryIt = queries.iterator();
         
-        System.out.println("query,term,rmn,dpn,dpsn,tkln,tklin,tklcn,pwr,pwc,nidf,acf,burst");
+        System.out.println("query,term,rmn,dpn,dpsn,tkln,tklin,tklcn,pwr,pwc,nidf,qacf,acf,acfn,acfs,burst");
 
         while (queryIt.hasNext()) {
             GQuery query = queryIt.next();
@@ -103,7 +103,8 @@ public class GetFeaturesQL
             	ts.save(tsPath + "/" + query.getTitle() + ".ts");
             FeatureVector rmfv = getRMFV(results, fbDocs, 100, index, query.getFeatureVector().getFeatures());
             
-            double[] background = ts.getBinTotals();
+            double[] background = ts.getBinDist();
+            double qacf = rutil.acf(background, 1);
  
             
             FeatureVector nidf = new FeatureVector(null);       
@@ -112,12 +113,14 @@ public class GetFeaturesQL
             FeatureVector tklc = new FeatureVector(null);
             FeatureVector tkli = new FeatureVector(null);
             FeatureVector tkln = new FeatureVector(null);
+            FeatureVector acf = new FeatureVector(null);
             FeatureVector acfn = new FeatureVector(null);
+            FeatureVector acfs = new FeatureVector(null);
             FeatureVector bd = new FeatureVector(null);
             
             FeatureVector cfv = new FeatureVector(null);
             for (String term: query.getFeatureVector().getFeatures()) {
-               	double[] tsw = ts.getTermFrequencies(term);
+               	double[] tsw = ts.getTermDist(term);
                 if (tsw == null) {
                 	System.err.println("Unexpected null termts for " + term);
                 	continue;
@@ -136,7 +139,6 @@ public class GetFeaturesQL
 
             	double tkl = 0;
                 for (int i=0; i<tsw.length; i++) {
-                	tsw[i] = (tsw[i]/sum);
                 	if (tsw[i] >0 && background[i] > 0)
                 		tkl += tsw[i] * Math.log(tsw[i]/background[i]);
                 }
@@ -145,7 +147,13 @@ public class GetFeaturesQL
     	        	try {        		
     	        		dp.addTerm(term, rutil.dp(tsw)); 
     	        		dps.addTerm(term, rutil.dps(tsw)); 
-    	        		acfn.addTerm(term, rutil.acf(tsw));
+    	        		
+    	        		double acf2 = rutil.acf(tsw, 1);
+    	        		acfn.addTerm(term, acf2);
+    	        		acfs.addTerm(term, acf2);
+    	        		
+    	        		acf.addTerm(term, acf2);
+    	        		
     	        		bd.addTerm(term, rutil.bursts(tsw));
     	        	} catch (Exception e) {
     	        		e.printStackTrace();        		
@@ -165,7 +173,10 @@ public class GetFeaturesQL
             normalize(tkli);
             normalize(tkln);
             normalize(tklc);
-            scale(acfn);
+           // normalize(acfn);
+            acfn.normalize();
+            scale(acfs);
+            
             
 
             for (String term: query.getFeatureVector().getFeatures()) {
@@ -179,13 +190,16 @@ public class GetFeaturesQL
             	double pwc = cfv.getFeatureWeight(term);
             	double idf = nidf.getFeatureWeight(term);
             	double pwr = dfv.getFeatureWeight(term);
-            	double acf = acfn.getFeatureWeight(term);
+            	double acf1 = acf.getFeatureWeight(term);
+            	double acf2 = acfn.getFeatureWeight(term);
+            	double acf3 = acfs.getFeatureWeight(term);
+            	
             	double burst = bd.getFeatureWeight(term);
             	
                 System.out.println(query.getTitle() + "," + term 
                 	+ "," + rm + "," + dpn + "," + dpsn 
                 	+ "," + tkl + "," + tklin + "," +  tklcn
-                	+ "," + pwr + "," + pwc + "," + idf + "," + acf + "," + burst);
+                	+ "," + pwr + "," + pwc + "," + idf + "," + qacf + "," + acf1 + "," + acf2 + "," + acf3 + "," + burst);
             }            
         }
     }
@@ -243,7 +257,8 @@ public class GetFeaturesQL
     		double z = x + 1;
     		fv.setTerm(term, z);
     	}
-    	fv.normalize();
+    	normalize(fv);
+//    	fv.normalize();
     }
     
     public static void normalize(FeatureVector fv) {    	
@@ -263,6 +278,13 @@ public class GetFeaturesQL
     	fv.normalize();
     }
 
+    public static void normalize(FeatureVector fv, double min, double max) {    	
+    	for (String term: fv.getFeatures()) {
+    		double x = fv.getFeatureWeight(term);
+    		double z = (x - min)/(max - min);
+    		fv.setTerm(term, z);
+    	}    	
+    }
 
     public static Options createOptions()
     {
