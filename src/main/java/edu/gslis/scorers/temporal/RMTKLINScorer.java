@@ -69,27 +69,21 @@ public class RMTKLINScorer extends TemporalScorer {
         }
         
         // Get the query temporal model
-        double[] background = ts.getBinTotals();
-        double sum = sum(background);
-        for (int i=0; i<background.length; i++) 
-        	background[i] = (background[i]/sum)+0.0000000001;
+        double[] background = ts.getBinDist();
 
         // score each term with respect to KL(w || q)
         FeatureVector tsfv = new FeatureVector(null);
         for (String term: rmVector.getFeatures()) {
-        	double[] termts = ts.getTermFrequencies(term);
+        	double[] termts = ts.getTermDist(term);
             if (termts == null) {
             	System.err.println("Unexpected null termts for " + term);
             	continue;
             }
-
-            sum = sum(termts);
-            for (int i=0; i<termts.length; i++)
-            	termts[i] = (termts[i]/sum)+0.0000000001;
             
             double ll = 0;
             for (int i=0; i<termts.length; i++) {
-            	ll += termts[i] * Math.log(termts[i]/background[i]);
+            	if (termts[i] >0 && background[i] > 0)
+            		ll += termts[i] * Math.log(termts[i]/background[i]);
             }
             double weight = (Math.exp(-(1/ll)) * rmVector.getFeatureWeight(term));         
             tsfv.addTerm(term, weight);
