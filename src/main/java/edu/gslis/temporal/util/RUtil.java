@@ -114,9 +114,22 @@ public class RUtil {
        c.assign("y", y);
        c.voidEval("png(\"" + name + ".png" + "\")");
        c.voidEval("plot(y ~ x, main=\"" + name +  "\", type=\"l\")");
+       c.eval("dev.off()");       
+   }
+   
+   public void plot2(String name, double[] a, double[] b, String path) throws Exception {
+
+       c.voidEval("setwd(\"" + path + "\")");       
+       c.assign("a", a);
+       c.assign("b", b);
+       c.voidEval("x <- seq(1:length(a))");
+       c.voidEval("png(\"" + name + ".png" + "\")");
+       c.voidEval("plot(a ~ x, main=\"" + name +  "\", type=\"l\", ylim=c(0, 0.1))");
+       c.voidEval("lines(b ~ x, type=\"l\", col=\"red\")");
        c.eval("dev.off()");
        
    }
+   
    public double[] spec(double[] x, int freq) throws Exception{
        c.voidEval("library(multitaper)");
        c.assign("x", x);

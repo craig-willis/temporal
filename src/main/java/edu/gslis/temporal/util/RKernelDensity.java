@@ -1,5 +1,6 @@
 package edu.gslis.temporal.util;
 
+import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.Rserve.RConnection;
 
 
@@ -9,6 +10,31 @@ public class RKernelDensity {
 	private double[] ky;
 
 	private RConnection c;
+	
+	
+	public RKernelDensity(double[] data) throws Exception {
+		
+	    if (data != null && data.length > 2) 
+	    {
+			c = new RConnection();
+			c.assign("x", data);
+			c.voidEval("y <- seq(1:length(x))");
+			c.voidEval("x[x < 0] <- 0");
+			c.voidEval("weights <- x / sum(x)");
+
+			voidEval("kern = density(y, weights=weights, window=\"gaussian\", bw=\"SJ-dpi\", n=1024)");
+
+			ky = c.eval("kern$y").asDoubles();    			
+	    }
+	}
+	
+     private void voidEval(String cmd) throws Exception {
+       c.assign(".tmp.", cmd);
+       REXP r = c.parseAndEval("try( eval (parse (text=.tmp.)),silent=TRUE)");
+       if (r.inherits("try-error")) 
+           System.err.println("Error: "+ r.asString());
+    }
+	   
 
 	public RKernelDensity(double[] data, double[] weights) {
 		
