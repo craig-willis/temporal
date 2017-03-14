@@ -356,4 +356,31 @@ public class TemporalScorer extends RerankingScorer
         double z3 = Math.exp(z2);
         System.out.println(z1  + "," + z2 + "," + z3);
     }
+    
+
+    public  void normalize(FeatureVector fv) {    	
+    	double min = Double.POSITIVE_INFINITY;
+    	for (String term: fv.getFeatures()) {
+    		double x = fv.getFeatureWeight(term);
+    		if (x < min) min = x;    		
+    	}
+
+    	if (min < 0) {
+	    	for (String term: fv.getFeatures()) {
+	    		double x = fv.getFeatureWeight(term);
+	    		double z = Math.abs(min) + x;
+	    		fv.setTerm(term, z);
+	    	}    	
+    	}
+    	fv.normalize();
+    }
+
+    public static void scale(FeatureVector fv) {    	
+    	for (String term: fv.getFeatures()) {
+    		double x = fv.getFeatureWeight(term);
+    		double z = x + 1;
+    		fv.setTerm(term, z);
+    	}
+    	fv.normalize();
+    }
 }
