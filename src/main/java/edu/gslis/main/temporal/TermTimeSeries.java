@@ -39,15 +39,17 @@ public class TermTimeSeries
 	public void addDocument(long docTime, double score, FeatureVector docVector) 
 	{
         int t = (int)((docTime - startTime)/interval);
-            
+                    
         if (t >= numBins || t < 0) {
-        	System.out.println("Document out of time window " + docTime);
+        	System.out.println("Document out of time window " + docTime + ", ignoring");
         	return;
         }
+        
         Iterator<String> it = docVector.iterator();
         while (it.hasNext()) {
             String f = it.next();
             
+            // p(w | D)
             double pd = docVector.getFeatureWeight(f)/docVector.getLength();
             
             double[] termScore = new double[numBins];
@@ -61,6 +63,11 @@ public class TermTimeSeries
            
             termScore[t]+=pd*Math.exp(score);
             totals[t]+=pd*Math.exp(score);
+            
+            
+            if (termScore[t] < 0) {
+            	System.err.println("Score for " + f + " in time " + t + " is less than zero?");
+            }
             
             if (terms != null && terms.contains(f)) {
             	termMap.put(f, termScore);     
@@ -97,6 +104,27 @@ public class TermTimeSeries
 			e.printStackTrace();
 		}
 	}
+	
+	public double[] getBinDist() {
+		double[] background = getBinTotals();
+		double sum = sum(background);
+		for (int i=0; i<background.length; i++) 
+			background[i] = background[i]/sum;
+		return background;
+	}
+	
+	public double[] getTermDist(String term) {
+		double[] tsw = termMap.get(term);
+		if (tsw == null)
+			return null;
+		
+		double sum = sum(tsw);
+		for (int i=0; i<tsw.length; i++) 
+			tsw[i] = tsw[i]/sum;
+		return tsw;
+	}
+	
+
 
 	public double[] getDP() {
 		return null;
@@ -146,7 +174,7 @@ public class TermTimeSeries
 	}
 	
 	public void save(String path) throws IOException {
-		FileWriter writer = new FileWriter(path);
+		FileWriter writer = new FileWriter(path, true);
 		for (String term: termMap.keySet()) {
 			String record = term;
 			for (double t: termMap.get(term)) {
@@ -161,4 +189,24 @@ public class TermTimeSeries
 		writer.write(record + "\n");
 		writer.close();
 	}
+	
+    public double sum(double[] d) {
+    	double sum = 0;
+    	if (d == null)
+    		return 0;
+    	for (double x: d)
+    		sum += x;
+    	return sum;
+    }
+    
+    public void plot(String term, String path) {
+    	double[] background = getBinDist();
+    	double[] tsw = getTermDist(term);
+    	try {
+    		rutil.plot2(term, tsw, background, path);    	
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
+    }
+    
 }
