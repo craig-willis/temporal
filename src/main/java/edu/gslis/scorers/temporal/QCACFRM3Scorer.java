@@ -9,7 +9,7 @@ import edu.gslis.temporal.util.RUtil;
 import edu.gslis.textrepresentation.FeatureVector;
 
 
-public class RMACFScorer extends TemporalScorer {
+public class QCACFRM3Scorer extends TemporalScorer {
     
     public static String FB_DOCS = "fbDocs";
     public static String FB_TERMS = "fbTerms";

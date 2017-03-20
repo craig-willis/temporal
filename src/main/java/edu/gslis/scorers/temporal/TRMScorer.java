@@ -66,23 +66,17 @@ public class TRMScorer extends TemporalScorer {
     		double score = hit.getScore();
     		ts.addDocument(docTime, score, hit.getFeatureVector());
         }
+        ts.smooth();
         
-        double[] background = ts.getBinTotals();
-        double sum = sum(background);
-        for (int i=0; i<background.length; i++) 
-        	background[i] = (background[i]/sum)+0.0000000001;
+        double[] background = ts.getBinDist();
 
         FeatureVector tsfv = new FeatureVector(null);
         for (String term: rmVector.getFeatures()) {
-        	double[] termts = ts.getTermFrequencies(term);
+        	double[] termts = ts.getTermDist(term);
             if (termts == null) {
             	System.err.println("Unexpected null termts for " + term);
             	continue;
             }
-
-            sum = sum(termts);
-            for (int i=0; i<termts.length; i++)
-            	termts[i] = (termts[i]/sum)+0.0000000001;
             
             double ll = 0;
             for (int i=0; i<termts.length; i++) {

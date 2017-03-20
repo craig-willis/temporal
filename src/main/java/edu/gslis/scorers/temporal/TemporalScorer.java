@@ -51,7 +51,7 @@ public class TemporalScorer extends RerankingScorer
     public void setInterval(long interval) {
         this.interval = interval;
     }
-    public void setIndex(TimeSeriesIndex tsIndex) {
+    public void setTimeSeriesIndex(TimeSeriesIndex tsIndex) {
         this.tsIndex = tsIndex;
     }
     
@@ -332,7 +332,7 @@ public class TemporalScorer extends RerankingScorer
         return tms;
     }   
     
-    public double sum(double[] d) {
+    public static double sum(double[] d) {
     	double sum = 0;
     	if (d == null)
     		return 0;
@@ -358,7 +358,7 @@ public class TemporalScorer extends RerankingScorer
     }
     
 
-    public  void normalize(FeatureVector fv) {    	
+    public  static void normalize(FeatureVector fv) {    	
     	double min = Double.POSITIVE_INFINITY;
     	for (String term: fv.getFeatures()) {
     		double x = fv.getFeatureWeight(term);
