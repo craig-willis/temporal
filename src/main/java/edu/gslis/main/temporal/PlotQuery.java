@@ -70,7 +70,7 @@ public class PlotQuery
         collectionStats.setStatSource(indexPath);
         
         TemporalScorer tsa = new TSMScorer();
-        tsa.setIndex(tsIndex);
+        tsa.setTimeSeriesIndex(tsIndex);
         tsa.setCollectionStats(collectionStats);
         
         
