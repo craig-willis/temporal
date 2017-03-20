@@ -11,6 +11,7 @@ import java.util.Map;
 public class CollectionConfig {
     String name;
     String index;
+    String tsIndex;
     Map<String, String> queries;
     String qrels;
     String bgSourcePath;
@@ -30,10 +31,17 @@ public class CollectionConfig {
     public String getIndex() {
         return index;
     }
-    public void setIndex(String trainIndex) {
-        this.index = trainIndex;
+    public void setIndex(String index) {
+        this.index = index;
     }
-
+    
+    public String getTimeSeriesIndex() {
+        return tsIndex;
+    }
+    
+    public void setTimeSeriesIndex(String tsIndex) {
+        this.tsIndex = tsIndex;
+    }
     
     public void setQrels(String qrels) {
         this.qrels = qrels;

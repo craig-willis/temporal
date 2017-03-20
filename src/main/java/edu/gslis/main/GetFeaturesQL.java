@@ -12,6 +12,7 @@ import org.apache.commons.cli.Options;
 
 import edu.gslis.indexes.IndexWrapper;
 import edu.gslis.indexes.IndexWrapperFactory;
+import edu.gslis.indexes.temporal.TimeSeriesIndex;
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.main.temporal.TermTimeSeries;
 import edu.gslis.queries.GQueries;
@@ -46,12 +47,16 @@ public class GetFeaturesQL
             return;
         }
         String indexPath = cl.getOptionValue("index");
+        String tsIndexPath = cl.getOptionValue("tsindex");
         String topicsPath = cl.getOptionValue("topics");	
         
         long startTime = Long.parseLong(cl.getOptionValue("startTime"));
         long endTime  = Long.parseLong(cl.getOptionValue("endTime"));
         long interval = Long.parseLong(cl.getOptionValue("interval"));  
         int fbDocs = Integer.parseInt(cl.getOptionValue("fbDocs", "50"));
+        double minacf = Double.parseDouble(cl.getOptionValue("minacf"));
+        double maxacf = Double.parseDouble(cl.getOptionValue("maxacf"));
+
         boolean smooth = cl.hasOption("smooth");
         String tsPath = null;        
         if (cl.hasOption("ts")) 
@@ -71,11 +76,15 @@ public class GetFeaturesQL
         IndexWrapper index = IndexWrapperFactory.getIndexWrapper(indexPath);
         index.setTimeFieldName(Indexer.FIELD_EPOCH);
         
+        TimeSeriesIndex tsindex = new TimeSeriesIndex();
+        tsindex.open(tsIndexPath, true);
+        
         RUtil rutil = new RUtil();
         Iterator<GQuery> queryIt = queries.iterator();
         
-        System.out.println("query,term,rmn,dpn,dpsn,tkln,tklin,tklcn,pwr,pwc,nidf,qacf,acf,acfn,acfs,burst");
+        System.out.println("query,term,rmn,dpn,dpsn,tkln,tklin,tklcn,pwr,pwc,nidf,qacf,acf,acfn,acfs,burst,cafcs,dpc,dpsc,scacf,cacf1,cacf2,cpacf1,cpacf2,qccf,ccf");
 
+        double[] cbackground = tsindex.get("_total_");
         while (queryIt.hasNext()) {
             GQuery query = queryIt.next();
   
@@ -107,16 +116,26 @@ public class GetFeaturesQL
             double qacf = rutil.acf(background, 1);
  
             
-            FeatureVector nidf = new FeatureVector(null);       
-            FeatureVector dp = new FeatureVector(null);
-            FeatureVector dps = new FeatureVector(null);
-            FeatureVector tklc = new FeatureVector(null);
-            FeatureVector tkli = new FeatureVector(null);
-            FeatureVector tkln = new FeatureVector(null);
-            FeatureVector acf = new FeatureVector(null);
-            FeatureVector acfn = new FeatureVector(null);
-            FeatureVector acfs = new FeatureVector(null);
-            FeatureVector bd = new FeatureVector(null);
+            FeatureVector nidf = new FeatureVector(null);   // Normalized IDF
+            FeatureVector dp = new FeatureVector(null);     // Dominant period
+            FeatureVector dps = new FeatureVector(null);    // Dominant power spectrum
+            FeatureVector tklc = new FeatureVector(null);   // Temporal KL, complement
+            FeatureVector tkli = new FeatureVector(null);   // Temporal KL, inverse
+            FeatureVector tkln = new FeatureVector(null);   // Temporal KL
+            FeatureVector acf = new FeatureVector(null);    // ACF
+            FeatureVector acfn = new FeatureVector(null);   // Normalized ACF
+            FeatureVector acfs = new FeatureVector(null);   // Scaled ACF
+            FeatureVector bd = new FeatureVector(null);     // Bursts
+            FeatureVector cacfs = new FeatureVector(null);  // Collection ACF
+            FeatureVector scacfs = new FeatureVector(null); // Smoothed collection ACF
+            FeatureVector cdps = new FeatureVector(null);   // Collection DPS
+            FeatureVector cdp = new FeatureVector(null);    // Collection DP
+            FeatureVector cacf1 = new FeatureVector(null);   
+            FeatureVector cacf2 = new FeatureVector(null);   
+            FeatureVector cpacf1 = new FeatureVector(null); 
+            FeatureVector cpacf2 = new FeatureVector(null);
+            FeatureVector qccf = new FeatureVector(null);
+            FeatureVector ccf = new FeatureVector(null);
             
             FeatureVector cfv = new FeatureVector(null);
             for (String term: query.getFeatureVector().getFeatures()) {
@@ -125,6 +144,12 @@ public class GetFeaturesQL
                 	System.err.println("Unexpected null termts for " + term);
                 	continue;
                 }
+                
+                double[] ctsw = tsindex.get(term);
+                if (ctsw == null) {
+                	System.err.println("Unexpected null collection termts for " + term);
+                	continue;
+                }            
                 
                 if (plotPath != null) {
                 	File dir = new File(plotPath + "/" + query.getTitle());
@@ -155,6 +180,20 @@ public class GetFeaturesQL
     	        		acf.addTerm(term, acf2);
     	        		
     	        		bd.addTerm(term, rutil.bursts(tsw));
+    	        		
+    	        		cacfs.addTerm(term, rutil.acf(ctsw, 2));
+    	        		cdp.addTerm(term, rutil.dp(ctsw)); 
+    	        		cdps.addTerm(term, rutil.dps(ctsw));
+    	        		    	       
+    	        		
+		        		cacf1.addTerm(term, rutil.acf(ctsw, 1));
+		        		cacf2.addTerm(term, rutil.acf(ctsw, 2));
+		        		cpacf1.addTerm(term, rutil.pacf(ctsw, 1));
+		        		cpacf2.addTerm(term, rutil.pacf(ctsw, 2));
+		        		scacfs.addTerm(term, rutil.sma_acf(ctsw, 2, 3));
+		        		
+		        		qccf.addTerm(term, 1-rutil.ccf(background, tsw, 0));
+		        		ccf.addTerm(term, 1-rutil.ccf(cbackground, ctsw, 0));
     	        	} catch (Exception e) {
     	        		e.printStackTrace();        		
     	        	}
@@ -176,7 +215,16 @@ public class GetFeaturesQL
            // normalize(acfn);
             acfn.normalize();
             scale(acfs);
-            
+            scale(cacfs);
+            scale(scacfs);
+            cdps.normalize();
+            cdp.normalize();
+            scale(cacf1, minacf, maxacf);
+            scale(cacf2, minacf, maxacf);
+            //scale(cpacf1);
+            //scale(cpacf2);
+            scale(qccf);
+            scale(ccf);
             
 
             for (String term: query.getFeatureVector().getFeatures()) {
@@ -195,11 +243,24 @@ public class GetFeaturesQL
             	double acf3 = acfs.getFeatureWeight(term);
             	
             	double burst = bd.getFeatureWeight(term);
+            	double cacf = cacfs.getFeatureWeight(term);
+            	double scacf = scacfs.getFeatureWeight(term);
+            	double dpc = cdp.getFeatureWeight(term);
+            	double dpsc = cdps.getFeatureWeight(term);
+            	
+        		double acf1c = cacf1.getFeatureWeight(term);	        		
+        		double acf2c = cacf2.getFeatureWeight(term);	        		
+        		double pacf1c = cpacf1.getFeatureWeight(term);	        		
+        		double pacf2c = cpacf2.getFeatureWeight(term);	        
+        		double ccfq = qccf.getFeatureWeight(term);	        
+        		double ccfc = ccf.getFeatureWeight(term);	        
             	
                 System.out.println(query.getTitle() + "," + term 
                 	+ "," + rm + "," + dpn + "," + dpsn 
                 	+ "," + tkl + "," + tklin + "," +  tklcn
-                	+ "," + pwr + "," + pwc + "," + idf + "," + qacf + "," + acf1 + "," + acf2 + "," + acf3 + "," + burst);
+                	+ "," + pwr + "," + pwc + "," + idf + "," + qacf + "," + acf1 + "," + acf2 
+                	+ "," + acf3 + "," + burst + "," + cacf + "," + dpc + "," + dpsc + "," + scacf 
+                	+ "," + acf1c + "," + acf2c + "," + pacf1c + "," + pacf2c + "," + ccfq + "," + ccfc);
             }            
         }
     }
@@ -251,6 +312,15 @@ public class GetFeaturesQL
         return qfv;
     }
 
+    public static void scale(FeatureVector fv, double min, double max) {
+    	for (String term: fv.getFeatures()) {
+    		double x = fv.getFeatureWeight(term);
+    		double z = (x - min)/(max -min);
+    		fv.setTerm(term, z);
+    	}
+      	fv.normalize(); 	
+    }
+        
     public static void scale(FeatureVector fv) {    	
     	for (String term: fv.getFeatures()) {
     		double x = fv.getFeatureWeight(term);
@@ -290,6 +360,7 @@ public class GetFeaturesQL
     {
         Options options = new Options();
         options.addOption("index", true, "Path to input index");
+        options.addOption("tsindex", true, "Path to collection time series index");
         options.addOption("topics", true, "Path to topics file");
         options.addOption("startTime", true, "Collection start time");
         options.addOption("endTime", true, "Collection end time");
@@ -297,6 +368,9 @@ public class GetFeaturesQL
         options.addOption("smooth", false, "Smooth the timeseries");
         options.addOption("fbDocs", true, "Number of feedback docs");
         options.addOption("ts", true, "Save the timeseries to this file");
+        options.addOption("minacf", true, "Minimum ACF for scaling");
+        options.addOption("maxacf", true, "Maximum ACF for scaling");
+        
         options.addOption("plot", true, "Plot");
         return options;
     }

@@ -51,7 +51,8 @@ public class TimeSeriesIndex {
             for (int i=1; i<fields.length; i++) {
                 counts[i-1] = Double.valueOf(fields[i]);
             }
-            timeSeriesMap.put(term, counts);
+            
+            	timeSeriesMap.put(term, counts);
             j++;
         }
         System.err.println("Done");
@@ -71,6 +72,10 @@ public class TimeSeriesIndex {
         }
     }
     
+    public void close() throws IOException 
+    {
+    	writer.close();
+    }
     
     public List<String> terms()
     {
@@ -84,6 +89,27 @@ public class TimeSeriesIndex {
     {
         return timeSeriesMap.get(term);
     }
+    
+    public double[] getDist(String term) {
+		double[] tsw = timeSeriesMap.get(term);
+		if (tsw == null)
+			return null;
+		
+		double sum = sum(tsw);
+		for (int i=0; i<tsw.length; i++) 
+			tsw[i] = tsw[i]/sum;
+		return tsw;
+    }
+    
+    public double sum(double[] d) {
+    	double sum = 0;
+    	if (d == null)
+    		return 0;
+    	for (double x: d)
+    		sum += x;
+    	return sum;
+    }
+    
     
     public double get(String term, int bin)
     {
@@ -106,4 +132,7 @@ public class TimeSeriesIndex {
     public double getLength(int bin) throws Exception {
         return get("_total_", bin);
     }
+    
+
+
 }

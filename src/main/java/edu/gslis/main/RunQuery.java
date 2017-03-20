@@ -25,6 +25,7 @@ import edu.gslis.config.ScorerConfig;
 import edu.gslis.docscoring.support.CollectionStats;
 import edu.gslis.indexes.IndexWrapper;
 import edu.gslis.indexes.IndexWrapperFactory;
+import edu.gslis.indexes.temporal.TimeSeriesIndex;
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.queries.GQueries;
 import edu.gslis.queries.GQueriesIndriImpl;
@@ -101,6 +102,12 @@ public class RunQuery extends YAMLConfigBase
                 CollectionStats corpusStats = (CollectionStats)loader.loadClass(corpusStatsClass).newInstance();
                 corpusStats.setStatSource(indexPath);
                              
+                // Open the TimeSeriesIndex, if present
+                String tsIndexPath = collection.getTimeSeriesIndex();
+                TimeSeriesIndex tsIndex = new TimeSeriesIndex();
+                if (tsIndexPath != null)
+                	tsIndex.open(tsIndexPath, true);                	
+                
                 // For each scorer
                 List<ScorerConfig> scorerConfigs = config.getScorers();
                 for (ScorerConfig scorerConfig: scorerConfigs) 
@@ -180,6 +187,7 @@ public class RunQuery extends YAMLConfigBase
 	                        	((TemporalScorer)docScorer).setEndTime(endTime);
 	                        	((TemporalScorer)docScorer).setInterval(interval);
 	                        	((TemporalScorer)docScorer).setCollectionName(collectionName);
+	                        	((TemporalScorer)docScorer).setTimeSeriesIndex(tsIndex);
 	                        	
 	                        }
 	                        

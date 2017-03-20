@@ -44,6 +44,8 @@ public class CreateTermTimeIndex
         long endTime = Long.parseLong(cl.getOptionValue("end"));
         long interval = Long.parseLong(cl.getOptionValue("interval"));
         boolean useDf = cl.hasOption("df");
+        int minOccur = Integer.parseInt(cl.getOptionValue("minOccur", "0"));
+        
         
         /* Per term bin counts */
         Map<String, Map<Long, Long>> termTimeMap = new TreeMap<String, Map<Long, Long>>();
@@ -67,6 +69,11 @@ public class CreateTermTimeIndex
             } catch (NumberFormatException e) {
                 System.err.println("Problem parsing epoch for " + docid);
                 continue;
+            }
+            
+            if (docTime > endTime || docTime < startTime) {
+            	System.err.println("Document " + docno + " has time outside of window");
+            	continue;
             }
             long t = (docTime - startTime)/interval;
             
@@ -131,8 +138,6 @@ public class CreateTermTimeIndex
         int j = 0;
         for (String term: termTimeMap.keySet()) {
             
-            if (j % 1000 == 0) 
-                System.err.println(j + "...");
             long[] freqs = new long[numBins];
 
             Map<Long, Long> timeMap = termTimeMap.get(term);
@@ -144,8 +149,13 @@ public class CreateTermTimeIndex
                 
                 freqs[(int)t] = freq;
             }
-            tsIndex.add(term, freqs);
-            j++;
+            
+            if (sum(freqs) > minOccur) {
+            	tsIndex.add(term, freqs);
+                if (j % 1000 == 0) 
+                    System.err.println(j + "...");
+                j++;
+            }
         }
     }
         
@@ -159,8 +169,17 @@ public class CreateTermTimeIndex
         options.addOption("interval", true, "Interval");        
         options.addOption("format", true, "h2 or csv");        
         options.addOption("output", true, "Output time series index");        
-        options.addOption("df", false, "If true, event is num docs. If false, event is num terms.");        
+        options.addOption("df", false, "If true, event is num docs. If false, event is num terms."); 
+        options.addOption("minOccur", true, "Minimum occurrence"); 
         return options;
     }
-
+   
+    public static double sum(long[] d) {
+    	long sum = 0;
+    	if (d == null)
+    		return 0;
+    	for (long	 x: d)
+    		sum += x;
+    	return sum;
+    }
 }
