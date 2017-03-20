@@ -190,10 +190,28 @@ public class RUtil {
            System.err.println("Error: "+ r.asString());
    }
    
+   public double prob_acf(double x, double mu, double sd) throws Exception {
+	   return c.eval("pnorm(" + x + "," + mu + "," + sd + ")").asDouble();
+   }
+
+
    
+	public double sma_acf(double[] data, int lag, int win) throws Exception { 
+	   c.voidEval("library(TTR)");
+       c.assign("x", data);
+ 	   c.voidEval("sma <- SMA(x, " + win + ")");
+       c.voidEval("ac <- acf(na.omit(sma), plot=F)");
+       return c.eval("ac$acf[" + lag + "]").asDouble();
+	}
+
 	public double acf(double[] data) throws Exception { 
 	    return acf(data, 2);
 	}
+	
+	public double pacf(double[] data) throws Exception { 
+	    return pacf(data, 2);
+	}
+	
 	
 	public double silvermantest(double[] data, int modes) throws Exception {
 	    c.voidEval("library(silvermantest)");
@@ -215,6 +233,13 @@ public class RUtil {
         return c.eval("ac$acf[" + lag + "]").asDouble();
 	}
 
+	public double pacf(double[] data, int lag) throws Exception {
+        c.assign("x", data);
+        c.voidEval("ac <- pacf(x, plot=F)");
+
+        return c.eval("ac$acf[" + lag + "]").asDouble();
+	}	
+	
 	public double kurtosis(double[] data) throws Exception {
         c.assign("x", data);
         c.voidEval("library(moments)");
