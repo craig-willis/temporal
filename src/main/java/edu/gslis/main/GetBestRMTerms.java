@@ -2,14 +2,17 @@ package edu.gslis.main;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -17,10 +20,8 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.Collections2;
-import com.google.common.collect.Sets;
 
 import edu.gslis.docscoring.support.CollectionStats;
 import edu.gslis.docscoring.support.IndexBackedCollectionStats;
@@ -36,6 +37,7 @@ import edu.gslis.scorers.temporal.ScorerDirichlet;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 import edu.gslis.textrepresentation.FeatureVector;
+import edu.gslis.utils.Stopper;
 
 /**
  * Run initial query and build RM model
@@ -69,6 +71,11 @@ public class GetBestRMTerms extends Metrics
         if (metric == null)
         	metric = "ap";
         
+        int numThreads = Integer.parseInt(cl.getOptionValue("threads", "10"));
+        
+        String stopperPath = cl.getOptionValue("stopper");
+        Stopper stopper = new Stopper(stopperPath);
+        
         FileWriter writer = new FileWriter(outputFile);
         
         Qrels qrels =new Qrels(qrelsPath, false, 1);		
@@ -80,11 +87,32 @@ public class GetBestRMTerms extends Metrics
             queries = new GQueriesJsonImpl();
         queries.read(topicsPath);
         
+        if (numThreads == 0) { numThreads = 1; }
+        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+
+        
         IndexWrapper index = IndexWrapperFactory.getIndexWrapper(indexPath);
         Iterator<GQuery> queryIt = queries.iterator();
-        double baseline = 0;
-        double maxavg = 0;
+        //double baseline = 0;
+        //double maxavg = 0;
+                
         while (queryIt.hasNext()) {
+            GQuery query = queryIt.next();
+
+            GetBestRMTerms gt = new GetBestRMTerms();
+            Worker worker = gt.new Worker();
+            worker.index = index;
+            worker.indexPath = indexPath;
+            worker.metric = metric;
+            worker.numFbDocs = numFbDocs;
+            worker.numFbTerms = numFbTerms;
+            worker.qrels = qrels;
+            worker.query = query;
+            worker.stopper = stopper;
+            worker.verbose = verbose;
+            worker.writer = writer;
+            executor.execute(worker);
+        	/*
             GQuery query = queryIt.next();
 	        System.out.println("==========================");
             System.out.println("Query: " + query.getTitle());
@@ -116,7 +144,7 @@ public class GetBestRMTerms extends Metrics
             rm.setDocCount(numFbDocs);
             rm.setTermCount(numFbTerms);
             rm.setIndex(index);
-            rm.setStopper(null);
+            rm.setStopper(stopper);
             rm.setRes(fbDocs);
             rm.build();            
             
@@ -190,7 +218,7 @@ public class GetBestRMTerms extends Metrics
 	            	htmp.rank();
 	            	
 	            	
-	                double tmp = metric(metric, results, qrels, query, MAX_RESULTS);
+	                double tmp = metric(metric, htmp, qrels, query, MAX_RESULTS);
 	                
 	                if (verbose) {
 	                	String str = "";
@@ -226,12 +254,21 @@ public class GetBestRMTerms extends Metrics
             System.out.println("Final query " + query.getTitle() + "," + maxMetric + "," + 
             		"," + str);
             maxavg += maxMetric;
-        }
+            */
+        }        
+        executor.shutdown();
+        
+        // Wait until all threads are finish
+        executor.awaitTermination(48, TimeUnit.HOURS);
+        System.err.println("Finished all threads");
+
         writer.close();
         
+        /*
         baseline /= queries.numQueries();
         maxavg /= queries.numQueries();
         System.out.println(metric + "," + baseline + "," + maxavg);
+        */
     }
     
 
@@ -269,7 +306,181 @@ public class GetBestRMTerms extends Metrics
         options.addOption("qrels", true, "Path to Qrels");
         options.addOption("verbose", false, "Verbose output");
         options.addOption("output", true, "Output file");
+        options.addOption("stopper", true, "Stopper");
+        options.addOption("threads", true, "threads");
         return options;
     }
+    
+    protected class Worker implements Runnable
+    {
+    	IndexWrapper index = null;
+    	GQuery query = null;
+    	String metric = null;
+    	Qrels qrels = null;
+    	int numFbDocs= 0;
+    	int numFbTerms = 0;
+    	String indexPath = null;
+    	Stopper stopper = null;
+    	boolean verbose = false;
+    	Writer writer = null;
+    	double baseline = 0;
+    	double maxavg = 0;
+    	
+    	public void run() 
+    	{    		
+    		try 
+	    		{
+	                    
+		        System.out.println("==========================");
+	            System.out.println("Query: " + query.getTitle());
+	            System.out.println(query.toString());
+	            
+	            // Run the initial query, which will be used for re-ranking
+	            SearchHits results = index.runQuery(query, MAX_RESULTS);
+	            double orig = metric(metric, results, qrels, query, MAX_RESULTS); 
+	            baseline += orig;
+	            
+	            System.out.println("Initial " + metric + ":" + orig);
+	            
+	            
+	            // Build the relevance model
+	            SearchHits fbDocs = new SearchHits(results.hits());
+	            fbDocs.crop(numFbDocs);
+	            
+	            GQuery qtmp = new GQuery();
+	            qtmp.setTitle(query.getTitle());
+	            
+	            SearchHits htmp = new SearchHits(results.hits());
+	            ScorerDirichlet scorer = new ScorerDirichlet();
+	            CollectionStats corpusStats = new IndexBackedCollectionStats();            
+	            corpusStats.setStatSource(indexPath);
+	            scorer.setCollectionStats(corpusStats);
+	
+	
+	            FeedbackRelevanceModel rm = new FeedbackRelevanceModel();
+	            rm.setDocCount(numFbDocs);
+	            rm.setTermCount(numFbTerms);
+	            rm.setIndex(index);
+	            rm.setStopper(stopper);
+	            rm.setRes(fbDocs);
+	            rm.build();            
+	            
+	
+	            FeatureVector rmVector = rm.asFeatureVector();
+	            Set<String> features = new HashSet<String>();
+	            features.addAll(rmVector.getFeatures());
+	            for (String feature: features) {
+					if (feature.matches("^[0-9]*$")) {
+						rmVector.removeTerm(feature);
+					}
+	            }
+	          
+	            rmVector.clip(numFbTerms);
+	            rmVector.normalize();
+	
+	
+	        	qtmp.setFeatureVector(rmVector);
+	    		scorer.setQuery(qtmp);
+	
+	        	Iterator<SearchHit> it = htmp.iterator();
+	        	while (it.hasNext()) {
+	        		SearchHit hit = it.next();
+	        		hit.setScore(scorer.score(hit));
+	        	}
+	        	htmp.rank();
+	        	
+	        	double rmMetric = metric(metric, results, qrels, query, MAX_RESULTS);	
+	        	System.out.println(rmVector.toString());
+	        	
+	            System.out.println("RM " + metric + ":" + rmMetric);
+	            
+	
+	            double maxMetric = Math.max(orig, rmMetric);
 
+	            FeatureVector maxFv = new FeatureVector(null);
+	            Set<String> terms = rmVector.getFeatures();
+	            scorer.setParameter("mu", 2500);
+	                       	            		        	
+	            Set<List<Double>> weightSets = getWeights(numFbTerms);
+	            
+	            
+				//System.err.println("Weights: " + weightSets.size());
+				int i=0;
+	            for (List<Double> weightSet: weightSets) {	
+	            	
+					Collection<List<Double>> permutations = Collections2.permutations(weightSet);
+	
+					// permutations contain duplicates, lets get the unique lists
+					Set<List<Double>> psets = new HashSet<List<Double>>();
+					psets.addAll(permutations);
+					
+					//System.err.println(i + "/" + weightSet.size() + " (" + psets.size() + ")");
+					for (List<Double> permutation: psets) {
+						FeatureVector workingFv = new FeatureVector(null);
+						int j=0;
+						for (String term: rmVector.getFeatures()) {							
+							double w = permutation.get(j);
+							workingFv.addTerm(term, w);
+							j++;
+						}
+		            	
+		            	qtmp.setFeatureVector(workingFv);
+		        		scorer.setQuery(qtmp);
+		            	// Rescore the results
+		            	it = htmp.iterator();
+		            	while (it.hasNext()) {
+		            		SearchHit hit = it.next();
+		            		hit.setScore(scorer.score(hit));
+		            	}
+		            	htmp.rank();
+		            	
+		            	
+		                double tmp = metric(metric, htmp, qrels, query, MAX_RESULTS);
+		                
+		                if (verbose) {
+		                	String str = "";
+		                	for (String term: workingFv.getFeatures()) {
+	                			str += term + ":" + workingFv.getFeatureWeight(term) + ", ";
+		                	}		                
+		                	System.out.println(str + tmp);
+		                }
+		                
+		                if (tmp > maxMetric) {
+		                	maxMetric = tmp;
+		                	maxFv = workingFv.deepCopy();
+		                	
+		                	String str = "";
+		                	for (String term: workingFv.getFeatures()) {
+		                		str += term + ": " + workingFv.getFeatureWeight(term) + ",";
+		                	}
+		                    System.out.println("Max " + query.getTitle() + "," + maxMetric + "," +  str);
+		                }
+					}
+					i++;
+	            }          
+	            maxFv.normalize();
+	            synchronized (this) {
+		            for (String term: terms) {
+		            	writer.write(query.getTitle() + "," + term + "," + maxFv.getFeatureWeight(term) + "\n");
+		            	writer.flush();
+		            }
+	            }
+	            
+	            /*
+	             * 	            maxavg += maxMetric;
+
+	        	String str = "";
+	        	for (String term: maxFv.getFeatures()) {
+	        		str += term + ": " + maxFv.getFeatureWeight(term) + ",";
+	        	}
+	            System.out.println("Final query " + query.getTitle() + "," + maxMetric + "," + 
+	            		"," + str);
+	            */
+
+    		} catch (Exception e) {
+    			e.printStackTrace();
+    		}
+
+    	}
+    }
 }
