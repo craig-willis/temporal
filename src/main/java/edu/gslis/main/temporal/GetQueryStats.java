@@ -28,7 +28,7 @@ import edu.gslis.searchhits.SearchHits;
 import edu.gslis.temporal.util.RUtil;
 import edu.gslis.textrepresentation.FeatureVector;
 
-public class CalculateQueryStats 
+public class GetQueryStats 
 {
     public static void main(String[] args) throws Exception 
     {
@@ -37,7 +37,7 @@ public class CalculateQueryStats
         CommandLine cl = parser.parse( options, args);
         if (cl.hasOption("help")) {
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp( CalculateQueryStats.class.getCanonicalName(), options );
+            formatter.printHelp( GetQueryStats.class.getCanonicalName(), options );
             return;
         }
         String tsIndexPath = cl.getOptionValue("tsindex");
