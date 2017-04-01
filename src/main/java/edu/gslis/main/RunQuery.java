@@ -9,10 +9,18 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -55,7 +63,7 @@ public class RunQuery extends YAMLConfigBase
         super(config);
     }
 
-    public void runBatch() throws Exception 
+    public void runBatch(String configPath) throws Exception 
     {
         initGlobals();
                 
@@ -229,6 +237,28 @@ public class RunQuery extends YAMLConfigBase
         for (Writer writer: queryWriters) {
         	writer.close();
         }
+        
+        sendMail(configPath);
+    }
+    
+    public void sendMail(String config) {
+    	String addr = "willis8@illinois.edu";
+    
+        Properties properties = System.getProperties();  
+        properties.setProperty("mail.smtp.host", "smtp.ncsa.illinois.edu");  
+        Session session = Session.getDefaultInstance(properties);  
+    
+        try {  
+           MimeMessage message = new MimeMessage(session);  
+           message.setFrom(new InternetAddress(addr));  
+           message.addRecipient(Message.RecipientType.TO, new InternetAddress(addr));  
+           message.setSubject(config + " completed");  
+           message.setText(config + " completed");
+    
+           Transport.send(message);      
+        }catch (MessagingException e) {
+        	e.printStackTrace();
+        }  
     }
     
     public static void main(String[] args) throws Exception 
@@ -244,7 +274,7 @@ public class RunQuery extends YAMLConfigBase
         BatchConfig config = (BatchConfig)yaml.load(new FileInputStream(yamlFile));
 
         RunQuery runner = new RunQuery(config);
-        runner.runBatch();
+        runner.runBatch(args[0]);
     }
        
 }

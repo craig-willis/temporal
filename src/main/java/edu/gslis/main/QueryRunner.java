@@ -105,7 +105,16 @@ public class QueryRunner implements Runnable
         
         
         docScorer.setQuery(query);
-        SearchHits results = index.runQuery(query, NUM_RESULTS);
+        SearchHits results = null;
+        
+        synchronized(this) {
+        	try {
+        		results = index.runQuery(query, NUM_RESULTS);        
+        	} catch (Exception e) {
+        		System.err.println("Error processing query " + query.getTitle() + ": " + query.getText());
+        		e.printStackTrace();
+        	}
+        }
         
         docScorer.setIndex(index);;
         docScorer.init(results);
