@@ -11,7 +11,7 @@ public class RUtil {
 
 	public RUtil() {
 		
-		try {
+			try {
 			c = new RConnection();
 			
 
@@ -195,6 +195,13 @@ public class RUtil {
    }
 
 
+   public double pnorm(double x, double mu, double sd) throws Exception {
+	   return c.eval("pnorm(" + x + "," + mu + "," + sd + ")").asDouble();
+   }
+
+   public double pexp(double x, double lambda) throws Exception {
+	   return c.eval("pexp(" + x + "," + lambda + ")").asDouble();
+   }
    
 	public double sma_acf(double[] data, int lag, int win) throws Exception { 
 	   c.voidEval("library(TTR)");
@@ -227,6 +234,7 @@ public class RUtil {
         return c.eval("cc$acf[which(cc$lag == " + lag + ")]").asDouble();	    
 	}
 	public double acf(double[] data, int lag) throws Exception {
+		c.voidEval("library(TSA)");
         c.assign("x", data);
         c.voidEval("ac <- acf(x, plot=F)");
 
