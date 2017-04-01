@@ -19,6 +19,7 @@ public class QCACFScorer extends TemporalScorer {
 
     	RUtil rutil = new RUtil();
     	        
+    	double lag = paramTable.get("lag");   
         
         FeatureVector acfn = new FeatureVector(null);
         for (String term: gQuery.getFeatureVector().getFeatures()) {
@@ -33,7 +34,7 @@ public class QCACFScorer extends TemporalScorer {
             double acf = 0;
         	if (sum > 0) {
 	        	try {        		
-	        		acf = rutil.acf(tsw, 1);
+	        		acf = rutil.acf(tsw, (int)lag);
 	        	} catch (Exception e) {
 	        		e.printStackTrace();        		
 	        	}
