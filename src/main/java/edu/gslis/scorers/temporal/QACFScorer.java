@@ -16,6 +16,8 @@ public class QACFScorer extends TemporalScorer {
 
     	RUtil rutil = new RUtil();
     	        
+    	double lag = paramTable.get("lag");   
+    	
         // Build the term time series
         TermTimeSeries ts = new TermTimeSeries(startTime, endTime, interval, 
         		gQuery.getFeatureVector().getFeatures());
@@ -40,7 +42,7 @@ public class QACFScorer extends TemporalScorer {
             double acf = 0;
         	if (sum > 0) {
 	        	try {        		
-	        		acf = rutil.acf(tsw);
+	        		acf = rutil.acf(tsw, (int)lag);
 	        	} catch (Exception e) {
 	        		e.printStackTrace();        		
 	        	}
@@ -49,8 +51,8 @@ public class QACFScorer extends TemporalScorer {
         } 
         
         // Normalize term scores
-        //scale(acfn);
-        normalize(acfn);
+        scale(acfn);
+        //normalize(acfn);
 
         gQuery.setFeatureVector(acfn);
         
