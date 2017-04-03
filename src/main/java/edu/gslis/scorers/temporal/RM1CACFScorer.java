@@ -43,7 +43,7 @@ public class RM1CACFScorer extends TemporalScorer {
         rm.build();            
       
         FeatureVector rmVector = rm.asFeatureVector();
-        rmVector.clip(100);
+        rmVector.clip(numFbTerms);
         rmVector.normalize();
                 
         FeatureVector acfn = new FeatureVector(null);
@@ -70,12 +70,20 @@ public class RM1CACFScorer extends TemporalScorer {
         
         // Normalize term scores
         scale(acfn);
-        acfn.clip(numFbTerms);
-        acfn.normalize();
+
+        FeatureVector tsfv = new FeatureVector(null);
+        for (String term: rmVector.getFeatures()) {
+        	double w = acfn.getFeatureWeight(term) * rmVector.getFeatureWeight(term);
+        	tsfv.addTerm(term, w);
+        }
+        tsfv.normalize();
         
+        gQuery.setFeatureVector(tsfv);
+                	
         System.out.println(gQuery.getTitle() + ": " + gQuery.getText());
-        System.out.println(rmVector.toString(numFbTerms));
-        System.out.println(acfn.toString(numFbTerms));
+        System.out.println(rmVector.toString(10));
+        System.out.println(acfn.toString(10));
+        System.out.println(tsfv.toString(10));
     }    
     
 
