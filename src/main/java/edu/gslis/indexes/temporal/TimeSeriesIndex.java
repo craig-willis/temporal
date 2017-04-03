@@ -62,10 +62,10 @@ public class TimeSeriesIndex {
     
     
 
-    public void add(String term, long[] counts) throws IOException {
+    public void add(String term, double[] counts) throws IOException {
         if (!readOnly) {
             writer.write(term);
-            for (long count: counts) {
+            for (double count: counts) {
                 writer.write("," + count);
             }
             writer.write("\n");

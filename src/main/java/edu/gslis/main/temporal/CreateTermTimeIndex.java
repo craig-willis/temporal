@@ -14,6 +14,7 @@ import edu.gslis.indexes.IndexWrapper;
 import edu.gslis.indexes.IndexWrapperFactory;
 import edu.gslis.indexes.temporal.TimeSeriesIndex;
 import edu.gslis.lucene.indexer.Indexer;
+import edu.gslis.temporal.util.RUtil;
 import edu.gslis.textrepresentation.FeatureVector;
 
 /**
@@ -45,13 +46,16 @@ public class CreateTermTimeIndex
         long interval = Long.parseLong(cl.getOptionValue("interval"));
         boolean useDf = cl.hasOption("df");
         int minOccur = Integer.parseInt(cl.getOptionValue("minOccur", "0"));
+        boolean smooth = cl.hasOption("smooth");
         
+        
+        RUtil rutil = new RUtil();
         
         /* Per term bin counts */
-        Map<String, Map<Long, Long>> termTimeMap = new TreeMap<String, Map<Long, Long>>();
+        Map<String, Map<Long, Double>> termTimeMap = new TreeMap<String, Map<Long, Double>>();
         
         /* Total counts for bin */
-        Map<Long, Long> totalTimeMap = new TreeMap<Long, Long>();
+        Map<Long, Double> totalTimeMap = new TreeMap<Long, Double>();
         
         IndexWrapper index =  IndexWrapperFactory.getIndexWrapper(indexPath);
         int numDocs = (int)index.docCount();
@@ -77,7 +81,7 @@ public class CreateTermTimeIndex
             }
             long t = (docTime - startTime)/interval;
             
-            Long total = 0L;
+            double total = 0L;
             if (totalTimeMap.get(t) != null)
                 total = totalTimeMap.get(t);
                 
@@ -86,11 +90,11 @@ public class CreateTermTimeIndex
                 String f = it.next();
                 double w = dv.getFeatureWeight(f);
 
-                Map<Long, Long> timeMap = termTimeMap.get(f);
+                Map<Long, Double> timeMap = termTimeMap.get(f);
                 if (timeMap == null)
-                    timeMap = new TreeMap<Long, Long>();
+                    timeMap = new TreeMap<Long, Double>();
 
-                long freq = 0;
+                double freq = 0;
                 if (timeMap.get(t) != null)
                     freq = timeMap.get(t);
                 
@@ -119,18 +123,20 @@ public class CreateTermTimeIndex
         TimeSeriesIndex tsIndex = new TimeSeriesIndex();
         tsIndex.open(output, false);
             
-
         System.err.println("Calculating bin totals");
-        long[] totals = new long[numBins];
+        double[] totals = new double[numBins];
         for (long time = startTime; time <= endTime; time+=interval) {
             long t = (time - startTime)/interval;
-            long freq = 0;
+            double freq = 0;
             if (totalTimeMap.get(t) != null)
                 freq = totalTimeMap.get(t);
             
             totals[(int)t] = freq;
         }        
 
+        if (smooth)
+        	totals = rutil.sma(totals, 3);
+        
         tsIndex.add("_total_", totals);
         
         System.err.println("Adding terms");
@@ -138,12 +144,12 @@ public class CreateTermTimeIndex
         int j = 0;
         for (String term: termTimeMap.keySet()) {
             
-            long[] freqs = new long[numBins];
+            double[] freqs = new double[numBins];
 
-            Map<Long, Long> timeMap = termTimeMap.get(term);
+            Map<Long, Double> timeMap = termTimeMap.get(term);
             for (long time = startTime; time <= endTime; time+=interval) {
                 long t = (time - startTime)/interval;
-                long freq = 0;
+                double freq = 0;
                 if (timeMap.get(t) != null)
                     freq = timeMap.get(t);
                 
@@ -151,6 +157,10 @@ public class CreateTermTimeIndex
             }
             
             if (sum(freqs) > minOccur) {
+            	
+            	if (smooth) {
+            		freqs = rutil.sma(freqs, 3);
+            	}
             	tsIndex.add(term, freqs);
                 if (j % 1000 == 0) 
                     System.err.println(j + "...");
@@ -171,14 +181,15 @@ public class CreateTermTimeIndex
         options.addOption("output", true, "Output time series index");        
         options.addOption("df", false, "If true, event is num docs. If false, event is num terms."); 
         options.addOption("minOccur", true, "Minimum occurrence"); 
+        options.addOption("smooth", false, "Smooth ts");
         return options;
     }
    
-    public static double sum(long[] d) {
-    	long sum = 0;
+    public static double sum(double[] d) {
+    	double sum = 0;
     	if (d == null)
     		return 0;
-    	for (long	 x: d)
+    	for (double	 x: d)
     		sum += x;
     	return sum;
     }
