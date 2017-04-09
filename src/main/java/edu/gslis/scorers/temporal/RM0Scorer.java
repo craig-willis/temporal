@@ -10,7 +10,7 @@ import edu.gslis.textrepresentation.FeatureVector;
  * determine how effective RM is at estimating ideal query term weights
  * for target collections.  
  */
-public class BasicRMScorer extends TemporalScorer {
+public class RM0Scorer extends TemporalScorer {
     
     public static String FB_DOCS = "fbDocs";            
     
