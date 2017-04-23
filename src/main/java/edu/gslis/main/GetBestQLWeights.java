@@ -110,10 +110,13 @@ public class GetBestQLWeights  extends Metrics
             SearchHits htmp = new SearchHits(results.hits());
             Iterator<SearchHit> it = htmp.iterator();
             
-            Set<Double> weights = Sets.newHashSet(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9);
+            Set<Double> weights = Sets.newHashSet(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
+            //Set<Double>weights = Sets.newHashSet(0.0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 
+            //		0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0);
+            
             Set<Set<Double>> sets = Sets.powerSet(weights);
             for (Set<Double> set: sets) {	
-            	if (set.size() != terms.size() || sum(set) != 1)
+            	if (! (set.size() == terms.size() &&  sum(set) == 1))
             		continue;
             	            		
             	Collection<List<Double>> permutations = Collections2.permutations(set);
