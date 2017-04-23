@@ -80,7 +80,8 @@ public class GetFeaturesQL
         RUtil rutil = new RUtil();
         Iterator<GQuery> queryIt = queries.iterator();
         
-        System.out.println("query,term,rmn,nidf,qacf2,qacfn2,qacfs2,cacf2,cacf2s,scacfs,ccfq,ccfc");
+        System.out.println("query,term,rm,rmn,idf,nidf,qacf2,qacfs2,cacf2,cacf2s,ccfq,ccfqs,ccfc,ccfcs,rmqacf2,rmcacf2,tklc,tklcn,tkli,tklin");
+        
         
         double[] cbackground = tsindex.get("_total_");
         while (queryIt.hasNext()) {
@@ -109,18 +110,21 @@ public class GetFeaturesQL
             if (tsPath != null)
             	ts.save(tsPath + "/" + query.getTitle() + ".ts");
             FeatureVector rmfv = getRMFV(results, fbDocs, 100, index, query.getFeatureVector().getFeatures());
-            
+            FeatureVector rmnfv = rmfv.deepCopy();
+                        
             double[] background = ts.getBinDist();
              
             FeatureVector nidffv = new FeatureVector(null);   // Normalized IDF
             FeatureVector qacffv = new FeatureVector(null);   // Raw ACF, lag 2
-            FeatureVector qacfnfv = new FeatureVector(null);  // Normalized query ACF, lag 2
             FeatureVector qacfsfv = new FeatureVector(null);  // Scaled ACF, lag 2
             FeatureVector cacf2fv = new FeatureVector(null);  // Collection ACF, lag 2
             FeatureVector cacfs2fv = new FeatureVector(null);  // Collection ACF, scaled, lag2
-            FeatureVector scacfsfv = new FeatureVector(null); // Smoothed collection ACF
             FeatureVector qccffv = new FeatureVector(null);   // Query CCF
             FeatureVector ccffv = new FeatureVector(null);    // Collection CCF
+            FeatureVector rmqacfn = new FeatureVector(null);   // RM*QACF
+            FeatureVector rmcacfn = new FeatureVector(null);   // RM*CACF
+            FeatureVector tklcfv = new FeatureVector(null);
+            FeatureVector tklifv = new FeatureVector(null);
             
             FeatureVector cfv = new FeatureVector(null);
             for (String term: query.getFeatureVector().getFeatures()) {
@@ -150,49 +154,86 @@ public class GetFeaturesQL
     	        		
     	        		double acf2 = rutil.acf(tsw, 2);
     	        		qacffv.addTerm(term, acf2);  
-    	        		qacfnfv.addTerm(term, acf2);
     	        		qacfsfv.addTerm(term, acf2);
     	        		    	        		
-		        		cacf2fv.addTerm(term, rutil.acf(ctsw, 2));    	        		
-    	        		cacfs2fv.addTerm(term, rutil.acf(ctsw, 2));    	        		    	           	        		
-		        		scacfsfv.addTerm(term, rutil.sma_acf(ctsw, 2, 3));
+    	        		double cacf2 = rutil.acf(ctsw, 2);
+		        		cacf2fv.addTerm(term, cacf2);    	        		
+    	        		cacfs2fv.addTerm(term, cacf2);    	        		    	           	        		
 		        		
 		        		qccffv.addTerm(term, 1-rutil.ccf(background, tsw, 0));
 		        		ccffv.addTerm(term, 1-rutil.ccf(cbackground, ctsw, 0));
+
+
     	        	} catch (Exception e) {
     	        		e.printStackTrace();        		
     	        	}
             	}
             	
+            	double tkl = 0;
+                for (int i=0; i<tsw.length; i++) {
+                	if (tsw[i] >0 && background[i] > 0)
+                		tkl += tsw[i] * Math.log(tsw[i]/background[i]);
+                }
+                
+                tklcfv.addTerm(term, 1 - (Math.exp(-(tkl))));
+                tklifv.addTerm(term, (Math.exp(-(1/tkl))));    
+            	
             	cfv.addTerm(term,index.termFreq(term)/index.termCount() );
             }  
-            rmfv.normalize();
+            FeatureVector idffv = nidffv.deepCopy();
+            FeatureVector qccffvs = qccffv.deepCopy(); 
+            FeatureVector ccffvs = ccffv.deepCopy();
+            FeatureVector tklcnfv = tklcfv.deepCopy();
+            FeatureVector tklinfv = tklifv.deepCopy();
+            
+            rmnfv.normalize();
             nidffv.normalize();
-            qacfnfv.normalize();
             scale(qacfsfv);
             scale(cacfs2fv);
-            scale(scacfsfv);
-            scale(qccffv);
-            scale(ccffv);
+            scale(qccffvs);
+            scale(ccffvs);
+            tklcnfv.normalize();
+            tklinfv.normalize();
+            
+            for (String term: query.getFeatureVector().getFeatures()) {
+            	double rm = rmfv.getFeatureWeight(term);
+            	rmqacfn.addTerm(term, rm*qacfsfv.getFeatureWeight(term));
+            	rmcacfn.addTerm(term, rm*cacfs2fv.getFeatureWeight(term));
+            }
+            rmqacfn.normalize();
+            rmcacfn.normalize();
+            
             
             for (String term: query.getFeatureVector().getFeatures()) {
 
             	double rm = rmfv.getFeatureWeight(term);
-            	double idf = nidffv.getFeatureWeight(term);
+            	double rmn = rmnfv.getFeatureWeight(term);
+            	double idf = idffv.getFeatureWeight(term);
+            	double nidf = nidffv.getFeatureWeight(term);
             	double qacf2 = qacffv.getFeatureWeight(term);
-            	double qacfn2 = qacfnfv.getFeatureWeight(term);
             	double qacfs2 = qacfsfv.getFeatureWeight(term);
 
         		double cacf2 = cacf2fv.getFeatureWeight(term);
             	double cacf2s = cacfs2fv.getFeatureWeight(term);
-            	double scacfs = scacfsfv.getFeatureWeight(term);
             	
         		double ccfq = qccffv.getFeatureWeight(term);	        
-        		double ccfc = ccffv.getFeatureWeight(term);	        
+        		double ccfc = ccffv.getFeatureWeight(term);	
+        		double ccfqs = qccffvs.getFeatureWeight(term);	        
+        		double ccfcs = ccffvs.getFeatureWeight(term);	
+        		double rmqacf = rmqacfn.getFeatureWeight(term);
+        		double rmcacf = rmcacfn.getFeatureWeight(term);
+        		
+        		double tklc = tklcfv.getFeatureWeight(term);
+        		double tklcn = tklcnfv.getFeatureWeight(term);
+        		double tkli = tklifv.getFeatureWeight(term);
+        		double tklin = tklifv.getFeatureWeight(term);
+
             	
                 System.out.println(query.getTitle() + "," + term 
-                	+ "," + rm + "," + idf + "," + qacf2 + "," + qacfn2 
-                	+ "," + qacfs2 + ","+ cacf2 + "," + cacf2s + "," + scacfs + "," + ccfq + "," + ccfc);
+                	+ "," + rm + "," + rmn + "," + idf + "," + nidf + "," + qacf2 
+                	+ "," + qacfs2 + ","+ cacf2 + "," + cacf2s + "," + ccfq + "," + ccfqs 
+                	+ "," + ccfc + "," + ccfcs + "," + rmqacf + "," + rmcacf 
+                	+ "," + tklc + "," + tklcn + "," + tkli + "," + tklin);
             }            
         }
     }
