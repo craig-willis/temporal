@@ -13,7 +13,6 @@ public class CollectionConfig {
     String index;
     String tsIndex;
     Map<String, String> queries;
-    String qrels;
     String bgSourcePath;
     Integer relLevel = 1;
     String dateFormat;
@@ -42,14 +41,6 @@ public class CollectionConfig {
     public void setTimeSeriesIndex(String tsIndex) {
         this.tsIndex = tsIndex;
     }
-    
-    public void setQrels(String qrels) {
-        this.qrels = qrels;
-    }
-    public String getQrels() {
-        return qrels;
-    }
-
     public String getBgSourcePath() {
         return bgSourcePath;
     }
