@@ -25,8 +25,8 @@ import edu.gslis.queries.GQueries;
 import edu.gslis.queries.GQueriesIndriImpl;
 import edu.gslis.queries.GQueriesJsonImpl;
 import edu.gslis.queries.GQuery;
+import edu.gslis.scorers.temporal.QTSMScorer;
 import edu.gslis.scorers.temporal.TemporalScorer;
-import edu.gslis.scorers.temporal.old.TSMScorer;
 
 /**
  * Generate
@@ -69,7 +69,7 @@ public class PlotQuery
         IndexBackedCollectionStats collectionStats = new IndexBackedCollectionStats();
         collectionStats.setStatSource(indexPath);
         
-        TemporalScorer tsa = new TSMScorer();
+        TemporalScorer tsa = new QTSMScorer();
         tsa.setTimeSeriesIndex(tsIndex);
         tsa.setCollectionStats(collectionStats);
         

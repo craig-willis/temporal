@@ -6,26 +6,13 @@ import edu.gslis.main.temporal.TermTimeSeries;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 
-public class QTSMScorer extends TemporalScorer 
+
+public class TSMScorer extends TemporalScorer 
 {
 
     String MU = "mu";
     String LAMBDA = "lambda";
     
-    TermTimeSeries ts = null;
-    public void init(SearchHits hits) {  
-        // Build the term time series
-        ts = new TermTimeSeries(startTime, endTime, interval, 
-        		gQuery.getFeatureVector().getFeatures());
-        
-        for (int i=0; i< hits.size(); i++) {
-        	SearchHit hit = hits.getHit(i);
-    		long docTime = TemporalScorer.getTime(hit);
-    		double score = hit.getScore();
-    		ts.addDocument(docTime, score, hit.getFeatureVector());
-        }
-        //ts.smooth();
-    }
     
     public double score(SearchHit doc)
     {
@@ -39,8 +26,7 @@ public class QTSMScorer extends TemporalScorer
         double lambda = paramTable.get(LAMBDA);
 
         try
-        {
-            
+        {            
             // Now calculate the score for this document using 
             // a combination of the temporal and collection LM.
             queryIterator = gQuery.getFeatureVector().iterator();
@@ -62,11 +48,11 @@ public class QTSMScorer extends TemporalScorer
                 double temporalPr = 0;                
                 // Only use temporal information if within the timeframe
                 if (docTime >= startTime && docTime <= endTime) {
-	                double[] dist = ts.getTermFrequencies(feature);
+                    double[] dist = tsIndex.getDist(feature);
 	                	
 	                if (dist != null)
 	                	temporalPr = dist[t];
-                }
+                }	
             
                 double docPr = 
                         (docFreq + mu*collectionProb) / 
@@ -74,7 +60,7 @@ public class QTSMScorer extends TemporalScorer
                 
                 double queryWeight = gQuery.getFeatureVector().getFeatureWeight(feature);
                                 
-                //System.out.println(feature + ":" + docPr + "," + temporalPr);
+                System.out.println(doc.getDocno() + "," + feature + "," + docPr + "," + temporalPr);
                 if (temporalPr > 0)
                 	logLikelihood += queryWeight * Math.log(Math.pow(docPr, lambda)*Math.pow(temporalPr, 1-lambda)); 
                 else
