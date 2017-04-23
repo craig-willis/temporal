@@ -88,9 +88,12 @@ public class RM1TKLINScorer extends TemporalScorer {
         tsfv.normalize();
         
         gQuery.setFeatureVector(tsfv);
-        
-        System.out.println(rmVector.toString(10));
-        System.out.println(tsfv.toString(10));
+        synchronized(this) {
+        	System.out.println(gQuery.getTitle() 
+        			+ " numFbDocs=" + numFbDocs + ", numFbTerms=" + numFbTerms);
+        	System.out.println(rmVector.toString(10));
+        	System.out.println(tsfv.toString(10));
+        }
         
     }    
     
