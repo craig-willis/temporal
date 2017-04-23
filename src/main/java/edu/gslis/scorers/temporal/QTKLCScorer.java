@@ -45,7 +45,7 @@ public class QTKLCScorer extends TemporalScorer {
         } 
         
         // Normalize term scores
-        normalize(tklcn);
+        tklcn.normalize();
         
         gQuery.setFeatureVector(tklcn);
         
