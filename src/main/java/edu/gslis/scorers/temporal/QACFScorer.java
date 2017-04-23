@@ -16,13 +16,22 @@ public class QACFScorer extends TemporalScorer {
 
     	RUtil rutil = new RUtil();
     	        
-    	double lag = paramTable.get("lag");   
+    	double lag = paramTable.get("lag");  
     	
+    	double numDocs = 1000;
+    	if (paramTable.get("k") != null) {
+    		numDocs = paramTable.get("k");
+    	}
+                
         // Build the term time series
         TermTimeSeries ts = new TermTimeSeries(startTime, endTime, interval, 
         		gQuery.getFeatureVector().getFeatures());
         
-        for (SearchHit hit: hits.hits()) {
+        if (hits.size() < numDocs) 
+        	numDocs = hits.size();
+        
+        for (int i=0; i< numDocs; i++) {
+        	SearchHit hit = hits.getHit(i);
     		long docTime = TemporalScorer.getTime(hit);
     		double score = hit.getScore();
     		ts.addDocument(docTime, score, hit.getFeatureVector());
@@ -52,12 +61,16 @@ public class QACFScorer extends TemporalScorer {
         
         // Normalize term scores
         scale(acfn);
-        //normalize(acfn);
 
         gQuery.setFeatureVector(acfn);
         
-        System.out.println(acfn.toString(10));
-        
+        synchronized (this) {
+        	System.out.println(gQuery.getTitle() 
+        			+ " numDocs=" + numDocs + ", mu=" + paramTable.get("mu") 
+        			+ ", lag=" + lag);
+        	System.out.println(acfn.toString(10));       
+        }
+                
     }    
     
     public GQuery getQuery() {
