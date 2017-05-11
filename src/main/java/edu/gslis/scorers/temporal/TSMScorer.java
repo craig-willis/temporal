@@ -2,11 +2,12 @@ package edu.gslis.scorers.temporal;
 
 import java.util.Iterator;
 
-import edu.gslis.main.temporal.TermTimeSeries;
 import edu.gslis.searchhits.SearchHit;
-import edu.gslis.searchhits.SearchHits;
 
 
+/**
+ * Smooth the document distribution by the temporal distribution at time t
+ */
 public class TSMScorer extends TemporalScorer 
 {
 
@@ -16,15 +17,14 @@ public class TSMScorer extends TemporalScorer
     
     public double score(SearchHit doc)
     {
-        double logLikelihood = 0.0;
+
         Iterator<String> queryIterator = gQuery.getFeatureVector().iterator();
                 
-        // Dirichlet parameter controlling amount of smoothing using temporal model
         double mu = paramTable.get(MU);
         
-        // Parameter controlling linear combination of smoothed document and collection language models.
         double lambda = paramTable.get(LAMBDA);
 
+        double logLikelihood = 0.0;
         try
         {            
             // Now calculate the score for this document using 
@@ -59,14 +59,12 @@ public class TSMScorer extends TemporalScorer
                         (docLength + mu);
                 
                 double queryWeight = gQuery.getFeatureVector().getFeatureWeight(feature);
-                                
-                System.out.println(doc.getDocno() + "," + feature + "," + docPr + "," + temporalPr);
-                if (temporalPr > 0)
+                          
+                if (temporalPr > 0)      
                 	logLikelihood += queryWeight * Math.log(Math.pow(docPr, lambda)*Math.pow(temporalPr, 1-lambda)); 
                 else
-                	logLikelihood += queryWeight * Math.log(docPr); 
+                	logLikelihood += queryWeight * Math.log(docPr);                 
             }
-
                 
         } catch (Exception e) {
             e.printStackTrace(); 
@@ -74,7 +72,6 @@ public class TSMScorer extends TemporalScorer
            
         return logLikelihood;
     }
-
       
     @Override
     public void close() {

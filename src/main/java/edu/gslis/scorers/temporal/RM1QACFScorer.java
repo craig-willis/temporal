@@ -1,5 +1,6 @@
 	package edu.gslis.scorers.temporal;
 
+import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.main.temporal.TermTimeSeries;
 import edu.gslis.queries.GQuery;
 import edu.gslis.queries.expansion.FeedbackRelevanceModel;
@@ -40,8 +41,11 @@ public class RM1QACFScorer extends TemporalScorer {
     	}
                 
         
-        if (hits.size() < numFbDocs) 
+        if (hits.size() < numFbDocs)
         	numFbDocs = hits.size();
+
+        if (hits.size() < numDocs)
+        	numDocs = hits.size();
         
 
         // Build the RM1 model
@@ -50,7 +54,7 @@ public class RM1QACFScorer extends TemporalScorer {
         rm.setDocCount(numFbDocs);
         rm.setTermCount(0); // ignored
         rm.setIndex(index);
-        rm.setStopper(null);
+        rm.setStopper(stopper);
         rm.setRes(fbDocs);
         rm.build();            
       
@@ -64,9 +68,14 @@ public class RM1QACFScorer extends TemporalScorer {
         
         for (int i=0; i< numDocs; i++) {
         	SearchHit hit = hits.getHit(i);
-    		long docTime = TemporalScorer.getTime(hit);
-    		double score = hit.getScore();
-    		ts.addDocument(docTime, score, hit.getFeatureVector());
+        	if (hit.getMetadataValue(Indexer.FIELD_EPOCH) != null) {
+	    		long docTime = TemporalScorer.getTime(hit);
+	    		double score = hit.getScore();
+	    		ts.addDocument(docTime, score, hit.getFeatureVector());
+        	} else {
+        		System.err.println("No epoch for document " + hit.getDocno() + " i = " 
+        					+ i + ", size=" + hits.size());
+        	}
         }
         ts.smooth();
                 

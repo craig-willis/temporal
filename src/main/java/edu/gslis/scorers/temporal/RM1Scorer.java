@@ -39,7 +39,7 @@ public class RM1Scorer extends ScorerDirichlet {
         rm.setDocCount(numFbDocs);
         rm.setTermCount(numFbTerms);
         rm.setIndex(index);
-        rm.setStopper(null);
+        rm.setStopper(stopper);
         rm.setRes(fbDocs);
         rm.build();            
       

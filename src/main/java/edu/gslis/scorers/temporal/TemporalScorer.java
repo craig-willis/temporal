@@ -13,6 +13,7 @@ import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
 import edu.gslis.textrepresentation.FeatureVector;
+import edu.gslis.utils.Stopper;
 
 public class TemporalScorer extends RerankingScorer 
 {
@@ -31,6 +32,7 @@ public class TemporalScorer extends RerankingScorer
     
     public void init(SearchHits hits) {
     }
+    
     
     public long getDocTime(SearchHit doc) {
         double epoch = (Double)doc.getMetadataValue(Indexer.FIELD_EPOCH);

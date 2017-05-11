@@ -24,7 +24,7 @@ public class QTSMScorer extends TemporalScorer
     		double score = hit.getScore();
     		ts.addDocument(docTime, score, hit.getFeatureVector());
         }
-        //ts.smooth();
+        ts.smooth();
     }
     
     public double score(SearchHit doc)
@@ -39,8 +39,7 @@ public class QTSMScorer extends TemporalScorer
         double lambda = paramTable.get(LAMBDA);
 
         try
-        {
-            
+        {            
             // Now calculate the score for this document using 
             // a combination of the temporal and collection LM.
             queryIterator = gQuery.getFeatureVector().iterator();
@@ -62,7 +61,7 @@ public class QTSMScorer extends TemporalScorer
                 double temporalPr = 0;                
                 // Only use temporal information if within the timeframe
                 if (docTime >= startTime && docTime <= endTime) {
-	                double[] dist = ts.getTermFrequencies(feature);
+	                double[] dist = ts.getTermDist(feature);
 	                	
 	                if (dist != null)
 	                	temporalPr = dist[t];

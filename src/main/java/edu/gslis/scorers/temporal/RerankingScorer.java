@@ -1,7 +1,6 @@
 package edu.gslis.scorers.temporal;
 
 import java.util.HashMap;
-
 import java.util.List;
 import java.util.Map;
 
@@ -11,10 +10,12 @@ import edu.gslis.indexes.IndexWrapper;
 import edu.gslis.queries.GQuery;
 import edu.gslis.searchhits.SearchHit;
 import edu.gslis.searchhits.SearchHits;
+import edu.gslis.utils.Stopper;
 
 public abstract class RerankingScorer extends QueryDocScorer 
 {
     public ScorerConfig config;
+    public Stopper stopper= null;
     
     public Map<String, List<Double>> paramMap = new HashMap<String, List<Double>>();
     IndexWrapper index = null;
@@ -23,6 +24,10 @@ public abstract class RerankingScorer extends QueryDocScorer
     
     public void setIndex(IndexWrapper index) {
     	this.index = index;
+    }
+    
+    public void setStopper(Stopper stopper) {
+    	this.stopper = stopper;
     }
     
     public void setConfig(ScorerConfig config) {
@@ -47,5 +52,9 @@ public abstract class RerankingScorer extends QueryDocScorer
     
     public GQuery getQuery() {
     	return this.gQuery;
+    }
+    
+    public double getParameter(String paramName) {
+    	return paramTable.get(paramName);
     }
 }
