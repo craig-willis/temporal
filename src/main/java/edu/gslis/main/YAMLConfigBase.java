@@ -16,6 +16,7 @@ public class YAMLConfigBase
 	protected ClassLoader loader = ClassLoader.getSystemClassLoader();
     protected BatchConfig config = null;
     protected Stopper stopper = null;
+    protected Stopper rmstopper = null;
     protected String prefix = null;
     protected String indexRoot = null;
     protected File outputDir = null;   
@@ -37,7 +38,7 @@ public class YAMLConfigBase
     {
         // Global settings
     	
-    	// Stop list
+    	// Stop lists
         stopper = new Stopper(config.getStopper());
         // Run prefix
         prefix = config.getRunPrefix();

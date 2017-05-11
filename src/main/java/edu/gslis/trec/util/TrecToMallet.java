@@ -151,16 +151,24 @@ public class TrecToMallet
                    text = text.replaceAll("<[^>]*>", "");
                    text = text.replaceAll("[^a-zA-Z0-9 ]", " ");
                    text = stopper.apply(text);
-                   String[] tokens = text.split("\\s+");
-                   Stemmer stemmer = new KrovetzStemmer(); 
+                   
+                   if (stem) {
+                       String[] tokens = text.split("\\s+");
 
-                   String stemmed = "";
-                   for (String token: tokens) {
-                       String s = stemmer.stem(token);
-                       stemmed += " " + s;
+	                   Stemmer stemmer = new KrovetzStemmer(); 
+	
+	                   String stemmed = "";
+	                   for (String token: tokens) {
+	                       String s = stemmer.stem(token);
+	                       stemmed += " " + s;
+	                   }
+	                   output.write(docno + "," + stemmed + "\n");
+
+                   } else {
+	                   output.write(docno + "," + text + "\n");
                    }
                    
-                   output.write(docno + "," + stemmed + "\n");
+                   
                    
                    text = "";
                    docno = "";

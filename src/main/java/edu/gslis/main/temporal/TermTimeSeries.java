@@ -69,7 +69,7 @@ public class TermTimeSeries
             	System.err.println("Score for " + f + " in time " + t + " is less than zero?");
             }
             
-            if (terms != null && terms.contains(f)) {
+            if (terms == null ||  terms.contains(f)) {
             	termMap.put(f, termScore);     
             }
         }

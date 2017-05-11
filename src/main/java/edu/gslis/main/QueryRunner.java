@@ -7,6 +7,9 @@ import org.lemurproject.kstem.Stemmer;
 
 import edu.gslis.docscoring.support.CollectionStats;
 import edu.gslis.indexes.IndexWrapper;
+import edu.gslis.indexes.IndexWrapperFactory;
+import edu.gslis.indexes.IndexWrapperIndriImpl;
+import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.queries.GQuery;
 import edu.gslis.scorers.temporal.RerankingScorer;
 import edu.gslis.searchhits.SearchHit;
@@ -43,7 +46,7 @@ public class QueryRunner implements Runnable
     public void setStopper(Stopper stopper) {
         this.stopper = stopper;
     }
-
+    
     public Stemmer getStemmer() {
         return stemmer;
     }
@@ -73,7 +76,9 @@ public class QueryRunner implements Runnable
     }
 
     public void setIndex(IndexWrapper index) {
-        this.index = index;
+    	//index =  IndexWrapperFactory.getIndexWrapper(indexPath);
+    	//index.setTimeFieldName(Indexer.FIELD_EPOCH);
+    	this.index= index;
     }
 
     public FormattedOutputTrecEval getTrecFormattedWriter() {
@@ -104,12 +109,17 @@ public class QueryRunner implements Runnable
         query.setFeatureVector(qv);
         
         
+        docScorer.setStopper(stopper);
         docScorer.setQuery(query);
         SearchHits results = null;
         
+        double mu = docScorer.getParameter("mu");
+        
         synchronized(this) {
+        	String rule = "method:dirichlet,mu:" + mu;
+        	System.out.println("rule: " + rule);
         	try {
-        		results = index.runQuery(query, NUM_RESULTS);        
+        		results = index.runQuery(query, NUM_RESULTS, rule);        
         	} catch (Exception e) {
         		System.err.println("Error processing query " + query.getTitle() + ": " + query.getText());
         		e.printStackTrace();
@@ -143,6 +153,7 @@ public class QueryRunner implements Runnable
         		e.printStackTrace();
         	}
         }
+        //((IndexWrapperIndriImpl)index).close();
         //System.out.println(query.getTitle() + ": complete");
     }
 }

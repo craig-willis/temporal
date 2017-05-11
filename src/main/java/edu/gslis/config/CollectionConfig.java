@@ -12,6 +12,8 @@ public class CollectionConfig {
     String name;
     String index;
     String tsIndex;
+    String ldaTermTopicPath;
+    String ldaDocTopicsPath;
     Map<String, String> queries;
     String bgSourcePath;
     Integer relLevel = 1;
@@ -34,6 +36,23 @@ public class CollectionConfig {
         this.index = index;
     }
     
+    public String getLdaTermTopicPath() {
+        return ldaTermTopicPath;
+    }
+    
+    public void setLdaTermTopicPath(String ldaTermTopicPath) {
+        this.ldaTermTopicPath = ldaTermTopicPath;
+    }
+    
+    public String getLdaDocTopicsPath() {
+        return ldaDocTopicsPath;
+    }
+    
+    public void setLdaDocTopicsPath(String ldaDocTopicsPath) {
+        this.ldaDocTopicsPath = ldaDocTopicsPath;
+    }
+    
+    
     public String getTimeSeriesIndex() {
         return tsIndex;
     }
@@ -41,6 +60,7 @@ public class CollectionConfig {
     public void setTimeSeriesIndex(String tsIndex) {
         this.tsIndex = tsIndex;
     }
+    
     public String getBgSourcePath() {
         return bgSourcePath;
     }

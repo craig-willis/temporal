@@ -22,6 +22,7 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.lang.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
@@ -34,11 +35,13 @@ import edu.gslis.docscoring.support.CollectionStats;
 import edu.gslis.indexes.IndexWrapper;
 import edu.gslis.indexes.IndexWrapperFactory;
 import edu.gslis.indexes.temporal.TimeSeriesIndex;
+import edu.gslis.indexes.temporal.lda.LDAIndex;
 import edu.gslis.lucene.indexer.Indexer;
 import edu.gslis.queries.GQueries;
 import edu.gslis.queries.GQueriesIndriImpl;
 import edu.gslis.queries.GQueriesJsonImpl;
 import edu.gslis.queries.GQuery;
+import edu.gslis.scorers.lda.LDAScorer;
 import edu.gslis.scorers.temporal.RerankingScorer;
 import edu.gslis.scorers.temporal.TemporalScorer;
 
@@ -85,6 +88,9 @@ public class RunQuery extends YAMLConfigBase
             long endTime = collection.getEndDate();
             long interval = collection.getInterval();
             
+            String ldaTermTopicPath = collection.getLdaTermTopicPath();
+            String ldaDocTopicsPath = collection.getLdaDocTopicsPath();
+            
             // For each query set
             Map<String, String> queryFiles = collection.getQueries();
             for (String queryFileName: queryFiles.keySet()) {
@@ -114,7 +120,17 @@ public class RunQuery extends YAMLConfigBase
                 String tsIndexPath = collection.getTimeSeriesIndex();
                 TimeSeriesIndex tsIndex = new TimeSeriesIndex();
                 if (tsIndexPath != null)
-                	tsIndex.open(tsIndexPath, true);                	
+                	tsIndex.open(tsIndexPath, true);             
+                
+                LDAIndex ldaIndex = new LDAIndex();
+                if (StringUtils.isNotEmpty(ldaDocTopicsPath) &&
+                        StringUtils.isNotEmpty(ldaTermTopicPath))   
+                {             
+                    //ldaIndex.open(ldaDBPath, true);
+                    System.out.println("Loading LDA data");
+                    ldaIndex.load(ldaDocTopicsPath, ldaTermTopicPath);
+                    System.out.println("done");
+                }
                 
                 // For each scorer
                 List<ScorerConfig> scorerConfigs = config.getScorers();
@@ -198,7 +214,9 @@ public class RunQuery extends YAMLConfigBase
 	                        	((TemporalScorer)docScorer).setTimeSeriesIndex(tsIndex);
 	                        	
 	                        }
-	                        
+	                       	        
+	                        if (docScorer instanceof LDAScorer)
+	                            ((LDAScorer)docScorer).setIndex(ldaIndex);
 	                        
 	        				String[] prams = paramStr.split(":");
 	        				for (String param: prams) {
@@ -208,10 +226,12 @@ public class RunQuery extends YAMLConfigBase
 	        	    			        
 
 	                        docScorer.setQuery(query);		                                                
-	                                
+
+
 	                        // Run worker
 	                        QueryRunner worker = new QueryRunner();
 	                        worker.setDocScorer(docScorer);
+	                        //worker.setIndex(indexPath);
 	                        worker.setIndex(index);
 	                        worker.setQuery(query);
 	                        worker.setStopper(stopper);
