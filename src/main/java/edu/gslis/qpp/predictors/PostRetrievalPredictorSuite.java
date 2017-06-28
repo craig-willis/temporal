@@ -19,34 +19,30 @@ public class PostRetrievalPredictorSuite extends PredictorSuite {
 	public Map<String, Double> calculatePredictors() {
 		Map<String, Double> values = new HashMap<String, Double>();
 		
+		
+		FeatureVector rmfv = getFeedbackModel(50);
+		
 		double perplexity = perplexity(hits, k);
 		double drift = queryDrift(hits, k);
 		double deviation = deviation(hits, k);
-		double clarity = clarity(hits, k, 50);
-		double qfbdiv_a = divergence(hits, k, 50);
+		double clarity = clarity(hits, rmfv);
+		double qfbdiv_a = divergence(hits, rmfv);
+		double qent_a = feedbackQueryEntropy(rmfv);
 		
 		values.put("perplexity", perplexity);
 		values.put("drift",  drift);
 		values.put("deviation",  deviation);
-		values.put("clarity",  clarity);
+		values.put("clarity",  clarity);  // aka Lv Zhai QEnt_R2
 		values.put("qfbdiv_a",  qfbdiv_a);
+		values.put("QEnt_A",  qent_a);
+		values.put("QEnt_R4",  Math.exp(clarity));
 		
 		return values;
 	
 	}
-
-	// Not yet implemented:
-	//  Absolute divergence: KL-divergence of query model and feedback documents (QFBDiv_A) (Lv and Zhai)
-	//  Clarity
 	
-	/**
-	 * Absolute divergence: KL-divergence of query model and feedback documents (QFBDiv_A) (Lv and Zhai)
-	 */
-
-	public double divergence(SearchHits hits, int k, int numFbTerms) {
-		double qfbdiv_a = 0;
-		
-                
+	public FeatureVector getFeedbackModel(int numFbTerms)
+	{
         // Update the query model using feedback documents
         Feedback rm = new FeedbackRelevanceModel();
         rm.setIndex(index);
@@ -57,7 +53,30 @@ public class PostRetrievalPredictorSuite extends PredictorSuite {
         FeatureVector rmfv = rm.asFeatureVector();
         rmfv.clip(numFbTerms);
         rmfv.normalize();
+        return rmfv;
+	}
 
+	
+	/**
+	 * Feedback query entropy (Lv and Zhai QEnt_A)
+	 */
+	public double feedbackQueryEntropy(FeatureVector rmfv) {
+		double fbentropy = 0;
+		
+		for (String w: rmfv.getFeatures())
+			fbentropy += -(rmfv.getFeatureWeight(w)) * Math.log(rmfv.getFeatureWeight(w));
+		
+		return fbentropy;
+	}
+	
+	/**
+	 * Absolute divergence: KL-divergence of query model and feedback documents (QFBDiv_A) (Lv and Zhai)
+	 */
+
+	public double divergence(SearchHits hits, FeatureVector rmfv) {
+		double qfbdiv_a = 0;
+		                
+        // Update the query model using feedback documents
         FeatureVector fbfv = new FeatureVector(null);
         for (SearchHit hit: hits.hits()) {
 			FeatureVector dv = index.getDocVector(hit.getDocID(), stopper);
@@ -160,41 +179,36 @@ public class PostRetrievalPredictorSuite extends PredictorSuite {
         muhat /= k;
         
         double ss = 0.0;
-        double D = 0;
         for (int i=0; i<k; i++) {
             double score = hits.getHit(i).getScore();
-            D += score;
+            //D += score;
             ss += Math.pow(score - muhat, 2);
         }
         
-        // TODO: D should actually be based on the score of the collection 
-        // (not the sum of scores). This requires implementing a
-        // scoreCollection method for each scorer.
+		double D = 0.0;
+		Iterator<String> queryIterator = query.getFeatureVector().iterator();
+		while(queryIterator.hasNext()) {
+			String feature = queryIterator.next();
+			double pwc = index.termFreq(feature) / index.termCount();
+			double pwq = query.getFeatureVector().getFeatureWeight(feature);
+			D += pwq * Math.log(pwc);
+		}
         
         ss /= k;
-        queryDrift = Math.sqrt(ss)/D;
+        queryDrift = Math.sqrt(ss)/Math.abs(D);
         
         return queryDrift;
     }
     
-    public double clarity(SearchHits hits, int k, int numFbTerms) 
+   
+    
+    public double clarity(SearchHits hits, FeatureVector rmfv) 
     {
         double clarity = 0.0;
         
         // Total number of terms in vocabulary
         double numTerms = index.termCount();
-                
-        // Update the query model using feedback documents
-        Feedback rm = new FeedbackRelevanceModel();
-        rm.setIndex(index);
-        rm.setRes(hits);
-        rm.setDocCount(k);
-        rm.build();
-        
-        FeatureVector rmfv = rm.asFeatureVector();
-        rmfv.clip(numFbTerms);
-        rmfv.normalize();
-        
+                        
         Iterator<String> it = rmfv.iterator();
 
         while (it.hasNext()) {
