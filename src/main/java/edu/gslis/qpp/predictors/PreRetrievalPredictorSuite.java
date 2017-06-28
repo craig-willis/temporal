@@ -29,6 +29,7 @@ public class PreRetrievalPredictorSuite extends PredictorSuite {
 
         double scs = 0;
         double entropy = 0;
+        double relentropy = 0;
         for (String term: qv.getFeatures()) {
             if (index.docFreq(term) == 0) // Skip OOV terms
                 continue;
@@ -45,16 +46,20 @@ public class PreRetrievalPredictorSuite extends PredictorSuite {
     		
             // Simplified Clarity Score: KL-divergence of query model from collection model
 			double pwq = qv.getFeatureWeight(term)/qv.getLength();
-			double pwc = index.termFreq(term)/ index.termCount();			
+			double pwc = index.termFreq(term)/ index.termCount();	
+			
+			// SCS aka Relative entropy (Lv Zahi QEnt_R2)
 			scs += pwq * Math.log(pwq/pwc);
             
-			// Query entropy: looks wrong.
-            entropy += pwc * Math.log(pwc);
-			
+			// Query entropy.
+            entropy += -pwc * Math.log(pwc);
+            
+            
             idfstat.addValue(idf);
             ictfstat.addValue(ictf);
             scqstat.addValue(scq);
         }
+        
                         
         values.put("varIDF", idfstat.getVariance());
         values.put("avgIDF", idfstat.getMean());
@@ -73,7 +78,11 @@ public class PreRetrievalPredictorSuite extends PredictorSuite {
         values.put("sumSCQ", scqstat.getSum());
         
         values.put("scs", scs);
-        values.put("entropy", entropy);
+        values.put("qentropy", entropy);
+        values.put("QEnt_R3", Math.log(scs));
+        values.put("qlen", qv.getLength());
+
+        
 		return values;			
 	}	
 	
