@@ -77,8 +77,10 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 
 		RUtil rutil = new RUtil();
 		
+		// Run the initial query
 		SearchHits results = index.runQuery(query, numResults);
 
+		// Create the feedback temporal distribution
 		FeatureVector dfv = new FeatureVector(null);
 		for (SearchHit result : results.hits()) {
 			long docTime = TemporalScorer.getTime(result);
@@ -91,12 +93,55 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 		}
 		dfv.normalize();
 
+		// TODO: Explore more smoothing options
 		if (smooth)
 			ts.smooth();
 
-		double[] background = ts.getBinDist();
+		// Feedback temporal distribution 
+		double[] qbackground = ts.getBinDist();
+		
+		// Background temporal distribution for collection
 		double[] cbackground = tsindex.get("_total_");
 
+		
+		// Calculate feedback temporal distribution predictors
+		try {
+			// Auto-correlation of feedback temporal distribution
+			double fbacf2 = 1+rutil.acf(qbackground, 2);
+	        values.put("fbACF", fbacf2);
+			
+			// Cross-correlation of fb distribution with collection
+			double fbcccf = 1+rutil.ccf(cbackground, qbackground, 0);
+	        values.put("fbCCF", fbcccf);
+			
+			// Dominant period of fb distribution
+			double fbdp = rutil.dp(qbackground);
+	        values.put("fbDP", fbdp);
+
+			// Dominant power spectrum of fb distribution
+			double fbdps = rutil.dps(qbackground);
+	        values.put("fbDPS", fbdps);
+	        
+	        // Feedback temporal KL from collection
+			double fbtkl = 0;
+			for (int i = 0; i < qbackground.length; i++) {
+				if (qbackground[i] > 0 && qbackground[i] > 0)
+					fbtkl += qbackground[i] * Math.log(qbackground[i] / cbackground[i]);
+			}
+			values.put("fbTKL", fbtkl);
+
+			double fbtklc =  1 - (Math.exp(-(fbtkl)));
+			values.put("fbTKLC", fbtklc);
+			
+			double fbtkli = (Math.exp(-(1 / fbtkl)));
+			values.put("fbTKLI", fbtkli);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		// Calculate term temporal distribution statistics
 		DescriptiveStatistics qacfstats = new DescriptiveStatistics();
 		DescriptiveStatistics cacfstats = new DescriptiveStatistics();
 		DescriptiveStatistics qccfstats = new DescriptiveStatistics();
@@ -107,11 +152,13 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 		DescriptiveStatistics cdpsstats = new DescriptiveStatistics();	
 		DescriptiveStatistics tklistats = new DescriptiveStatistics();
 		DescriptiveStatistics tklcstats = new DescriptiveStatistics();
+		DescriptiveStatistics tklstats = new DescriptiveStatistics();
 		
-		for (String term : query.getFeatureVector().getFeatures()) {
-			double[] tsw = ts.getTermDist(term);
-			if (tsw == null) {
-				System.err.println("Unexpected null termts for " + term);
+		for (String term : query.getFeatureVector().getFeatures()) 
+		{
+			double[] qtsw = ts.getTermDist(term);
+			if (qtsw == null) {
+				System.err.println("Unexpected null query termts for " + term);
 				continue;
 			}
 
@@ -121,31 +168,31 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 				continue;
 			}
 
-			if (sum(tsw) > 0) {
+			if (sum(qtsw) > 0) {
 				try {
 
-					double qacf2 = 1+rutil.acf(tsw, 2);
+					double qacf2 = 1+rutil.acf(qtsw, 2);
 					qacfstats.addValue(qacf2);
 
 					double cacf2 = 1+rutil.acf(ctsw, 2);
 					cacfstats.addValue(cacf2);
 
-					double qccf =  1 - rutil.ccf(background, tsw, 0);
+					double qccf =  1+rutil.ccf(qbackground, qtsw, 0);
 					qccfstats.addValue(qccf);
 
-					double cccf = 1 - rutil.ccf(cbackground, ctsw, 0);
+					double cccf = 1+rutil.ccf(cbackground, ctsw, 0);
 					cccfstats.addValue(cccf);
 
-					double qdp = rutil.dp(tsw);
+					double qdp = rutil.dp(qtsw);
 					qdpstats.addValue(qdp);
 
-					double qdps = rutil.dps(tsw);
+					double qdps = rutil.dps(qtsw);
 					qdpsstats.addValue(qdps);
 					
-					double cdp = rutil.dp(background);
+					double cdp = rutil.dp(ctsw);
 					cdpstats.addValue(cdp);
 					
-					double cdps = rutil.dps(background);
+					double cdps = rutil.dps(ctsw);
 					cdpsstats.addValue(cdps);
 
 				} catch (Exception e) {
@@ -154,9 +201,9 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 			}
 
 			double tkl = 0;
-			for (int i = 0; i < tsw.length; i++) {
-				if (tsw[i] > 0 && background[i] > 0)
-					tkl += tsw[i] * Math.log(tsw[i] / background[i]);
+			for (int i = 0; i < qtsw.length; i++) {
+				if (qtsw[i] > 0 && qbackground[i] > 0)
+					tkl += qtsw[i] * Math.log(qtsw[i] / qbackground[i]);
 			}
 
 			double tklc =  1 - (Math.exp(-(tkl)));
@@ -164,6 +211,8 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 			
 			double tkli = (Math.exp(-(1 / tkl)));
 			tklistats.addValue(tkli);
+
+			tklstats.addValue(tkl);
 
 		}
 		
@@ -216,6 +265,11 @@ public class TemporalPredictorSuite  extends PredictorSuite {
         values.put("avgTKLC", tklcstats.getMean());
         values.put("minTKLC", tklcstats.getMin());
         values.put("maxTKLC", tklcstats.getMax());
+        
+        values.put("varTKL", tklstats.getVariance());
+        values.put("avgTKL", tklstats.getMean());
+        values.put("minTKL", tklstats.getMin());
+        values.put("maxTKL", tklstats.getMax());
 
 		return values;
 	}
@@ -239,8 +293,9 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 		FeatureVector ccffv = new FeatureVector(null); // Collection CCF
 		FeatureVector rmqacfn = new FeatureVector(null); // RM*QACF
 		FeatureVector rmcacfn = new FeatureVector(null); // RM*CACF
-		FeatureVector tklcfv = new FeatureVector(null);
-		FeatureVector tklifv = new FeatureVector(null);
+		FeatureVector tklfv = new FeatureVector(null);
+		//FeatureVector tklcfv = new FeatureVector(null);
+		//FeatureVector tklifv = new FeatureVector(null);
 		FeatureVector dpfv = new FeatureVector(null);
 		FeatureVector dpsfv = new FeatureVector(null);
 		FeatureVector cdpfv = new FeatureVector(null);
@@ -318,8 +373,8 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 					cacf2fv.addTerm(term, cacf2);
 					cacfs2fv.addTerm(term, cacf2);
 
-					qccffv.addTerm(term, 1 - rutil.ccf(background, tsw, 0));
-					ccffv.addTerm(term, 1 - rutil.ccf(cbackground, ctsw, 0));
+					qccffv.addTerm(term, rutil.ccf(background, tsw, 0));
+					ccffv.addTerm(term, rutil.ccf(cbackground, ctsw, 0));
 
 					double dp = rutil.dp(tsw);
 					dpfv.addTerm(term, dp);
@@ -352,16 +407,18 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 					tkl += tsw[i] * Math.log(tsw[i] / background[i]);
 			}
 
-			tklcfv.addTerm(term, 1 - (Math.exp(-(tkl))));
-			tklifv.addTerm(term, (Math.exp(-(1 / tkl))));
+			tklfv.addTerm(term, tkl);
+			//tklcfv.addTerm(term, 1 - (Math.exp(-(tkl))));
+			//tklifv.addTerm(term, (Math.exp(-(1 / tkl))));
 
 			cfv.addTerm(term, index.termFreq(term) / index.termCount());
 		}
 		FeatureVector idffv = nidffv.deepCopy();
 		FeatureVector qccffvs = qccffv.deepCopy();
 		FeatureVector ccffvs = ccffv.deepCopy();
-		FeatureVector tklcnfv = tklcfv.deepCopy();
-		FeatureVector tklinfv = tklifv.deepCopy();
+		//FeatureVector tklcnfv = tklcfv.deepCopy();
+		//FeatureVector tklinfv = tklifv.deepCopy();
+		FeatureVector tklnfv = tklfv.deepCopy();
 
 		rmnfv.normalize();
 		nidffv.normalize();
@@ -369,8 +426,9 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 		scale(cacfs2fv);
 		scale(qccffvs);
 		scale(ccffvs);
-		tklcnfv.normalize();
-		tklinfv.normalize();
+		//tklcnfv.normalize();
+		//tklinfv.normalize();
+		tklnfv.normalize();
 
 		dpsnfv.normalize();
 		cdpsnfv.normalize();
@@ -403,10 +461,12 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 			double rmqacf = rmqacfn.getFeatureWeight(term);
 			double rmcacf = rmcacfn.getFeatureWeight(term);
 
-			double tklc = tklcfv.getFeatureWeight(term);
-			double tklcn = tklcnfv.getFeatureWeight(term);
-			double tkli = tklifv.getFeatureWeight(term);
-			double tklin = tklifv.getFeatureWeight(term);
+			//double tklc = tklcfv.getFeatureWeight(term);
+			//double tklcn = tklcnfv.getFeatureWeight(term);
+			//double tkli = tklifv.getFeatureWeight(term);
+			//double tklin = tklifv.getFeatureWeight(term);
+			double tkln = tklnfv.getFeatureWeight(term);
+			double tkl = tklfv.getFeatureWeight(term);
 
 			double dp = dpfv.getFeatureWeight(term);
 			double dpn = dpnfv.getFeatureWeight(term);
@@ -430,10 +490,12 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 			predictors.put("ccfcs", ccfcs);
 			predictors.put("rmqacf", rmqacf);
 			predictors.put("rmcacf", rmcacf);
-			predictors.put("tklc", tklc);
-			predictors.put("tklcn", tklcn);
-			predictors.put("tkli", tkli);
-			predictors.put("tklin", tklin);
+			//predictors.put("tklc", tklc);
+			//predictors.put("tklcn", tklcn);
+			//predictors.put("tkli", tkli);
+			//predictors.put("tklin", tklin);
+			predictors.put("tkl", tkl);
+			predictors.put("tkln", tkln);
 			predictors.put("dps", dps);
 			predictors.put("dpsn", dpsn);
 			predictors.put("dp", dp);
