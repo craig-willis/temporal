@@ -1,0 +1,394 @@
+<parameters>
+<query>
+<number>301</number>
+<text>#weight(0.2589 organized 0.24357 international 0.49753 crime )</text>
+</query>
+<query>
+<number>302</number>
+<text>#weight(0.33034 poliomyelitis 0.30136 post 0.33582 polio 0.03249 and )</text>
+</query>
+<query>
+<number>303</number>
+<text>#weight(0.43513 hubble 0.35473 telescope 0.21014 achievements )</text>
+</query>
+<query>
+<number>304</number>
+<text>#weight(0.36167 mammals 0.30832 endangered 0.33001 species )</text>
+</query>
+<query>
+<number>305</number>
+<text>#weight(0.07124 most 0.40414 dangerous 0.52462 vehicles )</text>
+</query>
+<query>
+<number>306</number>
+<text>#weight(0.33375 african 0.29054 deaths 0.37572 civilian )</text>
+</query>
+<query>
+<number>307</number>
+<text>#weight(-0.02431 new 0.407 projects 0.61731 hydroelectric )</text>
+</query>
+<query>
+<number>308</number>
+<text>#weight(0.51163 implant 0.48837 dentistry )</text>
+</query>
+<query>
+<number>309</number>
+<text>#weight(0.45278 rap 0.04294 and 0.50427 crime )</text>
+</query>
+<query>
+<number>310</number>
+<text>#weight(0.27032 waves 0.23347 cancer 0.25064 brain 0.0265 and 0.21908 radio )</text>
+</query>
+<query>
+<number>311</number>
+<text>#weight(0.60335 espionage 0.39665 industrial )</text>
+</query>
+<query>
+<number>312</number>
+<text>#weight(1 hydroponics )</text>
+</query>
+<query>
+<number>313</number>
+<text>#weight(0.34506 magnetic 0.29607 maglev 0.35887 levitation )</text>
+</query>
+<query>
+<number>314</number>
+<text>#weight(0.46846 vegetation 0.53154 marine )</text>
+</query>
+<query>
+<number>315</number>
+<text>#weight(0.275 highway 0.32941 accidents 0.39559 unexplained )</text>
+</query>
+<query>
+<number>316</number>
+<text>#weight(1 polygamy )</text>
+</query>
+<query>
+<number>317</number>
+<text>#weight(0.48455 faxes 0.51545 unsolicited )</text>
+</query>
+<query>
+<number>318</number>
+<text>#weight(0.55469 retirement 0.23868 country 0.20663 best )</text>
+</query>
+<query>
+<number>319</number>
+<text>#weight(0.44829 sources -0.0164 new 0.56811 fuel )</text>
+</query>
+<query>
+<number>321</number>
+<text>#weight(0.58915 parliaments 0.02953 in 0.38132 women )</text>
+</query>
+<query>
+<number>322</number>
+<text>#weight(0.22395 international 0.31861 art 0.45744 crime )</text>
+</query>
+<query>
+<number>323</number>
+<text>#weight(0.33478 journalistic 0.37396 plagiarism 0.29126 literary )</text>
+</query>
+<query>
+<number>324</number>
+<text>#weight(0.42814 argentine 0.31307 relations 0.25879 british )</text>
+</query>
+<query>
+<number>325</number>
+<text>#weight(0.54422 cult 0.45578 lifestyles )</text>
+</query>
+<query>
+<number>326</number>
+<text>#weight(0.5322 ferry 0.4678 sinkings )</text>
+</query>
+<query>
+<number>327</number>
+<text>#weight(0.34886 modern 0.65114 slavery )</text>
+</query>
+<query>
+<number>328</number>
+<text>#weight(1 pope )</text>
+</query>
+<query>
+<number>329</number>
+<text>#weight(0.31037 pollution 0.41678 mexican 0.27285 air )</text>
+</query>
+<query>
+<number>330</number>
+<text>#weight(0.54573 iraq 0.2847 iran 0.16956 cooperation )</text>
+</query>
+<query>
+<number>331</number>
+<text>#weight(0.41199 criticism 0.36841 bank 0.2196 world )</text>
+</query>
+<query>
+<number>332</number>
+<text>#weight(0.25568 income 0.3352 tax 0.40912 evasion )</text>
+</query>
+<query>
+<number>333</number>
+<text>#weight(0.33831 bacteria 0.38081 antibiotics 0.28088 disease )</text>
+</query>
+<query>
+<number>335</number>
+<text>#weight(0.35266 biological 0.32606 adoptive 0.32128 parents )</text>
+</query>
+<query>
+<number>336</number>
+<text>#weight(0.30231 black 0.36217 attacks 0.33552 bear )</text>
+</query>
+<query>
+<number>337</number>
+<text>#weight(0.51806 hepatitis 0.48194 viral )</text>
+</query>
+<query>
+<number>338</number>
+<text>#weight(0.56722 aspirin 0.44224 risk -0.00946 of )</text>
+</query>
+<query>
+<number>339</number>
+<text>#weight(0.25482 alzheimer 0.20982 treatment 0.17473 s 0.36063 drug )</text>
+</query>
+<query>
+<number>340</number>
+<text>#weight(0.29573 mine 0.28485 land 0.41942 ban )</text>
+</query>
+<query>
+<number>341</number>
+<text>#weight(0.44534 security 0.55466 airport )</text>
+</query>
+<query>
+<number>342</number>
+<text>#weight(0.39851 expulsion 0.60149 diplomatic )</text>
+</query>
+<query>
+<number>343</number>
+<text>#weight(0.45928 deaths 0.54072 police )</text>
+</query>
+<query>
+<number>344</number>
+<text>#weight(0.30985 mail 0.39489 abuses 0.30189 e -0.00663 of )</text>
+</query>
+<query>
+<number>345</number>
+<text>#weight(0.36418 tobacco 0.28791 sales 0.34791 overseas )</text>
+</query>
+<query>
+<number>346</number>
+<text>#weight(0.55596 standards 0.44404 educational )</text>
+</query>
+<query>
+<number>347</number>
+<text>#weight(0.50427 extinction 0.49573 wildlife )</text>
+</query>
+<query>
+<number>348</number>
+<text>#weight(1 agoraphobia )</text>
+</query>
+<query>
+<number>349</number>
+<text>#weight(1 metabolism )</text>
+</query>
+<query>
+<number>350</number>
+<text>#weight(0.21659 health 0.27138 computer 0.47295 terminals 0.03908 and )</text>
+</query>
+<query>
+<number>351</number>
+<text>#weight(0.44233 petroleum 0.28278 falkland 0.27489 exploration )</text>
+</query>
+<query>
+<number>352</number>
+<text>#weight(0.39677 chunnel 0.28635 british 0.31688 impact )</text>
+</query>
+<query>
+<number>353</number>
+<text>#weight(0.45303 antarctica 0.54697 exploration )</text>
+</query>
+<query>
+<number>354</number>
+<text>#weight(0.53081 journalist 0.46919 risks )</text>
+</query>
+<query>
+<number>355</number>
+<text>#weight(0.36824 ocean 0.27983 remote 0.35193 sensing )</text>
+</query>
+<query>
+<number>356</number>
+<text>#weight(0.33636 estrogen 0.31711 britain 0.34653 postmenopausal )</text>
+</query>
+<query>
+<number>357</number>
+<text>#weight(0.37816 waters 0.36025 dispute 0.26159 territorial )</text>
+</query>
+<query>
+<number>358</number>
+<text>#weight(0.31582 alcohol 0.35695 blood 0.32723 fatalities )</text>
+</query>
+<query>
+<number>359</number>
+<text>#weight(0.39529 predictors 0.31164 fund 0.29308 mutual )</text>
+</query>
+<query>
+<number>360</number>
+<text>#weight(0.20142 benefits 0.35056 legalization 0.44802 drug )</text>
+</query>
+<query>
+<number>361</number>
+<text>#weight(0.49851 sweatshops 0.50149 clothing )</text>
+</query>
+<query>
+<number>362</number>
+<text>#weight(0.62923 smuggling 0.37077 human )</text>
+</query>
+<query>
+<number>363</number>
+<text>#weight(0.36039 disasters 0.45693 tunnel 0.18267 transportation )</text>
+</query>
+<query>
+<number>364</number>
+<text>#weight(1 rabies )</text>
+</query>
+<query>
+<number>365</number>
+<text>#weight(0.61411 el 0.38589 nino )</text>
+</query>
+<query>
+<number>366</number>
+<text>#weight(0.1483 commercial 0.65713 cyanide 0.19457 uses )</text>
+</query>
+<query>
+<number>367</number>
+<text>#weight(1 piracy )</text>
+</query>
+<query>
+<number>368</number>
+<text>#weight(0.48333 fertilization 0.02246 in 0.49421 vitro )</text>
+</query>
+<query>
+<number>369</number>
+<text>#weight(0.32982 anorexia 0.33402 bulimia 0.33616 nervosa )</text>
+</query>
+<query>
+<number>370</number>
+<text>#weight(0.18082 food 0.30297 laws 0.51621 drug )</text>
+</query>
+<query>
+<number>371</number>
+<text>#weight(0.36575 insurance 0.20169 health 0.43256 holistic )</text>
+</query>
+<query>
+<number>372</number>
+<text>#weight(0.39814 native 0.37677 casino 0.22509 american )</text>
+</query>
+<query>
+<number>373</number>
+<text>#weight(0.33792 encryption 0.27129 equipment 0.39079 export )</text>
+</query>
+<query>
+<number>374</number>
+<text>#weight(0.35949 winners 0.33243 prize 0.30808 nobel )</text>
+</query>
+<query>
+<number>375</number>
+<text>#weight(0.48758 hydrogen 0.51242 energy )</text>
+</query>
+<query>
+<number>376</number>
+<text>#weight(0.72808 court 0.27192 world )</text>
+</query>
+<query>
+<number>377</number>
+<text>#weight(0.47752 cigar 0.52248 smoking )</text>
+</query>
+<query>
+<number>378</number>
+<text>#weight(0.5307 opposition 0.4693 euro )</text>
+</query>
+<query>
+<number>379</number>
+<text>#weight(1 mainstreaming )</text>
+</query>
+<query>
+<number>380</number>
+<text>#weight(0.33334 treatment 0.27118 medical 0.39548 obesity )</text>
+</query>
+<query>
+<number>381</number>
+<text>#weight(0.43311 alternative 0.56689 medicine )</text>
+</query>
+<query>
+<number>382</number>
+<text>#weight(0.41586 fuel 0.23654 automobiles 0.3476 hydrogen )</text>
+</query>
+<query>
+<number>383</number>
+<text>#weight(0.34178 drugs 0.35032 mental 0.3079 illness )</text>
+</query>
+<query>
+<number>384</number>
+<text>#weight(0.28547 station 0.44441 moon 0.27012 space )</text>
+</query>
+<query>
+<number>385</number>
+<text>#weight(0.27238 cars 0.40269 fuel 0.32493 hybrid )</text>
+</query>
+<query>
+<number>386</number>
+<text>#weight(0.25667 children 0.31247 teaching 0.43086 disabled )</text>
+</query>
+<query>
+<number>387</number>
+<text>#weight(0.48509 waste 0.51491 radioactive )</text>
+</query>
+<query>
+<number>388</number>
+<text>#weight(0.29637 soil 0.3124 organic 0.39122 enhancement )</text>
+</query>
+<query>
+<number>389</number>
+<text>#weight(0.41073 illegal 0.3315 transfer 0.25777 technology )</text>
+</query>
+<query>
+<number>390</number>
+<text>#weight(0.50608 orphan 0.49392 drugs )</text>
+</query>
+<query>
+<number>391</number>
+<text>#weight(0.21976 r 0.21512 d 0.29117 prices 0.27395 drug )</text>
+</query>
+<query>
+<number>392</number>
+<text>#weight(1 robotics )</text>
+</query>
+<query>
+<number>393</number>
+<text>#weight(0.47844 killing 0.52156 mercy )</text>
+</query>
+<query>
+<number>394</number>
+<text>#weight(0.79731 schooling 0.20269 home )</text>
+</query>
+<query>
+<number>395</number>
+<text>#weight(1 tourism )</text>
+</query>
+<query>
+<number>396</number>
+<text>#weight(0.45626 syndrome 0.20698 building 0.33676 sick )</text>
+</query>
+<query>
+<number>397</number>
+<text>#weight(0.51277 automobile 0.48723 recalls )</text>
+</query>
+<query>
+<number>398</number>
+<text>#weight(0.15561 s 0.28788 dismantling 0.303 europe 0.2535 arsenal )</text>
+</query>
+<query>
+<number>399</number>
+<text>#weight(0.47633 oceanographic 0.52367 vessels )</text>
+</query>
+<query>
+<number>400</number>
+<text>#weight(0.29698 amazon 0.43912 rain 0.2639 forest )</text>
+</query>
+</parameters>

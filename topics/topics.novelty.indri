@@ -1,0 +1,602 @@
+<parameters>
+<query>
+<number>N1</number>
+<text>
+ partial birth abortion ban
+</text>
+</query>
+<query>
+<number>N2</number>
+<text>
+ clone dolly sheep
+</text>
+</query>
+<query>
+<number>N3</number>
+<text>
+ gingrich speaker of house
+</text>
+</query>
+<query>
+<number>N4</number>
+<text>
+ egyptian air disaster 990
+</text>
+</query>
+<query>
+<number>N5</number>
+<text>
+ world cup soccer
+</text>
+</query>
+<query>
+<number>N6</number>
+<text>
+ unabomber, kaczynski, mail
+</text>
+</query>
+<query>
+<number>N7</number>
+<text>
+ atlanta olympics bombing
+</text>
+</query>
+<query>
+<number>N8</number>
+<text>
+ berenson imprisoned treason peru
+</text>
+</query>
+<query>
+<number>N9</number>
+<text>
+ columbine high school shooting
+</text>
+</query>
+<query>
+<number>N10</number>
+<text>
+ euro launched
+</text>
+</query>
+<query>
+<number>N11</number>
+<text>
+ hurricane mitch central america
+</text>
+</query>
+<query>
+<number>N12</number>
+<text>
+ universal healthcare
+</text>
+</query>
+<query>
+<number>N13</number>
+<text>
+ statistical sampling census
+</text>
+</query>
+<query>
+<number>N14</number>
+<text>
+ microsoft antitrust charges
+</text>
+</query>
+<query>
+<number>N15</number>
+<text>
+ global warming threat
+</text>
+</query>
+<query>
+<number>N16</number>
+<text>
+ kenya tanzania embassy bombings
+</text>
+</query>
+<query>
+<number>N17</number>
+<text>
+ term limits politicians mandatory
+</text>
+</query>
+<query>
+<number>N18</number>
+<text>
+ prayer, public school, religion
+</text>
+</query>
+<query>
+<number>N19</number>
+<text>
+ elian gonzalez cuba
+</text>
+</query>
+<query>
+<number>N20</number>
+<text>
+ welfare policy
+</text>
+</query>
+<query>
+<number>N21</number>
+<text>
+ campaign finance reform
+</text>
+</query>
+<query>
+<number>N22</number>
+<text>
+ marijuana legalize
+</text>
+</query>
+<query>
+<number>N23</number>
+<text>
+ nafta
+</text>
+</query>
+<query>
+<number>N24</number>
+<text>
+ anwar
+</text>
+</query>
+<query>
+<number>N25</number>
+<text>
+ clinton relationship lewinsky
+</text>
+</query>
+<query>
+<number>N26</number>
+<text>
+ homosexuals military
+</text>
+</query>
+<query>
+<number>N27</number>
+<text>
+ death penalty
+</text>
+</query>
+<query>
+<number>N28</number>
+<text>
+ adoption same-sex partners
+</text>
+</query>
+<query>
+<number>N29</number>
+<text>
+ human cloning ethics morality
+</text>
+</query>
+<query>
+<number>N30</number>
+<text>
+ medicare changes
+</text>
+</query>
+<query>
+<number>N31</number>
+<text>
+ gun control
+</text>
+</query>
+<query>
+<number>N32</number>
+<text>
+ same-sex marriage
+</text>
+</query>
+<query>
+<number>N33</number>
+<text>
+ russian submarine kursk sinks
+</text>
+</query>
+<query>
+<number>N34</number>
+<text>
+ glenn shuttle discovery
+</text>
+</query>
+<query>
+<number>N35</number>
+<text>
+ nato, poland, czech republic, hungary 
+</text>
+</query>
+<query>
+<number>N36</number>
+<text>
+ fox elected president mexico
+</text>
+</query>
+<query>
+<number>N37</number>
+<text>
+ olympic scandal salt lake city
+</text>
+</query>
+<query>
+<number>N38</number>
+<text>
+ acupuncture legitimate effective
+</text>
+</query>
+<query>
+<number>N39</number>
+<text>
+ i-love-you computer virus
+</text>
+</query>
+<query>
+<number>N40</number>
+<text>
+ wen ho lee, los alamos
+</text>
+</query>
+<query>
+<number>N41</number>
+<text>
+ north south korean summit pyonyang
+</text>
+</query>
+<query>
+<number>N42</number>
+<text>
+ john f. kennedy, jr. dies
+</text>
+</query>
+<query>
+<number>N43</number>
+<text>
+ chinese earthquake
+</text>
+</query>
+<query>
+<number>N44</number>
+<text>
+ plane gondola cable italy
+</text>
+</query>
+<query>
+<number>N45</number>
+<text>
+ slepian abortion murder
+</text>
+</query>
+<query>
+<number>N46</number>
+<text>
+ swissair crash nova scotia
+</text>
+</query>
+<query>
+<number>N47</number>
+<text>
+ suharto steps-down indonesia
+</text>
+</query>
+<query>
+<number>N48</number>
+<text>
+ human genome decoded
+</text>
+</query>
+<query>
+<number>N49</number>
+<text>
+ nobel peace prize
+</text>
+</query>
+<query>
+<number>N50</number>
+<text>
+ balloonist fossett solo flight
+</text>
+</query>
+<query>
+<number>N51</number>
+<text>
+ general pinochet arrested
+</text>
+</query>
+<query>
+<number>N52</number>
+<text>
+ social security retirement accounts
+</text>
+</query>
+<query>
+<number>N53</number>
+<text>
+ dragging death of james byrd jr 
+</text>
+</query>
+<query>
+<number>N54</number>
+<text>
+ firestone tire recall
+</text>
+</query>
+<query>
+<number>N55</number>
+<text>
+ india and pakistan nuclear tests
+</text>
+</query>
+<query>
+<number>N56</number>
+<text>
+ woodstock music festival reunion
+</text>
+</query>
+<query>
+<number>N57</number>
+<text>
+ east timor independence
+</text>
+</query>
+<query>
+<number>N58</number>
+<text>
+ irradiated food safety
+</text>
+</query>
+<query>
+<number>N59</number>
+<text>
+ payne steward plane crash
+</text>
+</query>
+<query>
+<number>N60</number>
+<text>
+ abortion pill ru 486
+</text>
+</query>
+<query>
+<number>N61</number>
+<text>
+ banning of land mines
+</text>
+</query>
+<query>
+<number>N62</number>
+<text>
+ pete rose hall of fame
+</text>
+</query>
+<query>
+<number>N63</number>
+<text>
+ cuba embargo
+</text>
+</query>
+<query>
+<number>N64</number>
+<text>
+ japan nuclear accident
+</text>
+</query>
+<query>
+<number>N65</number>
+<text>
+ clinton bombing afghanistan sudan
+</text>
+</query>
+<query>
+<number>N66</number>
+<text>
+ gay boy scouts banned
+</text>
+</query>
+<query>
+<number>N67</number>
+<text>
+ military action kosovo
+</text>
+</query>
+<query>
+<number>N68</number>
+<text>
+ teletubby tinky winky
+</text>
+</query>
+<query>
+<number>N69</number>
+<text>
+ concorde crash paris
+</text>
+</query>
+<query>
+<number>N70</number>
+<text>
+ private school vouchers
+</text>
+</query>
+<query>
+<number>N71</number>
+<text>
+ confederate flag removal
+</text>
+</query>
+<query>
+<number>N72</number>
+<text>
+ smith wesson handgun limit
+</text>
+</query>
+<query>
+<number>N73</number>
+<text>
+ mcveigh murrah bombing trial
+</text>
+</query>
+<query>
+<number>N74</number>
+<text>
+ diana car accident
+</text>
+</query>
+<query>
+<number>N75</number>
+<text>
+ indiana coach knight
+</text>
+</query>
+<query>
+<number>N76</number>
+<text>
+ mandatory anthrax vaccinations
+</text>
+</query>
+<query>
+<number>N77</number>
+<text>
+ line item veto
+</text>
+</query>
+<query>
+<number>N78</number>
+<text>
+ u s withold funding
+</text>
+</query>
+<query>
+<number>N79</number>
+<text>
+ charles schulz dies
+</text>
+</query>
+<query>
+<number>N80</number>
+<text>
+ turkey earthquake
+</text>
+</query>
+<query>
+<number>N81</number>
+<text>
+ gay student shepard
+</text>
+</query>
+<query>
+<number>N82</number>
+<text>
+ first human hand transplant
+</text>
+</query>
+<query>
+<number>N83</number>
+<text>
+ marine osprey aircraft
+</text>
+</query>
+<query>
+<number>N84</number>
+<text>
+ snowmobiles banned national parks
+</text>
+</query>
+<query>
+<number>N85</number>
+<text>
+ collins first woman shuttle
+</text>
+</query>
+<query>
+<number>N86</number>
+<text>
+ banning tobacco advertisements
+</text>
+</query>
+<query>
+<number>N87</number>
+<text>
+ church bombing birmingham
+</text>
+</query>
+<query>
+<number>N88</number>
+<text>
+ bombing exercise vieques island
+</text>
+</query>
+<query>
+<number>N89</number>
+<text>
+ public financing sports stadiums
+</text>
+</query>
+<query>
+<number>N90</number>
+<text>
+ rafael resendez ramirez surrenders
+</text>
+</query>
+<query>
+<number>N91</number>
+<text>
+ military support taiwan
+</text>
+</query>
+<query>
+<number>N92</number>
+<text>
+ hillary clinton campaign senator
+</text>
+</query>
+<query>
+<number>N93</number>
+<text>
+ taxation internet sales tax
+</text>
+</query>
+<query>
+<number>N94</number>
+<text>
+ outsourcing worldwide global
+</text>
+</query>
+<query>
+<number>N95</number>
+<text>
+ china spaceflight program
+</text>
+</query>
+<query>
+<number>N96</number>
+<text>
+ drug testing workplace
+</text>
+</query>
+<query>
+<number>N97</number>
+<text>
+ nuclear storage yucca flats
+</text>
+</query>
+<query>
+<number>N98</number>
+<text>
+ ugandan doomsday cult
+</text>
+</query>
+<query>
+<number>N99</number>
+<text>
+ driving cell phone usage
+</text>
+</query>
+<query>
+<number>N100</number>
+<text>
+ european super league
+</text>
+</query>
+</parameters>

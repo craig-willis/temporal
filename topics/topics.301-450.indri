@@ -8,7 +8,7 @@
 <query>
 <number>302</number>
 <text>
-  poliomyelitis and post-polio 
+  poliomyelitis and post polio 
 </text>
 </query>
 <query>
@@ -74,7 +74,7 @@
 <query>
 <number>313</number>
 <text>
-  magnetic levitation-maglev 
+  magnetic levitation maglev 
 </text>
 </query>
 <query>
@@ -92,7 +92,7 @@
 <query>
 <number>316</number>
 <text>
-  polygamy polyandry polygyny  
+  polygamy polyandry polygyny 
 </text>
 </query>
 <query>
@@ -152,7 +152,7 @@
 <query>
 <number>326</number>
 <text>
-  ferry sinkings  
+  ferry sinkings 
 </text>
 </query>
 <query>
@@ -176,7 +176,7 @@
 <query>
 <number>330</number>
 <text>
-  iran-iraq cooperation 
+  iran iraq cooperation 
 </text>
 </query>
 <query>
@@ -260,7 +260,7 @@
 <query>
 <number>344</number>
 <text>
-  abuses of e-mail 
+  abuses of e mail 
 </text>
 </query>
 <query>
@@ -308,7 +308,7 @@
 <query>
 <number>352</number>
 <text>
-  british chunnel impact  
+  british chunnel impact 
 </text>
 </query>
 <query>
@@ -344,7 +344,7 @@
 <query>
 <number>358</number>
 <text>
-  blood-alcohol fatalities
+  blood alcohol fatalities
 </text>
 </query>
 <query>
@@ -597,6 +597,306 @@
 <number>400</number>
 <text>
   amazon rain forest 
+</text>
+</query>
+<query>
+<number>401</number>
+<text>
+  foreign minorities germany 
+</text>
+</query>
+<query>
+<number>402</number>
+<text>
+  behavioral genetics 
+</text>
+</query>
+<query>
+<number>403</number>
+<text>
+  osteoporosis 
+</text>
+</query>
+<query>
+<number>404</number>
+<text>
+  ireland peace talks 
+</text>
+</query>
+<query>
+<number>405</number>
+<text>
+  cosmic events 
+</text>
+</query>
+<query>
+<number>406</number>
+<text>
+  parkinson's disease 
+</text>
+</query>
+<query>
+<number>407</number>
+<text>
+  poaching wildlife preserves 
+</text>
+</query>
+<query>
+<number>408</number>
+<text>
+  tropical storms 
+</text>
+</query>
+<query>
+<number>409</number>
+<text>
+  legal pan am 103 
+</text>
+</query>
+<query>
+<number>410</number>
+<text>
+  schengen agreement 
+</text>
+</query>
+<query>
+<number>411</number>
+<text>
+  salvaging shipwreck treasure 
+</text>
+</query>
+<query>
+<number>412</number>
+<text>
+  airport security 
+</text>
+</query>
+<query>
+<number>413</number>
+<text>
+  steel production 
+</text>
+</query>
+<query>
+<number>414</number>
+<text>
+  cuba sugar exports 
+</text>
+</query>
+<query>
+<number>415</number>
+<text>
+  drugs golden triangle 
+</text>
+</query>
+<query>
+<number>416</number>
+<text>
+  three gorges project 
+</text>
+</query>
+<query>
+<number>417</number>
+<text>
+  creativity 
+</text>
+</query>
+<query>
+<number>418</number>
+<text>
+  quilts income 
+</text>
+</query>
+<query>
+<number>419</number>
+<text>
+  recycle automobile tires 
+</text>
+</query>
+<query>
+<number>420</number>
+<text>
+  carbon monoxide poisoning 
+</text>
+</query>
+<query>
+<number>421</number>
+<text>
+  industrial waste disposal 
+</text>
+</query>
+<query>
+<number>422</number>
+<text>
+  art stolen forged
+</text>
+</query>
+<query>
+<number>423</number>
+<text>
+  milosevic mirjana markovic 
+</text>
+</query>
+<query>
+<number>424</number>
+<text>
+  suicides 
+</text>
+</query>
+<query>
+<number>425</number>
+<text>
+  counterfeiting money 
+</text>
+</query>
+<query>
+<number>426</number>
+<text>
+  law enforcement dogs 
+</text>
+</query>
+<query>
+<number>427</number>
+<text>
+  uv damage eyes 
+</text>
+</query>
+<query>
+<number>428</number>
+<text>
+  declining birth rates 
+</text>
+</query>
+<query>
+<number>429</number>
+<text>
+  legionnaires' disease 
+</text>
+</query>
+<query>
+<number>430</number>
+<text>
+  killer bee attacks 
+</text>
+</query>
+<query>
+<number>431</number>
+<text>
+  robotic technology 
+</text>
+</query>
+<query>
+<number>432</number>
+<text>
+  profiling motorists police 
+</text>
+</query>
+<query>
+<number>433</number>
+<text>
+  greek philosophy stoicism 
+</text>
+</query>
+<query>
+<number>434</number>
+<text>
+  estonia economy 
+</text>
+</query>
+<query>
+<number>435</number>
+<text>
+  curbing population growth 
+</text>
+</query>
+<query>
+<number>436</number>
+<text>
+  railway accidents 
+</text>
+</query>
+<query>
+<number>437</number>
+<text>
+  deregulation gas electric 
+</text>
+</query>
+<query>
+<number>438</number>
+<text>
+  tourism increase 
+</text>
+</query>
+<query>
+<number>439</number>
+<text>
+  inventions scientific discoveries 
+</text>
+</query>
+<query>
+<number>440</number>
+<text>
+  child labor 
+</text>
+</query>
+<query>
+<number>441</number>
+<text>
+  lyme disease 
+</text>
+</query>
+<query>
+<number>442</number>
+<text>
+  heroic acts 
+</text>
+</query>
+<query>
+<number>443</number>
+<text>
+  u s  investment africa 
+</text>
+</query>
+<query>
+<number>444</number>
+<text>
+  supercritical fluids
+</text>
+</query>
+<query>
+<number>445</number>
+<text>
+  women clergy 
+</text>
+</query>
+<query>
+<number>446</number>
+<text>
+  tourists violence 
+</text>
+</query>
+<query>
+<number>447</number>
+<text>
+  stirling engine 
+</text>
+</query>
+<query>
+<number>448</number>
+<text>
+  ship losses 
+</text>
+</query>
+<query>
+<number>449</number>
+<text>
+  antibiotics ineffectiveness 
+</text>
+</query>
+<query>
+<number>450</number>
+<text>
+  king hussein peace 
 </text>
 </query>
 </parameters>

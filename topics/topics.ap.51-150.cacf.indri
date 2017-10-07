@@ -1,0 +1,398 @@
+<parameters>
+<query>
+<number>51</number>
+<text>#weight(0.59272 airbus 0.40728 subsidies )</text>
+</query>
+<query>
+<number>52</number>
+<text>#weight(0.3571 south 0.373 sanctions 0.2699 african )</text>
+</query>
+<query>
+<number>53</number>
+<text>#weight(0.52346 buyouts 0.47654 leveraged )</text>
+</query>
+<query>
+<number>54</number>
+<text>#weight(0.32752 contracts 0.38371 launch 0.28877 satellite )</text>
+</query>
+<query>
+<number>55</number>
+<text>#weight(0.49548 trading 0.50452 insider )</text>
+</query>
+<query>
+<number>56</number>
+<text>#weight(0.24755 prime 0.19547 lending 0.21588 rate 0.1664 moves 0.1747 predictions )</text>
+</query>
+<query>
+<number>57</number>
+<text>#weight(1 mci )</text>
+</query>
+<query>
+<number>58</number>
+<text>#weight(0.46011 rail 0.53989 strikes )</text>
+</query>
+<query>
+<number>59</number>
+<text>#weight(0.31799 related 0.38942 weather 0.29259 fatalities )</text>
+</query>
+<query>
+<number>60</number>
+<text>#weight(0.39298 pay 0.20836 merit 0.16686 vs 0.2318 seniority )</text>
+</query>
+<query>
+<number>61</number>
+<text>#weight(0.16627 affair 0.10994 role 0.13564 in 0.16315 israeli 0.21514 contra 0.20986 iran )</text>
+</query>
+<query>
+<number>62</number>
+<text>#weight(0.29956 military 0.21112 coups 0.33487 d 0.15445 etat )</text>
+</query>
+<query>
+<number>63</number>
+<text>#weight(0.4654 translation 0.5346 machine )</text>
+</query>
+<query>
+<number>64</number>
+<text>#weight(0.61566 hostage 0.38434 taking )</text>
+</query>
+<query>
+<number>66</number>
+<text>#weight(0.32219 natural 0.37058 processing 0.30723 language )</text>
+</query>
+<query>
+<number>67</number>
+<text>#weight(0.24659 disturbances 0.19826 motivated 0.26039 politically 0.29476 civil )</text>
+</query>
+<query>
+<number>68</number>
+<text>#weight(0.17084 health 0.15919 hazards 0.19241 from 0.15796 fibers 0.1582 diameter 0.1614 fine )</text>
+</query>
+<query>
+<number>69</number>
+<text>#weight(0.15292 the 0.10912 ii 0.13182 salt 0.22846 treaty 0.15371 to 0.09102 revive 0.13296 attempts )</text>
+</query>
+<query>
+<number>70</number>
+<text>#weight(0.4178 motherhood 0.5822 surrogate )</text>
+</query>
+<query>
+<number>71</number>
+<text>#weight(0.57345 border 0.42655 incursions )</text>
+</query>
+<query>
+<number>72</number>
+<text>#weight(0.22474 the 0.17408 shifts 0.20727 in 0.25173 us 0.14217 demographic )</text>
+</query>
+<query>
+<number>73</number>
+<text>#weight(0.2028 across 0.19336 shifts 0.27671 national 0.16921 boundaries 0.15792 demographic )</text>
+</query>
+<query>
+<number>74</number>
+<text>#weight(0.39227 conflicting 0.60773 policy )</text>
+</query>
+<query>
+<number>75</number>
+<text>#weight(1 automation )</text>
+</query>
+<query>
+<number>76</number>
+<text>#weight(0.22922 constitution 0.21742 original 0.238 intent 0.31536 us )</text>
+</query>
+<query>
+<number>77</number>
+<text>#weight(1 poaching )</text>
+</query>
+<query>
+<number>78</number>
+<text>#weight(1 greenpeace )</text>
+</query>
+<query>
+<number>79</number>
+<text>#weight(0.28029 political 0.15263 frg 0.27702 positions 0.29006 party )</text>
+</query>
+<query>
+<number>80</number>
+<text>#weight(0.23531 candidates 0.29758 presidential 0.23816 1988 0.22894 platforms )</text>
+</query>
+<query>
+<number>81</number>
+<text>#weight(0.06588 crunch 0.11426 the 0.08182 wake 0.12294 scandal 0.10538 in 0.10794 financial 0.11159 of 0.11329 for 0.11725 ptl 0.05966 televangelists )</text>
+</query>
+<query>
+<number>82</number>
+<text>#weight(0.39647 genetic 0.60353 engineering )</text>
+</query>
+<query>
+<number>83</number>
+<text>#weight(0.22084 the 0.16795 atmosphere 0.20572 measures 0.22198 to 0.18351 protect )</text>
+</query>
+<query>
+<number>84</number>
+<text>#weight(0.17039 alternative 0.16784 equipment 0.11261 renewable 0.22555 plant 0.13063 installation 0.19298 energy )</text>
+</query>
+<query>
+<number>85</number>
+<text>#weight(0.49528 official 0.50472 corruption )</text>
+</query>
+<query>
+<number>86</number>
+<text>#weight(0.5847 bank 0.4153 failures )</text>
+</query>
+<query>
+<number>87</number>
+<text>#weight(0.13639 institutions 0.1384 against 0.12266 financial 0.12681 of 0.11929 criminal 0.11571 failed 0.11745 actions 0.12328 officers )</text>
+</query>
+<query>
+<number>88</number>
+<text>#weight(0.31313 oil 0.23025 price 0.16472 trends 0.29189 crude )</text>
+</query>
+<query>
+<number>89</number>
+<text>#weight(0.11845 downstream 0.17495 member 0.21841 opec 0.13352 investments 0.17257 by 0.18209 states )</text>
+</query>
+<query>
+<number>90</number>
+<text>#weight(0.13755 oil 0.11129 data 0.09772 natural 0.11604 of 0.11319 gas 0.10596 reserves 0.07842 proven 0.12048 on 0.11934 producers )</text>
+</query>
+<query>
+<number>91</number>
+<text>#weight(0.14942 army 0.11709 advanced 0.1229 systems 0.14516 of 0.11991 acquisition 0.17905 weapons 0.16647 us )</text>
+</query>
+<query>
+<number>92</number>
+<text>#weight(0.2251 equipment 0.2669 military 0.24413 international 0.26387 sales )</text>
+</query>
+<query>
+<number>93</number>
+<text>#weight(0.13307 the 0.11727 what 0.10795 backing 0.11282 does 0.13101 have 0.1475 national 0.11035 association 0.14003 rifle )</text>
+</query>
+<query>
+<number>94</number>
+<text>#weight(0.34788 computer 0.3904 crime 0.26173 aided )</text>
+</query>
+<query>
+<number>95</number>
+<text>#weight(0.27158 computer 0.21932 detection 0.30477 crime 0.20433 aided )</text>
+</query>
+<query>
+<number>96</number>
+<text>#weight(0.21905 diagnosis 0.28729 computer 0.27751 medical 0.21614 aided )</text>
+</query>
+<query>
+<number>97</number>
+<text>#weight(0.25043 optics 0.31965 fiber 0.42993 applications )</text>
+</query>
+<query>
+<number>98</number>
+<text>#weight(0.30254 equipment 0.2221 fiber 0.30134 manufacturers 0.17401 optics )</text>
+</query>
+<query>
+<number>99</number>
+<text>#weight(0.2812 affair 0.36386 contra 0.35493 iran )</text>
+</query>
+<query>
+<number>100</number>
+<text>#weight(0.18559 the 0.16591 high 0.165 transfer 0.17903 technology 0.1232 controlling 0.18126 of )</text>
+</query>
+<query>
+<number>101</number>
+<text>#weight(0.11145 the 0.10517 system 0.09983 star 0.13578 defense 0.08828 design 0.10886 of 0.13441 missile 0.1087 wars 0.10753 anti )</text>
+</query>
+<query>
+<number>102</number>
+<text>#weight(0.10311 the 0.1212 s 0.08683 initiative 0.07153 laser 0.11065 strategic 0.12561 defense 0.06858 applicable 0.10364 to 0.09334 research 0.11549 us )</text>
+</query>
+<query>
+<number>103</number>
+<text>#weight(0.56248 reform 0.43752 welfare )</text>
+</query>
+<query>
+<number>104</number>
+<text>#weight(0.32673 insurance 0.37183 catastrophic 0.30143 health )</text>
+</query>
+<query>
+<number>105</number>
+<text>#weight(0.47039 black 0.52961 monday )</text>
+</query>
+<query>
+<number>106</number>
+<text>#weight(0.19792 trading 0.18914 control 0.21977 us 0.19164 of 0.20153 insider )</text>
+</query>
+<query>
+<number>107</number>
+<text>#weight(0.21172 trading 0.19675 japanese 0.17092 regulation 0.20501 of 0.21559 insider )</text>
+</query>
+<query>
+<number>108</number>
+<text>#weight(0.34651 measures 0.34867 japanese 0.30482 protectionist )</text>
+</query>
+<query>
+<number>109</number>
+<text>#weight(0.29018 innovative 0.41216 companies 0.29766 find )</text>
+</query>
+<query>
+<number>110</number>
+<text>#weight(0.14858 the 0.14383 government 0.15639 south 0.15837 against 0.1182 african 0.13704 black 0.13759 resistance )</text>
+</query>
+<query>
+<number>111</number>
+<text>#weight(0.41347 proliferation 0.58653 nuclear )</text>
+</query>
+<query>
+<number>112</number>
+<text>#weight(0.5612 funding 0.4388 biotechnology )</text>
+</query>
+<query>
+<number>113</number>
+<text>#weight(0.22779 new 0.2479 satellite 0.311 space 0.21331 applications )</text>
+</query>
+<query>
+<number>114</number>
+<text>#weight(0.23931 commercial 0.26553 satellite 0.26469 non 0.23047 launches )</text>
+</query>
+<query>
+<number>115</number>
+<text>#weight(0.16699 the 0.20818 1986 0.16231 immigration 0.15213 law 0.14731 impact 0.16309 of )</text>
+</query>
+<query>
+<number>116</number>
+<text>#weight(0.17261 substitutions 0.3653 generic 0.46209 drug )</text>
+</query>
+<query>
+<number>117</number>
+<text>#weight(0.15557 the 0.15195 of 0.11955 cellular 0.14537 telephone 0.17425 us 0.11724 capacity 0.13606 network )</text>
+</query>
+<query>
+<number>118</number>
+<text>#weight(0.52631 terrorists 0.47369 international )</text>
+</query>
+<query>
+<number>119</number>
+<text>#weight(0.26599 terrorists 0.2394 international 0.22706 actions 0.26756 against )</text>
+</query>
+<query>
+<number>120</number>
+<text>#weight(0.18518 international 0.26251 terrorism 0.19138 economic 0.17129 impact 0.18964 of )</text>
+</query>
+<query>
+<number>121</number>
+<text>#weight(0.30865 death 0.35849 from 0.33285 cancer )</text>
+</query>
+<query>
+<number>122</number>
+<text>#weight(0.14104 new 0.08212 rdt 0.12875 e 0.19112 drugs 0.14856 of 0.13926 cancer 0.16914 fighting )</text>
+</query>
+<query>
+<number>123</number>
+<text>#weight(0.20361 into 0.21677 control 0.15642 carcinogens 0.20357 research 0.21963 of )</text>
+</query>
+<query>
+<number>124</number>
+<text>#weight(0.18618 alternatives 0.18316 traditional 0.14148 therapies 0.23318 cancer 0.25601 to )</text>
+</query>
+<query>
+<number>125</number>
+<text>#weight(0.2043 government 0.1909 actions 0.19042 smoking 0.21076 by 0.20362 anti )</text>
+</query>
+<query>
+<number>126</number>
+<text>#weight(0.18631 medical 0.21503 technology 0.11708 modern 0.27374 ethics 0.20784 and )</text>
+</query>
+<query>
+<number>127</number>
+<text>#weight(0.18509 agreements 0.24466 arms 0.18547 control 0.16929 ussr 0.2155 us )</text>
+</query>
+<query>
+<number>128</number>
+<text>#weight(0.18869 assets 0.28104 state 0.2515 privatization 0.27877 of )</text>
+</query>
+<query>
+<number>129</number>
+<text>#weight(0.18043 the 0.17643 spying 0.25806 soviet 0.2021 us 0.18298 on )</text>
+</query>
+<query>
+<number>130</number>
+<text>#weight(0.18232 jewish 0.14944 ussr 0.17788 relations 0.14177 emigration 0.15835 and 0.19023 us )</text>
+</query>
+<query>
+<number>131</number>
+<text>#weight(0.16561 for 0.17415 military 0.13899 douglas 0.19115 contracts 0.14666 mcdonnell 0.18344 aircraft )</text>
+</query>
+<query>
+<number>132</number>
+<text>#weight(0.49374 stealth 0.50626 aircraft )</text>
+</query>
+<query>
+<number>133</number>
+<text>#weight(0.22589 hubble 0.24034 telescope 0.53378 space )</text>
+</query>
+<query>
+<number>134</number>
+<text>#weight(0.29317 the 0.1571 genome 0.24605 project 0.30367 human )</text>
+</query>
+<query>
+<number>135</number>
+<text>#weight(0.0963 mapping 0.15145 contributions 0.12945 gene 0.16627 of 0.13131 medicine 0.1541 possible 0.17112 to )</text>
+</query>
+<query>
+<number>136</number>
+<text>#weight(0.17645 diversification 0.25522 pacific 0.30881 telesis 0.25952 by )</text>
+</query>
+<query>
+<number>137</number>
+<text>#weight(0.14853 the 0.13699 in 0.12025 theme 0.15558 industry 0.16637 us 0.14429 park 0.12799 expansion )</text>
+</query>
+<query>
+<number>138</number>
+<text>#weight(0.14202 for 0.14133 lebanese 0.23851 iranian 0.11061 takers 0.21016 hostage 0.15737 support )</text>
+</query>
+<query>
+<number>139</number>
+<text>#weight(0.11171 domestic 0.12772 s 0.11736 islamic 0.0877 social 0.10131 and 0.15505 iran 0.07529 consequences 0.11489 revolution 0.10897 foreign )</text>
+</query>
+<query>
+<number>140</number>
+<text>#weight(0.20928 political 0.23091 islamic 0.1624 fundamentalism 0.1886 impact 0.20881 of )</text>
+</query>
+<query>
+<number>141</number>
+<text>#weight(0.10279 the 0.09891 with 0.12082 s 0.12098 trade 0.07648 surplus 0.08964 japan 0.10039 of 0.09385 its 0.08103 handling 0.11513 us )</text>
+</query>
+<query>
+<number>142</number>
+<text>#weight(0.12079 government 0.07204 regulated 0.11007 impact 0.12187 of 0.09068 farming 0.10833 grain 0.119 international 0.13068 relations 0.12653 on )</text>
+</query>
+<query>
+<number>143</number>
+<text>#weight(0.2168 why 0.21609 protect 0.27585 farmers 0.29126 us )</text>
+</query>
+<query>
+<number>144</number>
+<text>#weight(0.16592 the 0.15999 at 0.1789 nations 0.16383 management 0.17172 united 0.15964 problems )</text>
+</query>
+<query>
+<number>145</number>
+<text>#weight(0.16082 the 0.1132 lobby 0.21224 pro 0.20253 israel 0.15707 of 0.15414 influence )</text>
+</query>
+<query>
+<number>146</number>
+<text>#weight(0.12246 the 0.18377 nicaraguan 0.11605 civil 0.10837 war 0.11302 end 0.12309 to 0.11707 negotiating 0.11617 an )</text>
+</query>
+<query>
+<number>147</number>
+<text>#weight(0.19301 the 0.16931 economy 0.12594 productivity 0.17801 in 0.11755 trends 0.21619 us )</text>
+</query>
+<query>
+<number>148</number>
+<text>#weight(0.17945 the 0.18251 africa 0.14275 horn 0.1655 in 0.17526 of 0.15453 conflict )</text>
+</query>
+<query>
+<number>149</number>
+<text>#weight(0.48847 espionage 0.51153 industrial )</text>
+</query>
+<query>
+<number>150</number>
+<text>#weight(0.19374 financing 0.21286 political 0.34984 campaign 0.24356 us )</text>
+</query>
+</parameters>
