@@ -1,7 +1,10 @@
 package edu.gslis.qpp.predictors;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -69,6 +72,35 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 		return fields;
 	}
 
+	
+	public double[] minfo(double[] data) throws Exception
+	{
+		File tmp = File.createTempFile("minfo", "dat");
+		FileWriter writer = new FileWriter(tmp);
+		for (double x: data) {
+			writer.write(x + "\n");
+		}
+		writer.close();
+		
+		String command = "minfo " + tmp.getAbsolutePath() + " | sort -u -n";
+		Runtime run = Runtime.getRuntime();
+		Process pr = run.exec(command) ;
+		pr.waitFor() ;
+		BufferedReader buffer = new BufferedReader( new InputStreamReader( pr.getInputStream() ) ) ;
+		String line;
+		double[] mi = new double[20];
+		buffer.readLine(); // Skip header
+		int i=0;
+		while ( ( line = buffer.readLine() ) != null ) 
+		{
+			String[] vals = line.split(" ");			
+			mi[i] = Double.parseDouble(vals[1]);
+			i++;
+		}
+		tmp.delete();
+		return mi;
+	}
+	
 	public Map<String, Double> calculatePredictors() {
 		
 		Map<String, Double> values = new HashMap<String, Double>();
@@ -153,6 +185,10 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 		DescriptiveStatistics tklistats = new DescriptiveStatistics();
 		DescriptiveStatistics tklcstats = new DescriptiveStatistics();
 		DescriptiveStatistics tklstats = new DescriptiveStatistics();
+		DescriptiveStatistics qtentstats = new DescriptiveStatistics();
+		DescriptiveStatistics ctentstats = new DescriptiveStatistics();
+		DescriptiveStatistics qamistats = new DescriptiveStatistics();
+		DescriptiveStatistics camistats = new DescriptiveStatistics();
 		
 		for (String term : query.getFeatureVector().getFeatures()) 
 		{
@@ -194,7 +230,13 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 					
 					double cdps = rutil.dps(ctsw);
 					cdpsstats.addValue(cdps);
-
+					
+					double qami = minfo(qtsw)[2];
+					qamistats.addValue(qami);
+					
+					double cami = minfo(ctsw)[2];
+					camistats.addValue(cami);
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -213,6 +255,21 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 			tklistats.addValue(tkli);
 
 			tklstats.addValue(tkl);
+			
+			// Temporal entropy
+			double qtentropy = 0;
+			for (int i = 0; i < qtsw.length; i++) {
+				if (qtsw[i] > 0)
+					qtentropy += qtsw[i] * Math.log(qtsw[i]);
+			}	
+			qtentstats.addValue(-qtentropy);
+			
+			double ctentropy = 0;
+			for (int i = 0; i < ctsw.length; i++) {
+				if (ctsw[i] > 0)
+					ctentropy += ctsw[i] * Math.log(ctsw[i]);
+			}
+			ctentstats.addValue(-ctentropy);
 
 		}
 		
@@ -270,7 +327,27 @@ public class TemporalPredictorSuite  extends PredictorSuite {
         values.put("avgTKL", tklstats.getMean());
         values.put("minTKL", tklstats.getMin());
         values.put("maxTKL", tklstats.getMax());
+        
+        values.put("varQEnt", qtentstats.getVariance());
+        values.put("avgQEnt", qtentstats.getMean());
+        values.put("minQEnt", qtentstats.getMin());
+        values.put("maxQEnt", qtentstats.getMax());
 
+        values.put("varCEnt", ctentstats.getVariance());
+        values.put("avgCEnt", ctentstats.getMean());
+        values.put("minCEnt", ctentstats.getMin());
+        values.put("maxCEnt", ctentstats.getMax());
+        
+        values.put("varQAMI", qamistats.getVariance());
+        values.put("avgQAMI", qamistats.getMean());
+        values.put("minQAMI", qamistats.getMin());
+        values.put("maxQAMI", qamistats.getMax());
+        
+        values.put("varCAMI", camistats.getVariance());
+        values.put("avgCAMI", camistats.getMean());
+        values.put("minCAMI", camistats.getMin());
+        values.put("maxCAMI", camistats.getMax());
+        
 		return values;
 	}
 	
@@ -306,7 +383,11 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 		FeatureVector cdpnfv = new FeatureVector(null);
 		FeatureVector cdpsnfv = new FeatureVector(null);
 		//FeatureVector kurtosisnfv = new FeatureVector(null);
-
+		FeatureVector qentfv = new FeatureVector(null);
+		FeatureVector centfv = new FeatureVector(null);		
+		FeatureVector qamifv = new FeatureVector(null);		
+		FeatureVector camifv = new FeatureVector(null);	
+		
 		TermTimeSeries ts = new TermTimeSeries(startTime, endTime, interval, query.getFeatureVector().getFeatures());
 
 		SearchHits results = index.runQuery(query, numResults);
@@ -341,6 +422,7 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 
 		FeatureVector cfv = new FeatureVector(null);
 		for (String term : query.getFeatureVector().getFeatures()) {
+			System.err.println(term);
 			double[] tsw = ts.getTermDist(term);
 			if (tsw == null) {
 				System.err.println("Unexpected null termts for " + term);
@@ -396,6 +478,15 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 //					kurtosisfv.addTerm(term, kurtosis);
 //					kurtosisnfv.addTerm(term, kurtosis);
 
+					try {
+						double qami = minfo(tsw)[1];
+						double cami = minfo(ctsw)[1];
+						qamifv.addTerm(term, qami);
+						camifv.addTerm(term, cami);
+					} catch (RuntimeException e) {
+						e.printStackTrace();
+					}
+
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -410,6 +501,27 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 			tklfv.addTerm(term, tkl);
 			//tklcfv.addTerm(term, 1 - (Math.exp(-(tkl))));
 			//tklifv.addTerm(term, (Math.exp(-(1 / tkl))));
+			
+			
+			// Temporal entropy
+			double qtentropy = 0;
+			for (int i = 0; i < tsw.length; i++) {
+				if (tsw[i] > 0)
+					qtentropy += tsw[i] * Math.log(tsw[i]);
+			}	
+			qentfv.addTerm(term, -qtentropy);
+			
+			double ctentropy = 0;
+			for (int i = 0; i < ctsw.length; i++) {
+				if (ctsw[i] > 0)
+					ctentropy += ctsw[i] * Math.log(ctsw[i]);
+			}
+			centfv.addTerm(term, -ctentropy);
+			
+			
+			
+			// Auto mutual information
+			// Sum P(
 
 			cfv.addTerm(term, index.termFreq(term) / index.termCount());
 		}
@@ -419,7 +531,14 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 		//FeatureVector tklcnfv = tklcfv.deepCopy();
 		//FeatureVector tklinfv = tklifv.deepCopy();
 		FeatureVector tklnfv = tklfv.deepCopy();
+		
+		FeatureVector qentnfv = qentfv.deepCopy();		
+		FeatureVector centnfv = centfv.deepCopy();
+		
+		FeatureVector qaminfv = qamifv.deepCopy();		
+		FeatureVector caminfv = camifv.deepCopy();
 
+		
 		rmnfv.normalize();
 		nidffv.normalize();
 		scale(qacfsfv);
@@ -433,6 +552,10 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 		dpsnfv.normalize();
 		cdpsnfv.normalize();
 		//kurtosisnfv.normalize();
+		qentnfv.normalize();
+		centnfv.normalize();
+		qaminfv.normalize();
+		caminfv.normalize();
 
 		for (String term : query.getFeatureVector().getFeatures()) {
 			double rm = rmfv.getFeatureWeight(term);
@@ -475,6 +598,18 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 			//double kurtosis = kurtosisfv.getFeatureWeight(term);
 			//double kurtosisn = kurtosisnfv.getFeatureWeight(term);
 
+			double qent = qentfv.getFeatureWeight(term);
+			double cent = centfv.getFeatureWeight(term);
+
+			double qentn = qentnfv.getFeatureWeight(term);
+			double centn = centnfv.getFeatureWeight(term);
+			
+			double qami = qamifv.getFeatureWeight(term);
+			double cami = camifv.getFeatureWeight(term);
+			double qamin = qaminfv.getFeatureWeight(term);
+			double camin = caminfv.getFeatureWeight(term);
+
+			
 			Map<String, Double> predictors = new HashMap<String, Double>();
 			predictors.put("rm", rm);
 			predictors.put("rmn", rmn);
@@ -502,6 +637,14 @@ public class TemporalPredictorSuite  extends PredictorSuite {
 			predictors.put("dpn", dpn);
 			//predictors.put("kurtosis", kurtosis);
 			//predictors.put("kurtosisn", kurtosisn);
+			predictors.put("qentn", qentn);
+			predictors.put("centn", centn);
+			predictors.put("qent", qentn);
+			predictors.put("cent", centn);
+			predictors.put("qami", qami);
+			predictors.put("cami", cami);
+			predictors.put("qamin", qamin);
+			predictors.put("camin", camin);
 			queryPredictors.put(term, predictors);
 
 			fields.addAll(predictors.keySet());
